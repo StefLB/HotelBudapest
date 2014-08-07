@@ -13,6 +13,8 @@ CREATE DOMAIN HOTELTYP varchar
 CREATE DOMAIN OEFFNUNGSZEIT varchar
 	CHECK (	VALUE = 'MO-FR 07/17' OR
 		VALUE = 'MO-SO 07/17' OR 
+		VALUE = 'MO-FR 07/20' OR 
+		VALUE = 'MO-SO 07/20' OR 
 		VALUE = 'MO-SO 07/23' OR
 		VALUE = '24/7' OR 
 		VALUE = 'MO-SO 18/03' );
@@ -39,7 +41,9 @@ CREATE DOMAIN KUECHE varchar
 		VALUE = 'rustikal' OR
 		VALUE = 'japanish' OR
 		VALUE = 'urbanisch' OR
-		VALUE = 'organic' );
+		VALUE = 'organic'  OR
+		VALUE = 'international' OR
+		VALUE = 'franzoesisch');
 
 CREATE DOMAIN AUSRUESTUNGSTYP varchar
 	CHECK (	VALUE = 'Schlaeger' OR 
@@ -128,6 +132,7 @@ CREATE TABLE Zimmer (
 	maxPersonen int NOT NULL,
 
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	UNIQUE (gehoertZuHotel, Zimmernummer), -- hinzugefuegt 07.08.14
 	PRIMARY KEY (gehoertZuHotel,Zimmernummer)
 
 );
@@ -139,7 +144,9 @@ CREATE TABLE Abteilung(
 	Location varchar NOT NULL,
 	Name varchar NOT NULL,
 
+
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	UNIQUE (gehoertZuHotel, AID), -- hinzugefuegt 07.08.14
 	PRIMARY KEY(gehoertZuHotel, AID)
 );
 
@@ -152,6 +159,7 @@ CREATE TABLE Sporteinrichtungen (
 	Preis money NOT NULL,
 
 	FOREIGN Key(gehoertZuHotel) REFERENCES Hotel,
+	UNIQUE (AID, gehoertZuHotel), -- hinzugefuegt 07.08.14
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -166,6 +174,7 @@ CREATE TABLE Fahrraeder (
 	Modell varchar,
 
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	UNIQUE (AID, gehoertZuHotel), -- hinzugefuegt 07.08.14
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -179,6 +188,7 @@ CREATE TABLE Tennisplaetze (
 	Platzart PLATZART,
 
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	UNIQUE (AID, gehoertZuHotel), -- hinzugefuegt 07.08.14
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -192,6 +202,7 @@ CREATE TABLE Golf (
 	Schwierigkeitsgrad int,
 	
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	UNIQUE (AID, gehoertZuHotel), -- hinzugefuegt 07.08.14
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -205,6 +216,7 @@ CREATE TABLE Minigolf (
 	Schwierigkeitsgrad int,
 	
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	UNIQUE (AID, gehoertZuHotel), -- hinzugefuegt 07.08.14
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -232,7 +244,7 @@ CREATE TABLE Schwimmbad (
 	Sauna boolean,
 	Preis money,
 
-	
+	UNIQUE (gehoertZuHotel,AID), -- hinzugefuegt 07.08.14
 	PRIMARY KEY (gehoertZuHotel,AID)
 );
 
@@ -282,7 +294,8 @@ CREATE TABLE Restauration  (
 	Oeffnungszeiten Oeffnungszeit,
 	Location varChar,
 	Name varChar,
-	
+
+	UNIQUE (gehoertZuHotel,AID), -- hinzugefuegt 07.08.14
 	PRIMARY KEY (gehoertZuHotel, AID)
 );
 
@@ -304,7 +317,8 @@ CREATE TABLE Restaurant  (
 	Name varChar NOT NULL,
 	Sterne int NOT NULL,
 	Kueche Kueche NOT NULL,
-
+	
+	UNIQUE (gehoertZuHotel,AID), -- hinzugefuegt 07.08.14
 	 PRIMARY KEY (gehoertZuHotel, AID)
 );
 
