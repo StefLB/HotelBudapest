@@ -11,7 +11,6 @@ INSERT INTO Hotel VALUES
 	(6, 'The Shining', 'Scary Road 666, 66666 De Vilstown', 'Family');
 
 --Kunden--
-
 insert into Kunden (kid, erstellungszeitpunkt,vorname,nachname) values (1, now(),'Michelle','Hamilton');
 insert into Kunden (kid, erstellungszeitpunkt,vorname,nachname) values (2, now(), 'Adam','Frazier');
 insert into Kunden (kid, erstellungszeitpunkt,vorname,nachname) values (3, now(),'Jesse','King');
@@ -303,8 +302,48 @@ INSERT INTO schwimmbad VALUES
 
 --Golfplaetze
 
-	
+INSERT INTO golf VALUES
+	(3,3, 'MO-SO 07/17', 'suedlicher Huegel', 'Grosser Golfplatz', 25.00, 2);
 
+--Minigolf
+
+INSERT INTO minigolf VALUES
+	(6,4, 'MO-SO 07/17', 'Park', 'Clownmania', 9.00, 1);
+
+--Tennisplätze
+
+INSERT INTO tennisplaetze VALUES
+	(4,5, 'MO-SO 07/17', 'Halle 1', 'Platz 1', 5.00, 'Astroturf'),
+	(4,6, 'MO-SO 07/17', 'Halle 2', 'Platz 2', 5.00, 'Asphaltplatz'),
+	(4,7, 'MO-SO 07/17', 'Halle 3', 'Platz 3', 5.00, 'Gummiplatz'),
+	(4,8, 'MO-SO 07/17', 'Halle 4', 'Platz 4', 5.00, 'Astroturf');
+
+--Fahrräder
+
+INSERT INTO fahrraeder VALUES
+	(6,7,'24/7','Garage 1', 'Fahrrad 1', 3.00, 16, 'BMX');
+
+--Ausruestung - TO DO
+
+INSERT INTO ausruestung VALUES
+	('Schlaeger', 1, 5,4),
+	('Helm', 1, 7,6),
+	('Golfwagen', 2, 5,4),
+	('Knieschoner', 2, 7,6),
+	('Golfhanschuhe', 1, 5,4),
+	('Golftasche', 3, 5,4),
+	('Golftasche', 5, 5,4),
+	('Schlaeger', 4, 5,4);
+
+--RESERVIERUNGEN
+
+INSERT INTO reservierungen VALUES
+	(1, 150.00,NULL, 'ROOM', 'EZOM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 1, 10, 1 );
+
+
+
+
+	
 
 
 	

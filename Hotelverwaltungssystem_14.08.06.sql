@@ -50,7 +50,7 @@ CREATE DOMAIN AUSRUESTUNGSTYP varchar
 		VALUE = 'Helm' OR
 		VALUE = 'Golfwagen' OR
 		VALUE = 'Knieschoner' OR
-		VALUE = 'Golfhanschuhe' OR
+		VALUE = 'Golfhandschuhe' OR
 		VALUE = 'Golftasche' );
 
 CREATE DOMAIN MENUKATEGORIE varchar
@@ -391,7 +391,7 @@ CREATE TABLE Reservierungen(
 	ZimmerInHotel int,
 
 	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden,
-	FOREIGN KEY (zugewiesenesZimmer, ZimmerInHotel) REFERENCES Zimmer,
+	FOREIGN KEY (ZimmerInHotel, zugewiesenesZimmer) REFERENCES Zimmer,
 	UNIQUE (Reservierungsnummer),
 	UNIQUE (Stornierungsnummer),
 	UNIQUE (zugewiesenesZimmer,ZimmerInHotel ,Anreise),
