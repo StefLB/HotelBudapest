@@ -110,13 +110,13 @@ CREATE TABLE Hotel (
 CREATE TABLE Kunden(
 	KID int NOT NULL, 
 	Erstellungszeitpunkt timestamp NOT NULL,
-	Telefonnummer int NOT NULL,
-	Kreditkarte int NOT NULL,
+	Telefonnummer int ,
+	Kreditkarte int ,
 	Besonderheiten BESONDERHEIT,
 	Nachname varChar NOT NULL,
 	Vorname varChar NOT NULL,
-	Adresse varChar NOT NULL,
-	VIP boolean NOT NULL DEFAULT FALSE,
+	Adresse varChar ,
+	VIP boolean DEFAULT FALSE,
 
 	PRIMARY KEY (KID)
 );
