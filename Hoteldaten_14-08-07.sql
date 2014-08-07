@@ -325,15 +325,15 @@ INSERT INTO fahrraeder VALUES
 
 --Ausruestung - TO DO
 
-INSERT INTO ausruestung VALUES
-	('Schlaeger', 1, 5,4),
-	('Helm', 1, 7,6),
-	('Golfwagen', 2, 5,4),
-	('Knieschoner', 2, 7,6),
-	('Golfhanschuhe', 1, 5,4),
-	('Golftasche', 3, 5,4),
-	('Golftasche', 5, 5,4),
-	('Schlaeger', 4, 5,4);
+--INSERT INTO ausruestung VALUES
+	--('Schlaeger', 1, 5,4),
+	--('Helm', 1, 7,6),
+	--('Golfwagen', 2, 5,4),
+	--('Knieschoner', 2, 7,6),
+	--('Golfhanschuhe', 1, 5,4),
+	--('Golftasche', 3, 5,4),
+	--('Golftasche', 5, 5,4),
+	--('Schlaeger', 4, 5,4);
 
 --RESERVIERUNGEN
 
