@@ -292,6 +292,15 @@ INSERT INTO restaurant VALUES
 	(4,1, 'MO-SO 07/23', 'Seaside', 'Shark-Inn', 1,'rustikal'),
 	(6,1, '24/7', 'De Vilstown', 'Smile-and-Shine', 1,'vegetarisch');
 
+--Hotelbar
+
+INSERT INTO hotelbar VALUES
+	(1,2, 'MO-SO 07/23', 'Traumstadt', 'Budapest Hotelbar'),
+	(3,2, 'MO-SO 07/23', 'Werlin', 'Golden Bar'),
+	(2,2, '24/7', 'Elinoise', 'Fast Bar'),
+	(4,2, 'MO-SO 07/23', 'Seaside', 'Dolphin Bar'),
+	(6,2, '24/7', 'De Vilstown', 'Drunkelot');
+
 --Schwimmbaeder
 
 INSERT INTO schwimmbad VALUES
@@ -338,16 +347,44 @@ INSERT INTO fahrraeder VALUES
 --RESERVIERUNGEN
 
 INSERT INTO reservierungen VALUES
-	(1, 150.00,NULL, 'ROOM', 'EZOM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 1, 10, 1 );
+	(1, 150.00,NULL, 'ROOM', 'DZMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 1, 10, 1 );
 
+INSERT INTO reservierungen VALUES
+	(2, 180.00,NULL, 'BRFST', 'EZOM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 3, 5, 2 ),
+	(3, 210.00,NULL, 'HBL', 'SUIT', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 2, now(), 4, 13, 3 ),
+	(4, 240.00,NULL, 'HBD', 'SUIT', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 3, now(), 55, 10, 3 ),
+	(5, 180.00,NULL, 'FB', 'TRMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 43, 10, 4 ),
+	(6, 80.00,NULL, 'ALL', 'TRMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 28, 7, 5 ),
+	(7, 180.00,NULL, 'ROOM', 'DZOM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 11, 11, 6 );
+
+--ESSEN
+
+INSERT INTO Essen VALUES
+	(1, 'Bolognese', 12.00, 'Hauptspeise', NULL); 
+
+INSERT INTO Essen VALUES
+	(2, 'Tomate-Mozzarella', 8.00, 'Vorspeise', 'vegetarisch');
+
+INSERT INTO Essen VALUES
+	(3, 'Schokoladeneis', 5.00, 'Nachspeise', 'vegetarisch'),
+	(4, 'Chips', 3.00, 'Snack', 'vegetarisch'),
+	(5, 'Ceasars Salat', 12.00, 'Salat', 'vegetarisch'),
+	(6, 'Pommes', 3.50, 'Beilage', 'vegetarisch'),
+	(7, 'Hähnchen auf Reis', 12.00, 'Lowfat', NULL),
+	(8, 'Wiener Schnitzel', 7.00, 'Kinderkarte', NULL),
+	(9, 'Kohlrouladen - Seniors', 8.00, 'Seniors', NULL),
+	(10, 'Spinat und KArtoffeln', 12.00, 'Hauptspeise', 'vegetarisch');
+
+--Getraenke
+
+INSERT INTO Trinken VALUES
+	(1, 'Tequila Sunrise', 5.00, 'Cocktail', NULL),
+	(2, 'Cola', 2.00, 'Softgetraenk', NULL),
+	(3, 'Hugo', 6.00, 'Longdrink', NULL),
+	(4, 'nKurzer', 3.00, 'Likoer', NULL),
+	(5, 'Kaffee', 2.50, 'Heissgetraenk', NULL),
+	(6, 'Vodka', 3.50, 'Hochprozetiges', NULL);
 
 
 
 	
-
-
-	
-
-
-
-

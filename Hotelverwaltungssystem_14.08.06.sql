@@ -61,7 +61,7 @@ CREATE DOMAIN MENUKATEGORIE varchar
 		VALUE = 'Cocktail' OR
 		VALUE = 'Longdrink' OR
 		VALUE = 'Likoer' OR
-		VALUE = 'Hochprozetiges' OR
+		VALUE = 'Hochprozentiges' OR
 		VALUE = 'Heissgetraenk' OR
 		VALUE = 'Snack' OR
 		VALUE = 'Salat' OR
