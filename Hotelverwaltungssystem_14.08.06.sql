@@ -376,13 +376,8 @@ CREATE TABLE Reservierungen(
 	zugewiesenesZimmer int,
 	ZimmerInHotel int,
 
-<<<<<<< HEAD
 	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden,
 	FOREIGN KEY (ZimmerInHotel, zugewiesenesZimmer) REFERENCES Zimmer,
-=======
-	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden(KID),
-	FOREIGN KEY (zugewiesenesZimmer, ZimmerInHotel) REFERENCES Zimmer(Zimmernummer,gehoertZuHotel),
->>>>>>> origin/master
 	UNIQUE (Reservierungsnummer),
 	UNIQUE (Stornierungsnummer),
 	UNIQUE (zugewiesenesZimmer,ZimmerInHotel ,Anreise),
