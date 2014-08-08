@@ -1,7 +1,12 @@
 ﻿-- VIEWS
 
--- freieZimmerView
+-- freieZimmerView - TO DO - Steffi
 -- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
+CREATE OR REPLACE VIEW freieZimmerView AS
+SELECT gehoertzuhotel, zimmernummer, zimmer.zimmerkategorie, dreckig, outoforder,maxpersonen 
+	FROM zimmer LEFT OUTER JOIN reservierungen ON (zimmernummer = zugewieseneszimmer AND gehoertzuhotel = zimmerinhotel)
+	WHERE Anreise=current_date AND Gaestestatus = 'IN-HOUSE'
+	ORDER By gehoertZuHotel ASC, Zimmernummer ASC;
 
 
 
