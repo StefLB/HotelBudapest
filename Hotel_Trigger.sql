@@ -45,15 +45,30 @@ $$ LANGUAGE SQL;
 
 
 -- Rechnungsposten
--- Ausammeln aller Posten, die wahrend des Aufenthalts auf einer Reservierunge gebucht wurden
+-- Ausammeln aller Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
 -- Entspricht ein Zimmerkonto 
-CREATE OR REPLACE FUNCTION Rechnungsposten(Reservierungsnummer int) RETURNS VOID 
+CREATE OR REPLACE FUNCTION Rechnungsposten(Hotelnummer int, Zimmernummer int) RETURNS 
+SETOF RECORD
 AS $$
-	WITH AlleGaeste AS
-	(SELECT KID 
-	
-	
-$$ LANGUAGE SQL;
+
+BEGIN	
+	WITH Rechnungskunde AS 
+	(SELECT KID, anreise 
+	FROM Reservierungen 
+	WHERE Hotelnummer = Reservierungen.gehoertZuHotel AND Zimmernummer = Reservierungen.Zimmernummer
+	-- zeige letzte Reservierung des Zimmers an
+	ORDER BY anreise
+	FETCH FIRST 1 ROWS ONLY)
+
+	SELECT SpeiseID, Name, Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	FROM konsumieren JOIN SpeisenUndGetraenke ON konsumieren.SpeiseID = SpeisenUndGetraenke.SpeiseID
+	WHERE Rechnungskunde. KID = konsumieren.KID AND konsumieren.zeitpunkt > anreise; 
+
+	RETURN;
+
+END
+		 
+$$ LANGUAGE plpgsql;
 
 
 
