@@ -243,7 +243,6 @@ CREATE TABLE Ausruestung (
 	gehoertZuSporteinrichtung int NOT NULL,
 	gehoertZuHotel int REFERENCES Hotel,
 
-	FOREIGN KEY (gehoertZuSporteinrichtung, gehoertzuHotel) REFERENCES Sporteinrichtungen,
 	PRIMARY KEY (Ausruestungstyp ,Ausruestungsnummer,
 	gehoertZuSporteinrichtung,gehoertZuHotel)
 );
