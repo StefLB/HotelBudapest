@@ -47,6 +47,17 @@ $$ LANGUAGE SQL;
 
 
 
+-- GourmetGast
+-- Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 3 Sterne haben
+
+
+
+-- FreieSportplaetze 
+-- Ein Gast moechte sehen, welche Sportplaetze am jetzigen Tag noch zu vermieten sind
+
+
+
+
 
 -- TRIGGER 
 
