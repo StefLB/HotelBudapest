@@ -61,7 +61,7 @@ CREATE DOMAIN MENUKATEGORIE varchar
 		VALUE = 'Cocktail' OR
 		VALUE = 'Longdrink' OR
 		VALUE = 'Likoer' OR
-		VALUE = 'Hochprozentiges' OR
+		VALUE = 'Hochprozetiges' OR
 		VALUE = 'Heissgetraenk' OR
 		VALUE = 'Snack' OR
 		VALUE = 'Salat' OR
@@ -110,13 +110,13 @@ CREATE TABLE Hotel (
 CREATE TABLE Kunden(
 	KID int NOT NULL, 
 	Erstellungszeitpunkt timestamp NOT NULL,
-	Telefonnummer int ,
-	Kreditkarte int ,
+	Telefonnummer int NOT NULL,
+	Kreditkarte int NOT NULL,
 	Besonderheiten BESONDERHEIT,
 	Nachname varChar NOT NULL,
 	Vorname varChar NOT NULL,
-	Adresse varChar ,
-	VIP boolean DEFAULT FALSE,
+	Adresse varChar NOT NULL,
+	VIP boolean NOT NULL DEFAULT FALSE,
 
 	PRIMARY KEY (KID)
 );
@@ -376,8 +376,13 @@ CREATE TABLE Reservierungen(
 	zugewiesenesZimmer int,
 	ZimmerInHotel int,
 
+<<<<<<< HEAD
 	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden,
 	FOREIGN KEY (ZimmerInHotel, zugewiesenesZimmer) REFERENCES Zimmer,
+=======
+	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden(KID),
+	FOREIGN KEY (zugewiesenesZimmer, ZimmerInHotel) REFERENCES Zimmer(Zimmernummer,gehoertZuHotel),
+>>>>>>> origin/master
 	UNIQUE (Reservierungsnummer),
 	UNIQUE (Stornierungsnummer),
 	UNIQUE (zugewiesenesZimmer,ZimmerInHotel ,Anreise),

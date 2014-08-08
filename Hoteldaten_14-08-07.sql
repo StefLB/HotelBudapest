@@ -11,7 +11,6 @@ INSERT INTO Hotel VALUES
 	(6, 'The Shining', 'Scary Road 666, 66666 De Vilstown', 'Family');
 
 --Kunden--
-
 insert into Kunden (kid, erstellungszeitpunkt,vorname,nachname) values (1, now(),'Michelle','Hamilton');
 insert into Kunden (kid, erstellungszeitpunkt,vorname,nachname) values (2, now(), 'Adam','Frazier');
 insert into Kunden (kid, erstellungszeitpunkt,vorname,nachname) values (3, now(),'Jesse','King');
@@ -293,6 +292,15 @@ INSERT INTO restaurant VALUES
 	(4,1, 'MO-SO 07/23', 'Seaside', 'Shark-Inn', 1,'rustikal'),
 	(6,1, '24/7', 'De Vilstown', 'Smile-and-Shine', 1,'vegetarisch');
 
+--Hotelbar
+
+INSERT INTO hotelbar VALUES
+	(1,2, 'MO-SO 07/23', 'Traumstadt', 'Budapest Hotelbar'),
+	(3,2, 'MO-SO 07/23', 'Werlin', 'Golden Bar'),
+	(2,2, '24/7', 'Elinoise', 'Fast Bar'),
+	(4,2, 'MO-SO 07/23', 'Seaside', 'Dolphin Bar'),
+	(6,2, '24/7', 'De Vilstown', 'Drunkelot');
+
 --Schwimmbaeder
 
 INSERT INTO schwimmbad VALUES
@@ -303,12 +311,80 @@ INSERT INTO schwimmbad VALUES
 
 --Golfplaetze
 
-	
+INSERT INTO golf VALUES
+	(3,3, 'MO-SO 07/17', 'suedlicher Huegel', 'Grosser Golfplatz', 25.00, 2);
+
+--Minigolf
+
+INSERT INTO minigolf VALUES
+	(6,4, 'MO-SO 07/17', 'Park', 'Clownmania', 9.00, 1);
+
+--Tennisplätze
+
+INSERT INTO tennisplaetze VALUES
+	(4,5, 'MO-SO 07/17', 'Halle 1', 'Platz 1', 5.00, 'Astroturf'),
+	(4,6, 'MO-SO 07/17', 'Halle 2', 'Platz 2', 5.00, 'Asphaltplatz'),
+	(4,7, 'MO-SO 07/17', 'Halle 3', 'Platz 3', 5.00, 'Gummiplatz'),
+	(4,8, 'MO-SO 07/17', 'Halle 4', 'Platz 4', 5.00, 'Astroturf');
+
+--Fahrräder
+
+INSERT INTO fahrraeder VALUES
+	(6,7,'24/7','Garage 1', 'Fahrrad 1', 3.00, 16, 'BMX');
+
+--Ausruestung - TO DO
+
+--INSERT INTO ausruestung VALUES
+	--('Schlaeger', 1, 5,4),
+	--('Helm', 1, 7,6),
+	--('Golfwagen', 2, 5,4),
+	--('Knieschoner', 2, 7,6),
+	--('Golfhanschuhe', 1, 5,4),
+	--('Golftasche', 3, 5,4),
+	--('Golftasche', 5, 5,4),
+	--('Schlaeger', 4, 5,4);
+
+--RESERVIERUNGEN
+
+INSERT INTO reservierungen VALUES
+	(1, 150.00,NULL, 'ROOM', 'DZMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 1, 10, 1 );
+
+INSERT INTO reservierungen VALUES
+	(2, 180.00,NULL, 'BRFST', 'EZOM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 3, 5, 2 ),
+	(3, 210.00,NULL, 'HBL', 'SUIT', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 2, now(), 4, 13, 3 ),
+	(4, 240.00,NULL, 'HBD', 'SUIT', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 3, now(), 55, 10, 3 ),
+	(5, 180.00,NULL, 'FB', 'TRMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 43, 10, 4 ),
+	(6, 80.00,NULL, 'ALL', 'TRMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 28, 7, 5 ),
+	(7, 180.00,NULL, 'ROOM', 'DZOM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 11, 11, 6 );
+
+--ESSEN
+
+INSERT INTO Essen VALUES
+	(1, 'Bolognese', 12.00, 'Hauptspeise', NULL); 
+
+INSERT INTO Essen VALUES
+	(2, 'Tomate-Mozzarella', 8.00, 'Vorspeise', 'vegetarisch');
+
+INSERT INTO Essen VALUES
+	(3, 'Schokoladeneis', 5.00, 'Nachspeise', 'vegetarisch'),
+	(4, 'Chips', 3.00, 'Snack', 'vegetarisch'),
+	(5, 'Ceasars Salat', 12.00, 'Salat', 'vegetarisch'),
+	(6, 'Pommes', 3.50, 'Beilage', 'vegetarisch'),
+	(7, 'Hähnchen auf Reis', 12.00, 'Lowfat', NULL),
+	(8, 'Wiener Schnitzel', 7.00, 'Kinderkarte', NULL),
+	(9, 'Kohlrouladen - Seniors', 8.00, 'Seniors', NULL),
+	(10, 'Spinat und KArtoffeln', 12.00, 'Hauptspeise', 'vegetarisch');
+
+--Getraenke
+
+INSERT INTO Trinken VALUES
+	(1, 'Tequila Sunrise', 5.00, 'Cocktail', NULL),
+	(2, 'Cola', 2.00, 'Softgetraenk', NULL),
+	(3, 'Hugo', 6.00, 'Longdrink', NULL),
+	(4, 'nKurzer', 3.00, 'Likoer', NULL),
+	(5, 'Kaffee', 2.50, 'Heissgetraenk', NULL),
+	(6, 'Vodka', 3.50, 'Hochprozetiges', NULL);
 
 
 
 	
-
-
-
-
