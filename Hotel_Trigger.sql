@@ -52,8 +52,10 @@ $$ LANGUAGE SQL;
 
 -- EinChecken
 -- Beim Einchecken von einem Gast, muessen fuer alle 
--- zusaetzlichen einen Eintrag in Kunden stattfinden.
--- Allen Gaesten des Zimmers wird eine Karte ausgehaendigt 
+-- zusaetzlichen einen Eintrag in Kunden stattfinden
+-- Allen Gaesten des Zimmers wird eine Karte ausgehaendigt TODO: ER Modell anpassen, aus 1 wird 0!
+
+
 
 
 
