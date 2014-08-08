@@ -14,8 +14,13 @@ DO INSTEAD
 
 -- kartenGueltigInsert
 -- Bei der Ausgabe einer Zimmerkarte, darf diese nicht gesperrt sein
-
-
+-- offentsichtlich kann nur eine wiedergefundene karte aushaendigt werden
+CREATE OR REPLACE RULE kartenGueltigInsert AS ON INSERT
+TO erhalten 
+DO ALSO 
+	UPDATE Zimmerkarte
+	SET gesperrt = FALSE 
+	WHERE NEW.KartenID = Zimmerkarte.KartenID;
 
 
 
