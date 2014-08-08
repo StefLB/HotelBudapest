@@ -159,129 +159,124 @@ insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outofo
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values (1,40,'SUIT',false,false,4);
 
 --Hotel NoSleep
-INSERT INTO Zimmer VALUES
-	(2,1,'EZOM',false,false,1),
-	(2,2,'EZOM',false,false,1),
-	(2,3,'EZOM',false,false,1),
-	(2,4,'EZOM',false,false,1),
-	(2,5,'EZOM',false,false,1),
-	(2,6,'EZOM',false,false,1),
-	(2,7,'EZOM',false,false,1),
-	(2,8,'EZOM',false,false,1),
-	(2,9,'EZOM',false,false,1),
-	(2,10,'DZOM',false,false,2),
-	(2,11,'DZOM',false,false,2),
-	(2,12,'DZOM',false,false,2),
-	(2,13,'DZOM',false,false,2),
-	(2,14,'DZOM',false,false,2),
-	(2,15,'DZOM',false,false,2),
-	(2,16,'DZOM',false,false,2),
-	(2,17,'DZOM',false,false,2),
-	(2,18,'DZOM',false,false,2),
-	(2,19,'DZOM',false,false,2),
-	(2,20,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,1,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,2,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,3,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,4,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,5,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,6,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,7,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,8,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,9,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,10,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,11,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,12,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,13,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,14,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,15,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,16,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,17,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,18,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,19,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values(2,20,'EZOM',false,false,1);
 
 --Hotel Witz-Carlton
-INSERT INTO Zimmer VALUES
-	(3,1,'SUIT',false,false,1),
-	(3,2,'SUIT',false,false,1),
-	(3,3,'SUIT',false,false,1),
-	(3,4,'SUIT',false,false,1),
-	(3,5,'SUIT',false,false,1),
-	(3,6,'SUIT',false,false,1),
-	(3,7,'SUIT',false,false,1),
-	(3,8,'SUIT',false,false,1),
-	(3,9,'SUIT',false,false,1),
-	(3,10,'SUIT',false,false,2),
-	(3,11,'SUIT',false,false,2),
-	(3,12,'SUIT',false,false,2),
-	(3,13,'SUIT',false,false,2),
-	(3,14,'SUIT',false,false,3),
-	(3,15,'SUIT',false,false,2),
-	(3,16,'SUIT',false,false,2),
-	(3,17,'SUIT',false,false,2),
-	(3,18,'SUIT',false,false,2),
-	(3,19,'SUIT',false,false,2),
-	(3,20,'SUIT',false,false,4),
-	(3,21,'SUIT',false,false,2),
-	(3,22,'SUIT',false,false,3),
-	(3,23,'SUIT',false,false,2),
-	(3,24,'SUIT',false,false,2),
-	(3,25,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,1,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,2,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,3,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,4,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,5,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,6,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,7,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,8,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,9,'SUIT',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,10,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,11,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,12,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,13,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,14,'SUIT',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,15,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,16,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,17,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,18,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,19,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,20,'SUIT',false,false,4);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,21,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,22,'SUIT',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,23,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,24,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(3,25,'SUIT',false,false,2);
 
 --The Octopus
-INSERT INTO Zimmer VALUES
-	(4,1,'EZMM',false,false,1),
-	(4,2,'EZMM',false,false,1),
-	(4,3,'EZMM',false,false,1),
-	(4,4,'DZMM',false,false,2),
-	(4,5,'DZMM',false,false,2),
-	(4,6,'DZMM',false,false,2),
-	(4,7,'TRMM',false,false,3),
-	(4,8,'TRMM',false,false,3),
-	(4,9,'TRMM',false,false,3),
-	(4,10,'TRMM',false,false,3),
-	(4,11,'TRMM',false,false,3),
-	(4,12,'SUIT',false,false,3),
-	(4,13,'SUIT',false,false,2),
-	(4,14,'SUIT',false,false,4),
-	(4,15,'SUIT',false,false,4);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,1,'EZMM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,2,'EZMM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,3,'EZMM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,4,'DZMM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,5,'DZMM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,6,'DZMM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,7,'TRMM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,8,'TRMM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,9,'TRMM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,10,'TRMM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,11,'TRMM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,12,'SUIT',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,13,'SUIT',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,14,'SUIT',false,false,4);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,15,'SUIT',false,false,4);
 
 --Hotel BudgetInn
-INSERT INTO Zimmer VALUES
-	(5,1,'EZOM',false,false,1),
-	(5,2,'EZOM',false,false,1),
-	(5,3,'DZOM',false,false,1),
-	(5,4,'DZOM',false,false,1),
-	(5,5,'EZOM',false,false,1),
-	(5,6,'EZOM',false,false,1),
-	(5,7,'EZOM',false,false,1),
-	(5,8,'EZOM',false,false,1),
-	(5,9,'EZOM',false,false,1),
-	(5,10,'DZOM',false,false,2),
-	(5,11,'DZOM',false,false,2),
-	(5,12,'DZOM',false,false,2),
-	(5,13,'DZOM',false,false,2),
-	(5,14,'DZOM',false,false,2),
-	(5,15,'DZOM',false,false,2),
-	(5,16,'DZOM',false,false,2),
-	(5,17,'DZOM',false,false,2),
-	(5,18,'DZOM',false,false,2),
-	(5,19,'DZOM',false,false,2),
-	(5,20,'EZOM',false,false,1),
-	(5,21,'TROM',false,false,3),
-	(5,22,'TROM',false,false,3),
-	(5,23,'TROM',false,false,3),
-	(5,24,'TROM',false,false,3),
-	(5,25,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,1,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,2,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,3,'DZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,4,'DZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,5,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,6,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,7,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,8,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,9,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,10,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,11,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,12,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,13,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,14,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,15,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,16,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,17,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,18,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,19,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,20,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,21,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,22,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,23,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,24,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,25,'TROM',false,false,3);
 
 --Hotel TheShining
-INSERT INTO Zimmer VALUES
-	(6,1,'EZOM',false,false,1),
-	(6,2,'EZOM',false,false,1),
-	(6,3,'DZMM',false,false,1),
-	(6,4,'DZMM',false,false,1),
-	(6,5,'EZMM',false,false,1),
-	(6,6,'EZMM',false,false,1),
-	(6,7,'EZOM',false,false,1),
-	(6,8,'EZOM',false,false,1),
-	(6,9,'EZOM',false,false,1),
-	(6,10,'DZOM',false,false,2),
-	(6,11,'DZOM',false,false,2),
-	(6,12,'DZOM',false,false,2),
-	(6,13,'DZMM',false,false,2),
-	(6,14,'DZMM',false,false,2),
-	(6,15,'DZMM',false,false,2),
-	(6,16,'DZOM',false,false,2),
-	(6,17,'DZOM',false,false,2),
-	(6,18,'DZMM',false,false,2),
-	(6,19,'DZOM',false,false,2),
-	(6,20,'EZOM',false,false,1),
-	(6,21,'TROM',false,false,3),
-	(6,22,'TRMM',false,false,3),
-	(6,23,'TRMM',false,false,3),
-	(6,24,'TROM',false,false,3),
-	(6,25,'SUIT',false,false,4);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,1,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,2,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,3,'DZMM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,4,'DZMM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,5,'EZMM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,6,'EZMM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,7,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,8,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,9,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,10,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,11,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,12,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,13,'DZMM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,14,'DZMM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,15,'DZMM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,16,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,17,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,18,'DZMM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,19,'DZOM',false,false,2);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,20,'EZOM',false,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,21,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,22,'TRMM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,23,'TRMM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,24,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,25,'SUIT',false,false,4);
 
 --Restaurant
 
