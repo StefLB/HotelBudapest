@@ -1,6 +1,11 @@
 ﻿-- VIEWS
 
--- 
+-- freieZimmerView
+-- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
+
+
+
+
 
 -- belegteZimmerView
 -- Belegt Zimmer, sortiert nach Hotel und Zimmernummer
@@ -19,6 +24,7 @@ WHERE dreckig
 ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
 
 -- HotelManager 
+-- Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die beliebteste Zimmerkategorie
 
 
 
@@ -29,7 +35,7 @@ ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
 
 
 -- AnreisendeView
--- Zeigt alle Anreisende Gaeste des Tages an
+-- Zeigt alle anreisenden Gaeste des Tages an
 
 
 
