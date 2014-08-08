@@ -211,6 +211,7 @@ CREATE TABLE Schwimmbad (
 	AID int NOT NULL,
 	LaengeBecken int NOT NULL,
 	Sauna boolean,
+	Preis money,
 
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY (gehoertZuHotel,AID)
@@ -323,26 +324,26 @@ CREATE TABLE konsumieren(
 
 	
 CREATE TABLE Reservierungen(
-	Reservierungsnummer int NOT NULL,
-	reserviertVonKunde int NOT NULL,
+	gehoertZuHotel int,
+	Zimmer int,
+	Zimmerpreis money NOT NULL,
+	Stornierungsnummer int,
+	Verpflegungsstufe VERPFLEGUNGSSTUFE NOT NULL,
+	Zimmerkategorie ZIMMERKATEGORIE,
 	Anreise date NOT NULL,
 	Abreise date NOT NULL,
-	Personenanzahl int NOT NULL,
-	Zimmerkategorie ZIMMERKATEGORIE,
-	Verpflegungsstufe VERPFLEGUNGSSTUFE NOT NULL,
-	Zimmerpreis money NOT NULL,
-	ZimmerInHotel int,
-	zugewiesenesZimmer int,
+	Reservierungsnummer int NOT NULL,
+	reserviertVonKunde int NOT NULL,
 	Gaestestatus GAESTESTATUS,
 	Wuensche varchar,
-	Stornierungsnummer int,
+	Personenanzahl int NOT NULL,
 	Reservierungszeitpunkt timestamp NOT NULL,
 
 	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden,
-	FOREIGN KEY (ZimmerInHotel, zugewiesenesZimmer) REFERENCES Zimmer,
+	FOREIGN KEY (gehoertzuhotel, Zimmer) REFERENCES Zimmer,
 	UNIQUE (Reservierungsnummer),
 	UNIQUE (Stornierungsnummer),
-	UNIQUE (ZimmerInHotel,zugewiesenesZimmer,Anreise),
+	UNIQUE (gehoertzuhotel,Zimmer,Anreise),
 	PRIMARY KEY  (Reservierungsnummer)
 );
 

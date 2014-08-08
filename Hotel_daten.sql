@@ -278,71 +278,125 @@ insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outofo
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,24,'TROM',false,false,3);
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,25,'SUIT',false,false,4);
 
+
+--Abteilungen
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values (3,1,'MO-SO 07/23', 'Werlin','Golden Food' );
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(2,1, '24/7', 'Elinoise', 'FastLunch');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,1, 'MO-SO 07/23', 'Seaside', 'Shark-Inn');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,1, '24/7', 'De Vilstown', 'Smile-and-Shine');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(1,2, 'MO-SO 07/23', 'Traumstadt', 'Budapest Hotelbar');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(3,2, 'MO-SO 07/23', 'Werlin', 'Golden Bar');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(2,2, '24/7', 'Elinoise', 'Fast Bar');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,2, 'MO-SO 07/23', 'Seaside', 'Dolphin Bar');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,2, '24/7', 'De Vilstown', 'Drunkelot');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(1,3, 'MO-SO 07/23', '1.Etage', 'The Pool');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(3,3, 'MO-SO 07/23', 'Dacheschoss','Outside');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,3, 'MO-SO 07/23', 'Wellness-Bereich', 'Aqua-Fun');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,4, 'MO-SO 07/23', 'Aussenanlage', 'Splash');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(3,5, 'MO-SO 07/17', 'suedlicher Huegel', 'Grosser Golfplatz');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,4, 'MO-SO 07/17', 'Park', 'Clownmania');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,5, 'MO-SO 07/17', 'Halle 1', 'Platz 1');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,6, 'MO-SO 07/17', 'Halle 2', 'Platz 2');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,7, 'MO-SO 07/17', 'Halle 3', 'Platz 3');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,8, 'MO-SO 07/17', 'Halle 4', 'Platz 4');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,7,'24/7','Garage 1', 'Fahrrad 1');
+
+
+
+
+--Restaurationen
+
+INSERT INTO restauration VALUES
+	(1,1),
+	(3,1),
+	(2,1),
+	(4,1), 
+	(6,1), 
+	(1,2), 
+	(3,2), 
+	(2,2), 
+	(4,2), 
+	(6,2);
+
+
+
+
 --Restaurant
 
-INSERT INTO restaurant VALUES
-	(1,1, 'MO-SO 07/23', 'Traumstadt', 'Budapest Restaurant', 1,'organic'),
-	(3,1, 'MO-SO 07/23', 'Werlin', 'Golden Food', 2,'italienisch'),
-	(2,1, '24/7', 'Elinoise', 'FastLunch', 1,'urbanisch'),
-	(4,1, 'MO-SO 07/23', 'Seaside', 'Shark-Inn', 1,'rustikal'),
-	(6,1, '24/7', 'De Vilstown', 'Smile-and-Shine', 1,'vegetarisch');
+INSERT INTO restaurant values
+	(1,1,'organic',1),
+	(3,1,'italienisch',2),
+	(2,1, 'urbanisch',1),
+	(4,1, 'rustikal',1),
+	(6,1, 'vegetarisch',1);
 
 --Hotelbar
 
 INSERT INTO hotelbar VALUES
-	(1,2, 'MO-SO 07/23', 'Traumstadt', 'Budapest Hotelbar'),
-	(3,2, 'MO-SO 07/23', 'Werlin', 'Golden Bar'),
-	(2,2, '24/7', 'Elinoise', 'Fast Bar'),
-	(4,2, 'MO-SO 07/23', 'Seaside', 'Dolphin Bar'),
-	(6,2, '24/7', 'De Vilstown', 'Drunkelot');
+	(1,2), 
+	(3,2), 
+	(2,2), 
+	(4,2), 
+	(6,2); 
 
 --Schwimmbaeder
 
 INSERT INTO schwimmbad VALUES
-	(1,2, 'MO-SO 07/23', '1.Etage', 'The Pool', 25, true, 5.00),
-	(3,2, 'MO-SO 07/23', 'Dacheschoss','Outside' , 10, false, 10.00),
-	(4,2, 'MO-SO 07/23', 'Wellness-Bereich', 'Aqua-Fun', 50, true, 10.00),
-	(4,3, 'MO-SO 07/23', 'Aussenanlage', 'Splash', 25, true, 10.00);
+	(1,3,25, true, 5.00),
+	(3,3, 10, false, 10.00),
+	(4,3, 50, true, 10.00),
+	(4,4, 25, true, 10.00);
 
 --BENUTZEN--
 
 INSERT INTO benutzen VALUES
 	(8,4,2, now(),now());
 
+
+--SPORTEINRICHTUNGEN--
+
+INSERT INTO sporteinrichtungen VALUES
+	(3,5,25.00),
+	(6,4, 9.00),
+	(4,5, 5.00),
+	(4,6, 5.00),
+	(4,7, 5.00),
+	(4,8, 5.00),
+	(6,7, 3.00);
+
 --Golfplaetze
 
 INSERT INTO golf VALUES
-	(3,3, 'MO-SO 07/17', 'suedlicher Huegel', 'Grosser Golfplatz', 25.00, 2);
+	(3,5, 2);
 
 --Minigolf
 
 INSERT INTO minigolf VALUES
-	(6,4, 'MO-SO 07/17', 'Park', 'Clownmania', 9.00, 1);
+	(6,4,1);
 
 --Tennisplätze
 
 INSERT INTO tennisplaetze VALUES
-	(4,5, 'MO-SO 07/17', 'Halle 1', 'Platz 1', 5.00, 'Astroturf'),
-	(4,6, 'MO-SO 07/17', 'Halle 2', 'Platz 2', 5.00, 'Asphaltplatz'),
-	(4,7, 'MO-SO 07/17', 'Halle 3', 'Platz 3', 5.00, 'Gummiplatz'),
-	(4,8, 'MO-SO 07/17', 'Halle 4', 'Platz 4', 5.00, 'Astroturf');
+	(4,5,'Astroturf'),
+	(4,6, 'Asphaltplatz'),
+	(4,7, 'Gummiplatz'),
+	(4,8, 'Astroturf');
 
 --Fahrräder
 
 INSERT INTO fahrraeder VALUES
-	(6,7,'24/7','Garage 1', 'Fahrrad 1', 3.00, 16, 'BMX');
+	(6,7, 16, 'BMX');
 
---Ausruestung - TO DO
+--Ausruestung 
 
---INSERT INTO ausruestung VALUES
-	--('Schlaeger', 1, 5,4),
-	--('Helm', 1, 7,6),
-	--('Golfwagen', 2, 5,4),
-	--('Knieschoner', 2, 7,6),
-	--('Golfhandschuhe', 1, 5,4);
-	--('Golftasche', 3, 5,4),
-	--('Golftasche', 5, 5,4),
-	--('Schlaeger', 4, 5,4);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Schlaeger', 1, 5,4);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Helm', 1, 7,6);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Golfwagen', 2, 5,4);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Knieschoner', 2, 7,6);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Golfhandschuhe', 1, 5,4);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Golftasche', 3, 5,4);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Golftasche', 5, 5,4);
+insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Schlaeger', 4, 5,4);
 
 --RESERVIERUNGEN
 
