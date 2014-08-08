@@ -253,9 +253,6 @@ CREATE TABLE benutzen (
 CREATE TABLE Restauration  (
 	gehoertZuHotel int NOT NULL,
 	AID int NOT NULL,
-	Name varChar,
-	Location varChar,
-	Oeffnungszeiten Oeffnungszeit,
 	
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY (gehoertZuHotel, AID)
