@@ -13,7 +13,7 @@ SELECT gehoertzuhotel, zimmernummer, zimmer.zimmerkategorie, dreckig, outoforder
 
 
 -- belegteZimmerView
--- Belegt Zimmer, sortiert nach Hotel und Zimmernummer
+-- Belegte Zimmer, sortiert nach Hotel und Zimmernummer
 CREATE OR REPLACE VIEW belegteZimmerView AS
 SELECT zugewiesenesZimmer, ZimmerInHotel, anreise, abreise, dreckig
 	FROM Reservierungen JOIN Zimmer ON (zugewiesenesZimmer = Zimmernummer AND  ZimmerInHotel = gehoertZuHotel)
@@ -23,7 +23,7 @@ SELECT zugewiesenesZimmer, ZimmerInHotel, anreise, abreise, dreckig
 -- ReinigungspersonalView
 -- Zeigt Zimmer an, die vom Personal gereinigt werden muessen, sortiert nach Hotel und Zimmernummer
 CREATE OR REPLACE VIEW ReinigungspersonalView AS 
-SELECT ZimmerInHotel, zugewiesenesZimmer, CASE WHEN ((current_date - Anreise > 14)OR abreise = current_date) THEN TRUE ELSE FALSE END AS bigClean
+SELECT ZimmerInHotel, zugewiesenesZimmer, CASE WHEN ((current_date - Anreise > 14)OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
 FROM belegteZimmerView
 WHERE dreckig
 ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
@@ -36,13 +36,24 @@ ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
 
 
 -- UnbezahlteReservierungView
+-- Zeigt Kundennummer und Gesamtrechnungspreis von allen Kunden die ihre Rechnungen noch nicht bezahlt haben
 
 
 
 -- AnreisendeView
--- Zeigt alle anreisenden Gaeste des Tages an
+-- Zeigt Kundenname und Zimmer aller anreisenden Gaeste des Tages an
+-- sortiert nach Hotel und Kunden Nachname
+CREATE OR REPLACE VIEW AnreisendeView AS
+WITH Anreisende AS
+	(SELECT Reservierungsnummer
+	FROM Reservierungen
+	WHERE Stornierungsnummer = NULL AND Anreise = current_date
+	EXCEPT ALL 
+	(SELECT Reservierungsnummer
+	FROM Ablehnungen))
 
-
+	SELECT gehoertZuHotel, Nachname, Zimmernummer, VIP 
+	FROM Anreisende JOIN Reservierungen ON Anreisende.Reservierungsnummer = Reservierungen.Reservierungsnummer
 
 
 
