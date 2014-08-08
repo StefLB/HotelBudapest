@@ -41,14 +41,5 @@ ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
 
 
 
--- GourmetGastView
--- Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 3 Sterne haben
-CREATE OR REPLACE VIEW GourmetGastView AS 
-
-
--- FreieSportplaetzeView 
--- Ein Gast moechte sehen, welche Sportplaetze am jetzigen Tag noch zu vermieten sind
-CREATE OR REPLACE VIEW FreieSportplaetzeView
-
 
 
