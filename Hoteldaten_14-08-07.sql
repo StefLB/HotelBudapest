@@ -339,7 +339,7 @@ INSERT INTO fahrraeder VALUES
 	--('Helm', 1, 7,6),
 	--('Golfwagen', 2, 5,4),
 	--('Knieschoner', 2, 7,6),
-	--('Golfhanschuhe', 1, 5,4),
+	--('Golfhandschuhe', 1, 5,4),
 	--('Golftasche', 3, 5,4),
 	--('Golftasche', 5, 5,4),
 	--('Schlaeger', 4, 5,4);
@@ -383,8 +383,8 @@ INSERT INTO Trinken VALUES
 	(3, 'Hugo', 6.00, 'Longdrink', NULL),
 	(4, 'nKurzer', 3.00, 'Likoer', NULL),
 	(5, 'Kaffee', 2.50, 'Heissgetraenk', NULL),
-	(6, 'Vodka', 3.50, 'Hochprozetiges', NULL);
-
+	(6, 'Vodka', 3.50, 'Hochprozentiges', NULL);
+--
 
 
 	
