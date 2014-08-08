@@ -367,7 +367,7 @@ CREATE TABLE bezahlen (
 
 
 CREATE TABLE Zimmerkarte (
-	KartenID int NOT NULL,
+	KartenID SERIAL,
 	gesperrt boolean,
 
 	PRIMARY KEY (KartenID)

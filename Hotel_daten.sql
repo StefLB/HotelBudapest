@@ -55,64 +55,64 @@ insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Stev
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Frances','Patterson');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Melissa','Myers');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jeremy','Duncan');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (45, now(),'Donald','Parker');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (46, now(),'Betty','James');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (47, now(),'Thomas','Fields');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (48, now(),'Doris','Lawson');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (49, now(),'John','Miller');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (50, now(),'Gloria','Gomez');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (51, now(),'Emily','Bishop');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (52, now(),'Edward','Cruz');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (53, now(),'Craig','Boyd');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (54, now(),'Doris','Moore');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (55, now(),'Nancy','Cole');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (56, now(),'Wanda','Rivera');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (57, now(),'Eric','Hill');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (58, now(),'Joe','Hudson');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (59, now(),'Brian','Mitchell');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (60, now(),'Russell','Gibson');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (61, now(),'Phillip','Sullivan');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (62, now(),'Benjamin','Anderson');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (63, now(),'Jeffrey','Lane');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (64, now(),'Justin','Parker');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (65, now(),'Barbara','Wells');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (66, now(),'Diana','Cole');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (67, now(),'Raymond','Cook');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (68, now(),'Christine','Rice');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (69, now(),'Lori','Diaz');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (70, now(),'Janice','Bradley');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (71, now(),'Wayne','Hill');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (72, now(),'Melissa','Dunn');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (73, now(),'Antonio','Hawkins');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (74, now(),'Antonio','Gordon');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (75, now(),'Michael','Bailey');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (76, now(),'Harry','Sanders');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (77, now(),'Heather','Gilbert');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (78, now(),'Craig','Butler');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (79, now(),'Edward','Lawson');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (80, now(),'Judy','Hudson');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (81, now(),'Gregory','Marshall');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (82, now(),'Pamela','Lopez');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (83, now(),'Jeffrey','Mills');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (84, now(),'Martha','Gray');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (85, now(),'Sandra','Flores');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (86, now(),'Philip','Burke');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (87, now(),'Gary','Flores');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (88, now(),'Carol','Cole');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (89, now(),'Carolyn','Reed');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (90, now(),'John','Dunn');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (91, now(),'Earl','Wilson');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (92, now(),'Doris','Washington');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (93, now(),'Carol','Martinez');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (94, now(),'Virginia','Lawrence');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (95, now(),'Deborah','Russell');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (96, now(),'Bonnie','Pierce');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (97, now(),'Jose','Reynolds');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (98, now(),'Steve','Dunn');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (99, now(),'Laura','Franklin');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (100, now(),'Arthur','Green');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (101, now(),'Stefanie','Lehmann');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (102, now(),'Elisabeth','Pich');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Donald','Parker');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Betty','James');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Thomas','Fields');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Doris','Lawson');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'John','Miller');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Gloria','Gomez');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Emily','Bishop');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Edward','Cruz');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Craig','Boyd');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Doris','Moore');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Nancy','Cole');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Wanda','Rivera');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Eric','Hill');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Joe','Hudson');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Brian','Mitchell');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Russell','Gibson');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Phillip','Sullivan');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Benjamin','Anderson');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jeffrey','Lane');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Justin','Parker');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Barbara','Wells');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Diana','Cole');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Raymond','Cook');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Christine','Rice');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Lori','Diaz');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Janice','Bradley');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Wayne','Hill');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Melissa','Dunn');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Antonio','Hawkins');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Antonio','Gordon');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (now(),'Michael','Bailey');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Harry','Sanders');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Heather','Gilbert');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Craig','Butler');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Edward','Lawson');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Judy','Hudson');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Gregory','Marshall');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values (now(),'Pamela','Lopez');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jeffrey','Mills');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Martha','Gray');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Sandra','Flores');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Philip','Burke');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Gary','Flores');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Carol','Cole');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Carolyn','Reed');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'John','Dunn');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Earl','Wilson');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Doris','Washington');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Carol','Martinez');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Virginia','Lawrence');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Deborah','Russell');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Bonnie','Pierce');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jose','Reynolds');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Steve','Dunn');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Laura','Franklin');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Arthur','Green');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Stefanie','Lehmann');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Elisabeth','Pich');
 
 --Zimmer
 
@@ -389,9 +389,7 @@ INSERT INTO fahrraeder VALUES
 INSERT INTO mieten VALUES
 	(4,5,43, '2014-10-19 10:00:00', '2014-10-19 10:00:00');
 
---leihen
-INSERT INTO leihen VALUES
-	(4,5,43, 1, 'Schlaeger',  '2014-10-19 10:00:00', '2014-10-19 10:00:00');
+
 
 --Ausruestung 
 
@@ -403,6 +401,10 @@ insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinr
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Golftasche', 3, 5,4);
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Golftasche', 5, 5,4);
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Schlaeger', 4, 5,4);
+
+--leihen
+INSERT INTO leihen VALUES
+	(4,5,43, 1, 'Schlaeger',  '2014-10-19 10:00:00', '2014-10-19 10:00:00');
 
 --RESERVIERUNGEN
 
@@ -429,7 +431,7 @@ INSERT INTO ablehnungen VALUES
 --Zimmerkarte
 
 INSERT INTO Zimmerkarte VALUES
-	(1, false);
+	(1, false),
 	(2, true);
 
 --oeffnet
@@ -447,22 +449,22 @@ INSERT INTO bezahlen VALUES
 
 --Speisen und Geatraenke
 
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(1, 'Bolognese', 12.00, 'Hauptspeise'); 
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(2, 'Tomate-Mozzarella', 8.00, 'Vorspeise');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(3, 'Schokoladeneis', 5.00, 'Nachspeise');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(4, 'Chips', 3.00, 'Snack');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(5, 'Ceasars Salat', 12.00, 'Salat');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(6, 'Pommes', 3.50, 'Beilage');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(7, 'Hähnchen auf Reis', 12.00, 'Lowfat');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(8, 'Wiener Schnitzel', 7.00, 'Kinderkarte');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(9, 'Kohlrouladen - Seniors', 8.00, 'Seniors');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(10, 'Spinat und KArtoffeln', 12.00, 'Hauptspeise');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(11, 'Tequila Sunrise', 5.00, 'Cocktail');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(12, 'Cola', 2.00, 'Softgetraenk');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(13, 'Hugo', 6.00, 'Longdrink');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(14, 'nKurzer', 3.00, 'Likoer');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(15, 'Kaffee', 2.50, 'Heissgetraenk');
-INSERT INTO speisenundgetraenke (SpeiseID,name, preis, menukategorie)VALUES(16, 'Vodka', 3.50,'Hochprozentiges');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Bolognese', 12.00, 'Hauptspeise'); 
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Tomate-Mozzarella', 8.00, 'Vorspeise');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Schokoladeneis', 5.00, 'Nachspeise');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Chips', 3.00, 'Snack');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Ceasars Salat', 12.00, 'Salat');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Pommes', 3.50, 'Beilage');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Hähnchen auf Reis', 12.00, 'Lowfat');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Wiener Schnitzel', 7.00, 'Kinderkarte');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Kohlrouladen - Seniors', 8.00, 'Seniors');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Spinat und KArtoffeln', 12.00, 'Hauptspeise');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Tequila Sunrise', 5.00, 'Cocktail');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Cola', 2.00, 'Softgetraenk');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Hugo', 6.00, 'Longdrink');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('nKurzer', 3.00, 'Likoer');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Kaffee', 2.50, 'Heissgetraenk');
+INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Vodka', 3.50,'Hochprozentiges');
 
 
 --ESSEN
