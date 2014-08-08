@@ -40,8 +40,15 @@ $$ LANGUAGE SQL;
 
 
 -- Rechnungsposten
--- Ausammeln aller Posten, die wahrend des Aufenthalts auf einer Reservierung gebucht wurden
+-- Ausammeln aller Posten, die wahrend des Aufenthalts auf einer Reservierunge gebucht wurden
 -- Entspricht ein Zimmerkonto 
+CREATE OR REPLACE FUNCTION Rechnungsposten(Reservierungsnummer int) RETURNS VOID 
+AS $$
+	WITH AlleGaeste AS
+	(SELECT KID 
+	
+	
+$$ LANGUAGE SQL;
 
 
 
