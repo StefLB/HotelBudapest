@@ -2,7 +2,8 @@
 
 -- RULES
 
--- belegteZimmerUpdate: Beim Update auf belegteZimmerView werden in
+-- belegteZimmerUpdate 
+-- Beim Update auf belegteZimmerView werden in
 -- Relation Zimmer, die entsprechenden Zimmer auf dreckig gestellt. 
 CREATE OR REPLACE RULE belegteZimmerUpdate AS ON UPDATE 
 TO belegteZimmerView WHERE NEW.dreckig = true 
@@ -11,10 +12,24 @@ DO INSTEAD
 	SET dreckig = true
 	WHERE Zimmernummer = NEW.zugewiesenesZimmer AND gehoertZuHotel = NEW.ZimmerInHotel; 
 
+-- kartenGueltigInsert
+-- Bei der Ausgabe einer Zimmerkarte, darf diese nicht gesperrt sein
+
+
+
+
 
 -- FUNKTIONEN 
 
--- ZimmerDreckig: Um 0:00 Uhr werden alle belegte Zimmer auf dreckig gestellt.
+-- Zimmeranfrage
+-- 
+
+
+
+
+
+-- ZimmerDreckig
+-- Um 0:00 Uhr werden alle belegte Zimmer auf dreckig gestellt.
 -- Simuliert hier durch eine Funktion
 CREATE OR REPLACE FUNCTION ZimmerDreckig() RETURNS VOID 
 AS $$
@@ -24,22 +39,43 @@ $$ LANGUAGE SQL;
 
 
 
--- Rechnungsposten: 
+-- Rechnungsposten
+-- Ausammeln aller Posten, die wahrend des Aufenthalts auf einer Reservierung gebucht wurden
+-- Entspricht ein Zimmerkonto 
+
+
 
 
 
 
 -- TRIGGER 
 
--- Bei Ankunft von einem Gast, der mehrere Personen im Zimmer unterbringt, muessen fuer alle 
--- Personen einen Eintrag in Kunden stattfinden. 
+-- EinChecken
+-- Beim Einchecken von einem Gast, muessen fuer alle 
+-- zusaetzlichen einen Eintrag in Kunden stattfinden.
+-- Allen Gaesten des Zimmers wird eine Karte ausgehaendigt 
 
--- KartenAusgabe: Beim IN-HOUSE des Kunden...TODO
 
--- KartenRueckgab: Beim CHECK-OUT des Kunden, gibt dieser die Karte ab 
+
+-- Bezahlen
+
+
+
+
+
+
+-- Kartenverlust
+-- Beim Verlust der Karte, wird diese gesperrt und aus erhalten geloescht.
+-- Der Kunde bekommt eine neue
+
+
+
+
+-- CheckOut 
+-- Beim CHECK-OUT des Kunden, gibt dieser die Karte ab 
 -- Alle Karten, die der Reservierung zugeteilt wurden werden 
 -- aus erhalten geloescht und koennen nicht mehr die entsprechende Tuer oeffnen
-CREATE OR REPLACE FUNCTION KartenRueckgabe() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION CheckOut() RETURNS TRIGGER 
 AS $$
 BEGIN
 	DELETE FROM erhalten
@@ -47,8 +83,36 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER KartenRueckgabe BEFORE UPDATE OF Gaestestatus ON Reservierungen
+-- Hat der auscheckende Gast bereits bezahlt?
+CREATE OR REPLACE FUNCTION schonBezahlt() RETURNS TRIGGER 
+AS $$
+BEGIN
+	SELECT Reservierungsnummer
+	FROM Bezahlen
+	WHERE NEW.Reservierungsnummer = Bezahlen.Reservierungsnummer;
+
+	IF(!FOUND) THEN
+		RAISE EXCEPTION 'Gast muss noch bezahlen';
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER CheckOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'CHECKED-OUT')
+	EXECUTE PROCEDURE schonBezahlt();
 	EXECUTE PROCEDURE KartenRueckgabe();
-	
+
+
+-- VIP
+-- Bei der 100 Uebernachtung bekommt der Gast VIP Status
+
+
+
+
+
+-- TuerOeffner
+-- Beim oeffnen einer Tuer wird die Zugangsberechtigung geprueft
+-- Nur zugelassene Tueren duerfen geoeffnet werden
+
+
