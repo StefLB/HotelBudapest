@@ -150,6 +150,9 @@ CREATE TABLE Sporteinrichtungen (
 	Preis money NOT NULL	
 ) INHERITS (Abteilung) ;
 
+ALTER TABLE Sporteinrichtungen
+ADD CONSTRAINT SP_gehoertzusporthotel PRIMARY KEY (gehoertZuHotel,AID);
+
 CREATE TABLE Fahrraeder (
 	Gaenge int NOT NULL,
 	Modell varchar
