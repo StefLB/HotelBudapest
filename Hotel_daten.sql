@@ -309,6 +309,11 @@ INSERT INTO schwimmbad VALUES
 	(4,2, 'MO-SO 07/23', 'Wellness-Bereich', 'Aqua-Fun', 50, true, 10.00),
 	(4,3, 'MO-SO 07/23', 'Aussenanlage', 'Splash', 25, true, 10.00);
 
+--BENUTZEN--
+
+INSERT INTO benutzen VALUES
+	(8,4,2, now(),now());
+
 --Golfplaetze
 
 INSERT INTO golf VALUES
@@ -334,29 +339,16 @@ INSERT INTO fahrraeder VALUES
 
 --Ausruestung - TO DO
 
-<<<<<<< HEAD
 --INSERT INTO ausruestung VALUES
 	--('Schlaeger', 1, 5,4),
 	--('Helm', 1, 7,6),
 	--('Golfwagen', 2, 5,4),
 	--('Knieschoner', 2, 7,6),
-	--('Golfhandschuhe', 1, 5,4),
+	--('Golfhandschuhe', 1, 5,4);
 	--('Golftasche', 3, 5,4),
 	--('Golftasche', 5, 5,4),
 	--('Schlaeger', 4, 5,4);
 
-=======
-/*INSERT INTO ausruestung VALUES
-	('Schlaeger', 1, 5,4),
-	('Helm', 1, 7,6),
-	('Golfwagen', 2, 5,4),
-	('Knieschoner', 2, 7,6),
-	('Golfhanschuhe', 1, 5,4),
-	('Golftasche', 3, 5,4),
-	('Golftasche', 5, 5,4),
-	('Schlaeger', 4, 5,4);
-*/	
->>>>>>> origin/master
 --RESERVIERUNGEN
 
 INSERT INTO reservierungen VALUES
@@ -369,6 +361,18 @@ INSERT INTO reservierungen VALUES
 	(5, 180.00,NULL, 'FB', 'TRMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 43, 10, 4 ),
 	(6, 80.00,NULL, 'ALL', 'TRMM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 28, 7, 5 ),
 	(7, 180.00,NULL, 'ROOM', 'DZOM', '14-12-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 11, 11, 6 );
+
+--ABLEHNUNGEN
+
+INSERT INTO ablehnungen VALUES
+	(8, 80.00,NULL, 'ALL', 'TRMM', '13-04-01', '14-12-03', 'ARRIVAL', 'KA', 1, now(), 99, 7, 5, 'doof', now() ),
+	(9, 180.00,NULL, 'ROOM', 'DZOM', '14-12-14', '15-12-14', 'ARRIVAL', 'KA', 1, now(), 102, 11, 6, 'mag ich nicht', now() );
+
+--BEZAHLEN
+
+INSERT INTO bezahlen VALUES
+	(4,55,now()),
+	(6,
 
 --ESSEN
 
@@ -391,13 +395,20 @@ INSERT INTO Essen VALUES
 --Getraenke
 
 INSERT INTO Trinken VALUES
-	(1, 'Tequila Sunrise', 5.00, 'Cocktail', NULL),
-	(2, 'Cola', 2.00, 'Softgetraenk', NULL),
-	(3, 'Hugo', 6.00, 'Longdrink', NULL),
-	(4, 'nKurzer', 3.00, 'Likoer', NULL),
-	(5, 'Kaffee', 2.50, 'Heissgetraenk', NULL),
-	(6, 'Vodka', 3.50, 'Hochprozentiges', NULL);
---
+	(11, 'Tequila Sunrise', 5.00, 'Cocktail', NULL),
+	(12, 'Cola', 2.00, 'Softgetraenk', NULL),
+	(13, 'Hugo', 6.00, 'Longdrink', NULL),
+	(14, 'nKurzer', 3.00, 'Likoer', NULL),
+	(15, 'Kaffee', 2.50, 'Heissgetraenk', NULL),
+	(16, 'Vodka', 3.50, 'Hochprozentiges', NULL);
+wirdserviertin
+
+--INSERT INTO wirdserviertin VALUES
+	--(1,1,1),
+	--(9,3,1),
+	--(14,4,2);
+
+
 
 
 	
