@@ -510,12 +510,24 @@ INSERT INTO konsumieren VALUES
 --preistabelle
 
 INSERT INTO preistabelle VALUES
-	('ROOMONLY - Low Season EZMM', 80.00),
-	('BRFST - High season EZOM', 88.00),
-	('HBL  - Low Season DZMM', 125.00),
-	('HBD - High Seasin DZOM', 135.00),
-	('FB - Low Season TRMM', 140.00),
-	('ALL INCLUSIVE High Seasin SUIT', 250.00);
+	('ROOM', 80.00),
+	('BRFST', 80.00),
+	('HBL', 80.00),
+	('HBD', 80.00),
+	('FB', 80.00),
+	('ALL', 80.00),
+	('EZMM', 80.00),
+	('EZOM', 80.00),
+	('DZMM', 80.00),
+	('DZOM', 80.00),
+	('TRMM', 80.00),
+	('TROM', 80.00), 
+	('SUIT', 80.00),
+	('HS',30.00 ), -- Haupsaison Aufschlag 
+	('NS',0.00 ); -- kein Aufschlag
+	
+
+
 
 
 
