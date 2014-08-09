@@ -99,7 +99,7 @@ CREATE DOMAIN ZIMMERKATEGORIE varchar
 --Tabellen fuer Hotelverwaltung
 
 CREATE TABLE Hotel (
-	HotelID int NOT NULL,
+	HotelID SERIAL,
 	Hotelname varchar NOT NULL,
 	Adresse varchar NOT NULL,
 	Hoteltyp HOTELTYP NOT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE Hotel (
 );
 
 CREATE TABLE Kunden(
-	KID int NOT NULL, 
+	KID SERIAL, 
 	Vorname varChar NOT NULL,
 	Nachname varChar NOT NULL,
 	Adresse varChar ,
@@ -278,7 +278,7 @@ CREATE TABLE Restaurant  (
 );
 
 CREATE TABLE SpeisenUndGetraenke(
-	SpeiseID int NOT NULL ,
+	SpeiseID SERIAL ,
 	Menukategorie MENUKATEGORIE NOT NULL,
 	Name varChar NOT NULL,
 	Preis money NOT NULL,
@@ -332,7 +332,7 @@ CREATE TABLE Reservierungen(
 	Zimmerkategorie ZIMMERKATEGORIE,
 	Anreise date NOT NULL,
 	Abreise date NOT NULL,
-	Reservierungsnummer int NOT NULL,
+	Reservierungsnummer SERIAL,
 	reserviertVonKunde int NOT NULL,
 	Gaestestatus GAESTESTATUS,
 	Wuensche varchar,
@@ -367,7 +367,7 @@ CREATE TABLE bezahlen (
 
 
 CREATE TABLE Zimmerkarte (
-	KartenID int NOT NULL,
+	KartenID SERIAL,
 	gesperrt boolean,
 
 	PRIMARY KEY (KartenID)
