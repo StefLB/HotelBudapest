@@ -43,7 +43,7 @@ BEGIN
 	SELECT 	*
 	FROM 	Preistabelle
 	-- 
-	WHERE 	Tabellennummer = rtrim(CodeUndPosten::string , '-abcdefghijklmnopqrstuvwxyz');
+	WHERE 	Tabellennummer LIKE rtrim(CodeUndPosten::string , '-abcdefghijklmnopqrstuvwxyz');
 
 END	
 $$LANGUAGE plpgsql; 
@@ -107,8 +107,8 @@ BEGIN
 	-- und addiere diese zusammen
 	SELECT 	sum(preis) INTO preisvar 
 	FROM 	getPreisTabelle(Hotel) 
-	WHERE 	Zimmerkategorie = ltrim(CodeUndPosten::string , '-0123456789')
-		OR Verpflegung  = ltrim(CodeUndPosten::string , '-0123456789');
+	WHERE 	Zimmerkategorie LIKE ltrim(CodeUndPosten::string , '-0123456789')
+		OR Verpflegung  LIKE ltrim(CodeUndPosten::string , '-0123456789');
 
 		
 	-- Berechne Anzahl an Haupt- und Nebensaisontagen
@@ -116,7 +116,7 @@ BEGIN
 	-- beruecksichtige Hauptsaisonzuschlag
 	SELECT 	Preis INTO Hauptsaisonzuschlag
 	FROM 	getPreisTabelle(Hotel) 
-	WHERE 	'HS' =  ltrim(CodeUndPosten::string , '-0123456789');
+	WHERE 	'HS' LIKE  ltrim(CodeUndPosten::string , '-0123456789');
 	
 	preisvar = (preisvar + Hauptsaisonzuschlag ) * Anzahlnaechte.Hauptsaisonanzahl 
 		  + preisvar * Anzahlnaechte.Nebensaisonanzahl;
