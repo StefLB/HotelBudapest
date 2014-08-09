@@ -106,14 +106,22 @@ CREATE DOMAIN ZIMMERKATEGORIE varchar
 
 --Tabellen fuer Hotelverwaltung
 
+CREATE TABLE Preistabelle (
+	CodeUndPosten varChar,
+	Preis money,
+
+	PRIMARY KEY (Hotelpreistabelle,Posten)
+
+);
+
+
 CREATE TABLE Hotel (
 	HotelID SERIAL,
 	Hotelname varchar NOT NULL,
 	Adresse varchar NOT NULL,
 	Hoteltyp HOTELTYP NOT NULL,
-	hatPreistabelle int NOT NULL,
-	
-	hatPreistabelle REFERENCES Preistabelle(Hotelpreistabelle)
+	hatPreistabelle int NOT NULL, -- zeigt welche Preise fuer das Hotel gelten 
+
 	PRIMARY KEY (HotelID)
 );
 
@@ -406,11 +414,3 @@ CREATE TABLE erhalten (
 );
 
 
-CREATE TABLE Preistabelle (
-	Hotelpreistabelle int,
-	Posten varChar,
-	Preis money,
-
-	PRIMARY KEY (Hotelpreistabelle,Posten);
-
-);
