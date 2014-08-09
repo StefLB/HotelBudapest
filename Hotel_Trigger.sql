@@ -31,22 +31,24 @@ DO ALSO
 
 -- getPreisTabelle
 -- gibt die Preise des Hotels aus der Preistabelle zurueck
-CREATE OR REPLACE FUNCTION getPreisTabelle(Hotel int) RETURNS TABLE (Posten varChar, Preis money)
+CREATE OR REPLACE FUNCTION getPreisTabelle(Hotelparam int) RETURNS TABLE (Posten varChar, Preis money)
 AS $$	
+	DECLARE Tabellennummer int;
 BEGIN
 	RETURN QUERY
-	WITH 	Tabellennummer AS (
-	SELECT 	Tabellennr
+	SELECT 	hatPreistabelle INTO Tabellennummer
 	FROM 	Hotel
-	WHERE 	Hotel = HotelID)
+	WHERE 	Hotelparam = HotelID;
 
-	SELECT 	Posten, Preise
+	SELECT 	*
 	FROM 	Preistabelle
-	WHERE 	Tabellenr = Hotelpreistabelle;
-
+	-- 
+	WHERE 	Tabellennummer = rtrim(CodeUndPosten::string , '-abcdefghijklmnopqrstuvwxyz');
 
 END	
 $$LANGUAGE plpgsql; 
+
+
 
 -- ZimmerFreiAnDate
 -- Gibt Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, austeigend sortiert
@@ -79,12 +81,13 @@ $$LANGUAGE plpgsql;
 
 
 -- Zimmeranfrage
--- Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs, 
+-- Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs
 CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
 					Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) 
 RETURNS Angebot
 AS $$
-	DECLARE AnzahlZimmervar int; zimmervar int; preisvar money; Anzahlnaechte AnzahlnaechteType; 
+	DECLARE AnzahlZimmervar int; zimmervar int; preisvar money; Anzahlnaechte AnzahlnaechteType;
+		Hauptsaisonzuschlag int;
 BEGIN
 	-- Pruefe ob soviele Zimmer frei sind
 	CREATE TEMP TABLE temptable
@@ -96,20 +99,27 @@ BEGIN
 	FROM temptable;
 			
 	-- Falls nicht, dann Anfragender informieren
-	IF (AnzahlZimmervar > AnzahlZimmer) THEN
+	IF (AnzahlZimmervar < AnzahlZimmer) THEN
 		RAISE EXCEPTION 'Die gewuenschte Anzahl an Zimmer ist nicht frei';
 	END IF;
 
-	-- Berechne Preis aus der zum Hotel zugeordneten Tabelle
-	
-	berechneSaison(Anreise,Abreise) 
-	
-	SELECT 	sum(preis)* (Anreise - Abreise) INTO preisvar
+	-- Hole Preise aus der zum Hotel zugeordneten Tabelle
+	-- und addiere diese zusammen
+	SELECT 	sum(preis) INTO preisvar 
 	FROM 	getPreisTabelle(Hotel) 
-	WHERE 	Hotelpreistabelle = 
-		AND Posten LIKE Zimmerkategorie OR Posten LIKE Verpflegung
-		-- Saison Aufschlagbrechnen
-		AND Posten =  ;
+	WHERE 	Zimmerkategorie = ltrim(CodeUndPosten::string , '-0123456789')
+		OR Verpflegung  = ltrim(CodeUndPosten::string , '-0123456789');
+
+		
+	-- Berechne Anzahl an Haupt- und Nebensaisontagen
+	Anzahlnaechte = berechneSaison(Anreise,Abreise); 
+	-- beruecksichtige Hauptsaisonzuschlag
+	SELECT 	Preis INTO Hauptsaisonzuschlag
+	FROM 	getPreisTabelle(Hotel) 
+	WHERE 	'HS' =  ltrim(CodeUndPosten::string , '-0123456789');
+	
+	preisvar = (preisvar + Hauptsaisonzuschlag ) * Anzahlnaechte.Hauptsaisonanzahl 
+		  + preisvar * Anzahlnaechte.Nebensaisonanzahl;
 
 	-- Falls ja, lege eine vorgemerkte Reservierung an
 	-- eine reservierung pro zimmer
@@ -132,6 +142,8 @@ $$ LANGUAGE plpgsql;
 
 -- Ablehnung // TODO ELLI
 -- Der Kunde kann ein Angebot ablehnen
+CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
+
 
 
 
