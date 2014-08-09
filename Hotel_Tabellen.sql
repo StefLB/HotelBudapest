@@ -4,11 +4,13 @@
 
 CREATE TYPE Angebot AS (
 	Hotel int,
-	Gesamtpreis money,
-	AnzahlZimmer int
+	Zimmerkategorie Zimmerkategorie,
+	AnzahlZimmer int,
+	Gesamtpreis money
+
 );
 
-CREATE TYPE Anzahlnaechte AS (
+CREATE TYPE Anzahlnaechtetype AS (
 	AnzahlHauptsaison int,
 	AnzahlNebensaison int
 );
@@ -398,10 +400,11 @@ CREATE TABLE Zimmerkarte (
 );
 
 CREATE TABLE oeffnet (
+	gehoertZuHotel int,
+	Zimmernummer int,
 	KartenID int NOT NULL,
 	Zeitpunkt timestamp NOT NULL,
-	Zimmernummer int,
-	ZimmerInHotel int,
+	
 
 	FOREIGN KEY (Zimmernummer,ZimmerInHotel) REFERENCES Zimmer(Zimmernummer,gehoertZuHotel),
 	FOREIGN KEY (KartenID) REFERENCES Zimmerkarte,
