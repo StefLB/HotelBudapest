@@ -510,21 +510,21 @@ INSERT INTO konsumieren VALUES
 --preistabelle
 
 INSERT INTO preistabelle VALUES
-	('ROOM', 80.00),
-	('BRFST', 80.00),
-	('HBL', 80.00),
-	('HBD', 80.00),
-	('FB', 80.00),
-	('ALL', 80.00),
-	('EZMM', 80.00),
-	('EZOM', 80.00),
-	('DZMM', 80.00),
-	('DZOM', 80.00),
-	('TRMM', 80.00),
-	('TROM', 80.00), 
-	('SUIT', 80.00),
-	('HS',30.00 ), -- Haupsaison Aufschlag 
-	('NS',0.00 ); -- kein Aufschlag
+	(1,'ROOM', 80.00),
+	(1,'BRFST', 80.00),
+	(1,'HBL', 80.00),
+	(1,'HBD', 80.00),
+	(1,'FB', 80.00),
+	(1,'ALL', 80.00),
+	(1,'EZMM', 80.00),
+	(1,'EZOM', 80.00),
+	(1,'DZMM', 80.00),
+	(1,'DZOM', 80.00),
+	(1,'TRMM', 80.00),
+	(1,'TROM', 80.00), 
+	(1,'SUIT', 80.00),
+	(1,'HS',30.00 ), 	-- Haupsaison Aufschlag 
+	(1,'NS',0.00 ); 	-- kein Aufschlag
 	
 
 
