@@ -507,6 +507,16 @@ INSERT INTO wirdserviertin VALUES
 INSERT INTO konsumieren VALUES
 	(43,9, now());
 
+--preistabelle
+
+INSERT INTO preistabelle VALUES
+	('ROOMONLY - Low Season EZMM', 80.00),
+	('BRFST - High season EZOM', 88.00),
+	('HBL  - Low Season DZMM', 125.00),
+	('HBD - High Seasin DZOM', 135.00),
+	('FB - Low Season TRMM', 140.00),
+	('ALL INCLUSIVE High Seasin SUIT', 250.00);
+
 
 
 
