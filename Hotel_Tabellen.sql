@@ -1,5 +1,14 @@
 ﻿--Hotelverwaltugssystem
 
+-- TYPES
+
+CREATE TYPE Angebot AS (
+	Hotel int,
+	Gesamtpreis money,
+	AnzahlZimmer int
+);
+
+
 --Domaenen
 
 CREATE DOMAIN HOTELTYP varchar
