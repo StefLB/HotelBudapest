@@ -29,7 +29,7 @@ DO ALSO
 -- FUNKTIONEN 
 
 -- ZimmerFreiAnDate
--- Gibt Zimmer in Hotel zurueck die frei sind von-bis
+-- Gibt Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, austeigend sortiert
 CREATE OR REPLACE FUNCTION ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date) RETURNS TABLE (Zimmernummer  int)
 AS $$	
 BEGIN
@@ -39,38 +39,28 @@ BEGIN
 	FROM 	Zimmer
 	WHERE 	gehoertZuHotel = Hotel 
 	EXCEPT ( 
+	-- Zimmer die nicht frei sind zum gegebenen Zeitraum
 	SELECT Reservierungen.Zimmer, Reservierungen.Zimmerkategorie
 	FROM 	Reservierungen 
-	WHERE 	gehoertZuHotel = Hotel AND ((von >= Anreise AND von <= Abreise) 
-		OR (bis >= Anreise AND bis <= Abreise))))
+	WHERE 	gehoertZuHotel = Hotel 
+		-- muss frei sein von - bis
+		AND ((von >= Anreise AND von <= Abreise) OR (bis >= Anreise AND bis <= Abreise))
+		-- nur vorgemerkte, ankommende oder belegte Zimmer abziehen
+		AND (Gaestestatus = 'RESERVED' OR Gaestestatus = 'ARRIVAL' OR Gaestestatus = 'IN-HOUSE')))
 
 	SELECT 	freieZimmer.Zimmernummer AS Zimmernummer
 	FROM 	freieZimmer
-	WHERE 	freieZimmer.Zimmerkategorie = Zimmerkat;
-	
-	
+	WHERE 	freieZimmer.Zimmerkategorie = Zimmerkat
+	ORDER BY  Zimmernummer ASC;
 END
 	
 $$LANGUAGE plpgsql; 
 
-
-
-select Zimmeranfrage(1,'DZOM', current_date +1,  current_date +2,'FB', 'nix', 1, 1); 
-select * from reservierungen
-
-
-
-CREATE TYPE Angebot AS (
-	Hotel int,
-	Gesamtpreis money,
-	AnzahlZimmer int
-);
-
 -- Zimmeranfrage
--- Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs
+-- Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs, 
 CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
 					Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) 
-RETURNS TABLE(Reservierungsnummern int, Gesamtpreis money)
+RETURNS Angebot
 AS $$
 	DECLARE Anzahl int; zimmervar int; preisvar money; 
 BEGIN
@@ -79,7 +69,7 @@ BEGIN
 	(Zimmernummer)
 	ON COMMIT DROP AS
 	SELECT ZimmerFreiAnDate(Hotel, Zimmerkategorie, Anreise, Abreise);
-
+	
 	SELECT count(*) INTO Anzahl
 	FROM temptable;
 			
@@ -104,11 +94,12 @@ BEGIN
 		
 		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
 					Anreise, Abreise, DEFAULT , NULL, 'AWAITING_CONFIRMATION', Wuensche, Personenanzahl, now());
+	END LOOP;
 	
-	-- Der Kunde bekommt ein Angebot
+	-- Der Kunde erhaelt ein Angebot
 	RETURN (Hotel, preisvar, AnzahlZimmer) ;		
 END
-$$LANGUAGE plpgsql; 
+$$ LANGUAGE plpgsql; 
 
 
 -- Ablehnung // TODO ELLI
