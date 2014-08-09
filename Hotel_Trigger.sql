@@ -3,14 +3,14 @@
 -- RULES
 
 -- belegteZimmerUpdate 
--- Beim Update auf belegteZimmerView werden in
+-- Beim Updaten der belegten Zimmer auf dreckig in der belegteZimmerView werden in
 -- Relation Zimmer, die entsprechenden Zimmer auf dreckig gestellt. 
 CREATE OR REPLACE RULE belegteZimmerUpdate AS ON UPDATE 
 TO belegteZimmerView WHERE NEW.dreckig = true 
 DO INSTEAD 
-	UPDATE Zimmer
-	SET dreckig = true
-	WHERE Zimmernummer = NEW.zugewiesenesZimmer AND gehoertZuHotel = NEW.ZimmerInHotel; 
+	UPDATE 	Zimmer
+	SET 	dreckig = true
+	WHERE 	Zimmernummer = NEW.zugewiesenesZimmer AND gehoertZuHotel = NEW.ZimmerInHotel; 
 
 
 
@@ -20,14 +20,13 @@ DO INSTEAD
 CREATE OR REPLACE RULE kartenGueltigInsert AS ON INSERT
 TO erhalten 
 DO ALSO 
-	UPDATE Zimmerkarte
-	SET gesperrt = FALSE 
-	WHERE NEW.KartenID = Zimmerkarte.KartenID;
+	UPDATE 	Zimmerkarte
+	SET 	gesperrt = FALSE 
+	WHERE 	NEW.KartenID = Zimmerkarte.KartenID;
 	
 
 
 -- FUNKTIONEN 
-
 
 -- getPreisTabelle
 -- gibt die Preise des Hotels aus der Preistabelle zurueck
@@ -35,7 +34,7 @@ CREATE OR REPLACE FUNCTION getPreisTabelle(Hotelparam int) RETURNS TABLE (Posten
 AS $$	
 	DECLARE Tabellennummer int;
 BEGIN
-	RETURN QUERY
+	RETURN 	QUERY
 	SELECT 	hatPreistabelle INTO Tabellennummer
 	FROM 	Hotel
 	WHERE 	Hotelparam = HotelID;
@@ -43,13 +42,13 @@ BEGIN
 	SELECT 	*
 	FROM 	Preistabelle
 	-- 
-	WHERE 	Tabellennummer LIKE rtrim(CodeUndPosten::string , '-abcdefghijklmnopqrstuvwxyz');
+	WHERE 	Tabellennummer::varchar LIKE rtrim(CodeUndPosten::string , '-abcdefghijklmnopqrstuvwxyz');
 
 END	
 $$LANGUAGE plpgsql; 
 
-
--- Berechne Haupt/Nebensaison Naechte
+-- berechneSaison
+-- Berechnet die Anzahl an Haupt/Nebensaison Naechte im Zeitraum von Anreise bis Abreise
 CREATE OR REPLACE FUNCTION berechneSaison(Anreise int,Abreise int) RETURNS AnzahlnaechteType
 AS $$
 	DECLARE beginHaupt date DEFAULT current-year||'01-08' ; endHaupt date DEFAULT current-year||'10-31'; countHaupt int;
@@ -69,18 +68,18 @@ $$LANGUAGE plpgsql;
 
 
 -- ZimmerFreiAnDate
--- Gibt Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, austeigend sortiert
+-- Gibt alle Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, aufsteigend sortiert
 CREATE OR REPLACE FUNCTION ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date) RETURNS TABLE (Zimmernummer  int)
 AS $$	
 BEGIN
 	RETURN QUERY
-	WITH freieZimmer AS(
+	WITH 	freieZimmer AS(
 	SELECT 	Zimmer.Zimmernummer,Zimmer.Zimmerkategorie
 	FROM 	Zimmer
 	WHERE 	gehoertZuHotel = Hotel 
 	EXCEPT ( 
 	-- Zimmer die nicht frei sind zum gegebenen Zeitraum
-	SELECT Reservierungen.Zimmer, Reservierungen.Zimmerkategorie
+	SELECT 	Reservierungen.Zimmer, Reservierungen.Zimmerkategorie
 	FROM 	Reservierungen 
 	WHERE 	gehoertZuHotel = Hotel 
 		-- muss frei sein von - bis
@@ -109,16 +108,16 @@ AS $$
 BEGIN
 	-- Pruefe ob soviele Zimmer frei sind
 	CREATE TEMP TABLE temptable
-	(Zimmernummer)
+		(Zimmernummer)
 	ON COMMIT DROP AS
-	SELECT ZimmerFreiAnDate(Hotel, Zimmerkategorie, Anreise, Abreise);
+	SELECT 	ZimmerFreiAnDate(Hotel, Zimmerkategorie, Anreise, Abreise);
 	
-	SELECT count(*) INTO AnzahlZimmervar
-	FROM temptable;
+	SELECT 	count(*) INTO AnzahlZimmervar
+	FROM 	temptable;
 			
 	-- Falls nicht, dann Anfragender informieren
 	IF (AnzahlZimmervar < AnzahlZimmer) THEN
-		RAISE EXCEPTION 'Die gewuenschte Anzahl an Zimmer ist nicht frei';
+		RAISE EXCEPTION 'Die gewuenschte Anzahl an Zimmern ist nicht frei';
 	END IF;
 
 	-- Hole Preise aus der zum Hotel zugeordneten Tabelle
@@ -143,7 +142,7 @@ BEGIN
 	-- eine reservierung pro zimmer
 	FOR i IN 0..AnzahlZimmer LOOP
 		PERFORM Zimmernummer INTO zimmervar
-		FROM temptable
+		FROM 	temptable
 		ORDER BY Zimmernummer ASC
 		OFFSET i
 		FETCH FIRST 1 ROWS ONLY;
@@ -153,24 +152,24 @@ BEGIN
 	END LOOP;
 	
 	-- Der Kunde erhaelt ein Angebot
-	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer,  preisvar*AnzahlZimmer,) ;		
+	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer,  preisvar*AnzahlZimmer) ;		
 END
 $$ LANGUAGE plpgsql; 
 
 
--- Ablehnung 
+-- AblehnungeAngebot 
 -- Der Kunde kann ein Angebot ablehnen
-CREATE OR REPLACE FUNCTION AnnahmeAngebot( Angebotsdaten Angebot, Grund varChar) RETURNS VOID 
+CREATE OR REPLACE FUNCTION AblehnungAngebot( Angebotsdaten Angebot, Grund varChar) RETURNS VOID 
 AS $$
 BEGIN
-	WITH vorgemerkt AS (
+	WITH 	vorgemerkt AS (
 	-- die vorgemerkten Reservierungen
 	SELECT 	Reservierungsnummer
 	FROM 	Reservierungen
 	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
 		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
-	OFFSET O
-	LIMIT Angebotsdaten.AnzahlZimmer::count)
+	OFFSET 	O
+	LIMIT 	Angebotsdaten.AnzahlZimmer::count)
 	
 	-- die jetzt als Turn-Downs eingetragen werden
 	UPDATE 	Reservierungen
@@ -183,7 +182,7 @@ END
 $$LANGUAGE plpgsql;
 
 
--- AnnahmeAngebot Teil 1
+-- AnnahmeAngebot 
 -- Ein Kunde mit bereits angelegter KID nimmt ein Angebot an
 CREATE OR REPLACE FUNCTION AnnahmeAngebot(KundenID int, Angebotsdaten Angebot) RETURNS VOID 
 AS $$
@@ -191,7 +190,7 @@ BEGIN
 	-- hier werden die bei der anfrage vorgemerkte zimmer
 	-- dem kunden zugeteilt. bei mehreren kundenanfragen gleichzeitig
 	-- werden die zimmer durch neusortierung moeglichst zusammenhaengend verteilt
-	WITH vorgemerkte AS (
+	WITH 	vorgemerkte AS (
 	-- durch das splitten der reservierung ist 
 	-- zimmer jetzt eindeutig durch reservierungsnummer gegeben
 	SELECT 	Reservierungsnummer
@@ -202,8 +201,8 @@ BEGIN
 	ORDER BY Zimmer ASC
 	-- kunde wird den vorgemerkte zimmer zugeteilt, 
 	-- auch bei gleichzeitigen Anfragen geht die gesamtzahl auf 
-	OFFSET O
-	LIMIT Angebotsdaten.AnzahlZimmer::count)
+	OFFSET 	O
+	LIMIT 	Angebotsdaten.AnzahlZimmer::count)
 	
 	UPDATE 	Reservierungen
 	SET 	Reservierungen.KID = KundenId, GaesteStatus = 'RESERVED'
@@ -212,24 +211,24 @@ BEGIN
 END
 $$LANGUAGE plpgsql;
 
--- AnnahmeAngebot Teil 2
+-- AnnahmeAngebotNeuKunde 
 -- Ein neuer Kunde nimmt ein Angebot an
 CREATE OR REPLACE FUNCTION AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
 						Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot) RETURNS VOID 
 AS $$
 	DECLARE neuID int;
 BEGIN
-	-- Atomizitaet wichtig, wegen ermitteln des IDs
-	BEGIN;
+	-- Atomizitaet wichtig, wegen ermitteln des IDs, aber Syntaxfehler tritt auf
+	-- BEGIN;
 	INSERT INTO Kunden  VALUES (DEFAULT, Vorname, Name, Adresse, Telefonnummer, Kreditkarte, Besonderheiten, DEFAULT, now());
-	SELECT KID INTO neuID
-	FROM Kunden
+	SELECT 	KID INTO neuID
+	FROM 	Kunden
 	ORDER BY KID DESC
 	FETCH FIRST 1 ROWS ONLY;
 	
 	SELECT AnnahmeAngebot(neuID, Angebotsdaten);
 
-	COMMIT;
+	--COMMIT;
 
 END
 $$LANGUAGE plpgsql;
@@ -241,8 +240,8 @@ $$LANGUAGE plpgsql;
 -- Simuliert hier durch eine Funktion
 CREATE OR REPLACE FUNCTION ZimmerDreckig() RETURNS VOID 
 AS $$
-	UPDATE belegteZimmer 
-	SET dreckig = TRUE
+	UPDATE 	belegteZimmer 
+	SET 	dreckig = TRUE
 $$ LANGUAGE SQL;
 
 
@@ -272,16 +271,45 @@ END
 $$ LANGUAGE plpgsql;
 
 
--- GourmetGast
--- Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 3 Sterne haben
+-- gourmetGast
+-- Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 3 Sterne haben,
+-- dazu das exklusivste (Teuerste) Gericht. 
+CREATE OR REPLACE FUNCTION gourmetGast(Hotel int) RETURNS TABLE(Restaurantname varChar, Location varChar, Sterne int, ExklusivMenu varChar)
+AS $$
+BEGIN
+	RETURN QUERY
+	WITH 	gourmetRestaurants AS (
+	SELECT	* 
+	FROM 	Restaurant
+	WHERE 	gehoertZuHotel = Hotel AND Restaurant.Sterne >= drei ),
+	gourmetSpeiseID AS (
+	SELECT  gourmetRestaurants.Name AS Restaurant, Location, Sterne, SpeiseID
+	FROM 	wirdServiertIn
+		JOIN gourmetRestaurants ON wirdServiertIn.gehoertZuHotel = gourmetRestaurants.gehoertZuHotel
+		AND wirdServiertIn.AID = gourmetRestaurants.AID
+	WHERE 	Preis = max(Preis) )
+	SELECT 	gourmetRestaurants.Name AS Restaurant, Location, Sterne, SpeisenUndGetraenke.Name AS ExklusivMenu
+	FROM 	gourmetSpeiseID 
+		JOIN SpeisenUndGetraenke ON gourmetSpeiseID.SpeiseID = SpeisenUndGetraenke.SpeiseID ;
+END 
+$$ LANGUAGE plpgsql;
 
+-- freieSportplaetze 
+-- Ein Gast moechte sehen, welche Sportplaetze am jetzigen Tag noch frei zum vermieten sind
+CREATE OR REPLACE FUNCTION freieSportplaetze(Hotel int) RETURNS TABLE(Sportplatz varChar, Location varChar, Oeffnungszeiten Oeffnungszeit)
+AS $$
+BEGIN
+	RETURN 	QUERY
+	WITH 	sportplatzIDs AS (
+	SELECT 	gehoertZuHotel, AID
+	FROM 	mieten 
+	WHERE	bis > now() AND von >= (current_date + 1  || ' 00:00:00')::timestamp )
 
-
--- FreieSportplaetze 
--- Ein Gast moechte sehen, welche Sportplaetze am jetzigen Tag noch zu vermieten sind
-
-
-
+	SELECT 	Name, Location, Oeffnungszeiten
+	FROM 	Sporteinrichtungen
+	WHERE 	sportplatzIDs.gehoertZuHotel = Sporteinrichtungen.gehoertZuHotel AND sportplatzIDs.AID = Sporteinrichtungen.AID;
+END 
+$$ LANGUAGE plpgsql;
 
 
 -- TRIGGER 
