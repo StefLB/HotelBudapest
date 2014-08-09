@@ -3,26 +3,11 @@
 -- freieZimmerView 
 -- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
 CREATE OR REPLACE VIEW freieZimmerView AS
-WITH A AS (SELECT *
-	FROM reservierungen
-	WHERE Anreise=current_date OR Gaestestatus = 'IN-HOUSE' )
-SELECT zimmer.gehoertzuhotel, zimmer.zimmerkategorie
-	FROM zimmer LEFT OUTER JOIN A
-	 ON (zimmernummer = zimmer AND zimmer.gehoertzuhotel = A.gehoertzuhotel)
-	 ORDER By gehoertZuHotel ASC;
-
-
-CREATE OR REPLACE VIEW freieZimmerView AS
-SELECT hotelid, hotelb,hotelc,hoteld,hotela,hotelf, ezmm,ezom,dzmm,dzom,trmm,trom,suit
-
+SELECT hotelid,ezmm,ezom,dzmm,dzom,suit,trmm,trom
 FROM
 
-(SELECT *
-
-FROM (SELECT hotelid FROM hotel) AS A
-
-CROSS JOIN
-
+(SELECT hotelid from hotel) AS HOTELSA
+LEFT OUTER JOIN
 (WITH B AS  (
 WITH A AS (SELECT *
 	FROM reservierungen
@@ -35,9 +20,8 @@ SELECT B.hotela, count(zimmerkategorie) as EZMM
 FROM B
 WHERE zimmerkategorie = 'EZMM'
 GROUP BY B.hotela) as C
-
-CROSS JOIN
-
+on hotelid=hotela
+LEFT OUTER JOIN
 (WITH E AS  (
 WITH D AS (SELECT *
 	FROM reservierungen
@@ -50,8 +34,8 @@ SELECT E.hotelB, count(zimmerkategorie) as EZOM
 FROM E
 WHERE zimmerkategorie = 'EZOM'
 GROUP BY E.hotelB) AS F
-
-CROSS JOIN
+on hotelid=hotelb
+LEFT OUTER JOIN
 
 (WITH Z AS  (
 WITH Y AS (SELECT *
@@ -65,9 +49,9 @@ SELECT Z.hotelC, count(zimmerkategorie) as DZMM
 FROM Z
 WHERE zimmerkategorie = 'DZMM'
 GROUP BY Z.hotelC) AS G
+ON hotelid=hotelc
 
-CROSS JOIN
-
+LEFT OUTER JOIN
 (WITH X AS  (
 WITH V AS (SELECT *
 	FROM reservierungen
@@ -80,8 +64,9 @@ SELECT X.hotelD, count(zimmerkategorie) as DZOM
 FROM X
 WHERE zimmerkategorie = 'DZOM'
 GROUP BY X.hotelD) AS H
+ON hotelid=hoteld
 
-CROSS JOIN
+LEFT OUTER JOIN
 
 (WITH O AS  (
 WITH P AS (SELECT *
@@ -95,8 +80,9 @@ SELECT O.hotelF , count(zimmerkategorie) as SUIT
 FROM O
 WHERE zimmerkategorie = 'SUIT'
 GROUP BY O.hotelF ) AS I
+on hotelid=hotelf
 
-CROSS JOIN
+LEFT OUTER JOIN
 
 (WITH Q AS  (
 WITH R AS (SELECT *
@@ -110,8 +96,9 @@ SELECT Q.hotelE, count(zimmerkategorie) as TRMM
 FROM Q
 WHERE zimmerkategorie = 'TRMM'
 GROUP BY Q.hotelE) AS J
+ON hotelid = hotelE
 
-CROSS JOIN
+LEFT OUTER JOIN
 
 (WITH T AS  (
 WITH U AS (SELECT *
@@ -124,10 +111,8 @@ SELECT zimmer.gehoertzuhotel as hotelG, zimmer.zimmerkategorie
 SELECT T.hotelG, count(zimmerkategorie) as TROM
 FROM T
 WHERE zimmerkategorie = 'TROM'
-GROUP BY T.hotelG) K ) as M
-
-WHERE M.hotelid = M.hotelg ;
-
+GROUP BY T.hotelG) as K
+on hotelid = hotelg;
 
 -- belegteZimmerView
 -- Belegte Zimmer, sortiert nach Hotel und Zimmernummer
