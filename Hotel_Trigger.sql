@@ -249,11 +249,12 @@ $$ LANGUAGE SQL;
 -- Rechnungsposten
 -- Ausammeln aller Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
 -- Entspricht einem Zimmerkonto 
-CREATE OR REPLACE FUNCTION Rechnungsposten(Hotelnummer int, Zimmernummer int) RETURNS 
-SETOF RECORD
+CREATE OR REPLACE FUNCTION Rechnungsposten(Hotelnummer int, Zimmernummer int) 
+RETURNS TABLE(Posten varChar, Zeitpunkt timestamp, Preis money, GesamtPreis money)
 AS $$
 BEGIN	
-	WITH Rechnungskunde AS( 
+	RETURN QUERY
+	WITH 	Rechnungskunde AS( 
 	SELECT 	KID, anreise 
 	FROM 	Reservierungen 
 	WHERE 	Hotelnummer = Reservierungen.gehoertZuHotel AND Zimmernummer = Reservierungen.Zimmernummer
@@ -261,12 +262,26 @@ BEGIN
 	ORDER BY anreise
 	FETCH FIRST 1 ROWS ONLY)
 
-	SELECT 	SpeiseID, Name, Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	-- konsumierte Posten 
+	SELECT 	Name, Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
 	FROM 	konsumieren 
 		JOIN SpeisenUndGetraenke ON konsumieren.SpeiseID = SpeisenUndGetraenke.SpeiseID
-	WHERE 	Rechnungskunde. KID = konsumieren.KID AND konsumieren.zeitpunkt > anreise; 
-
-	RETURN;
+	WHERE 	Rechnungskunde. KID = konsumieren.KID AND konsumieren.zeitpunkt >= anreise
+	-- gemietete Posten
+	UNION 
+	SELECT 	Name , Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	FROM 	mieten 
+		JOIN Sporteinrichtungen ON mieten.gehoertZuHotel = Sporteinrichtungen.gehoertZuHotel
+		AND mieten.AID = Sporteinrichtungen.AID
+	WHERE 	Rechnungskunde.KID = mieten.KID AND mieten.zeitpunkt >= anreise
+	-- benutzte Posten
+	UNION
+	SELECT 	Name , Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	FROM 	benutzen 
+		JOIN Schimmbad ON mieten.gehoertZuHotel = Schimmbad.gehoertZuHotel
+		AND benutzen.AID = Schimmbad.AID
+	WHERE 	Rechnungskunde.KID = benutzen.KID AND benutzen.zeitpunkt >= anreise; 
+	
 END		 
 $$ LANGUAGE plpgsql;
 
@@ -311,22 +326,90 @@ BEGIN
 END 
 $$ LANGUAGE plpgsql;
 
+-- getNaechsteFreieKarte
+-- gibt naechste freie zimmerkarte zurueck
+CREATE OR REPLACE FUNCTION getNaechsteFreieKarte() RETURNS int
+AS $$
+	DECLARE neuKartenID int;
+BEGIN
+	SELECT 	KartenID INTO neuKartenID
+	FROM 	FreieKarten
+	FETCH FIRST 1 ROWS ONLY;
+
+	RETURN neuKartenID;
+END 
+$$ LANGUAGE plpgsql;
 
 -- TRIGGER 
 
 -- EinChecken
--- Beim Einchecken von einem Gast, muessen fuer alle 
--- extra Zimmer mindestens ein Verantwortlichen pro Zimmer als 
--- Kunde eingetragen werden.  
--- Allen Gaesten des Zimmers wird eine Karte ausgehaendigt 
+-- Falls beim Einchecken von einem Gast, in Reservierungen
+-- mehr als ein Zimmer auf den Kunden eingetragen sind, muss aus Sicherheitsgruenden
+-- pro zusaestzliches Zimmer eine Verantwortliche Person eingetragen werden.   
+CREATE OR REPLACE FUNCTION EinChecken() RETURNS TRIGGER 
+AS $$
+	DECLARE AnzahlZimmer int; Reservierungsnummervar int; 
+BEGIN
+
+	SELECT 	count(*) INTO AnzahlZimmer
+	FROM 	Reservierungen 
+	WHERE 	Reservierungen.KID = NEW.KID AND Status = 'ARRIVAL';
+
+	IF (AnzahlZimmer > 1) THEN 
+		-- beginn ab offset 1, d.h. erste 
+		-- reservierung bleibt unveraendert
+		FOR i in 1..AnzahlZimmer LOOP
+			SELECT 	Reservierungsnummer INTO Reservierungsnummervar
+			FROM 	Reservierungen 
+			WHERE 	Reservierungen.KID = NEW.KID AND Status = 'ARRIVAL'
+			ORDER BY Reservierungsnummer
+			OFFSET 	i
+			FETCH FIRST 1 ROWS ONLY; 
+			-- Nehme neue Kundendaten auf fuer Reservierung		
+			SELECT checkInNeuKunde(Reservierungsnummervar);
+		END LOOP;
+	END IF;
+
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER EinCheckenTrigger BEFORE UPDATE OF Gaestestatus
+ON Reservierungen 
+	FOR EACH ROW
+	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
+	EXECUTE PROCEDURE EinChecken();
 
 
 
+-- Kartenvergabe
+-- Jeder Kunde erhaelt 2 Karten fuer Zimmer
+CREATE OR REPLACE FUNCTION Kartenvergabe() RETURNS TRIGGER 
+AS $$
+	DECLARE neuKartenID int;
+BEGIN
+	FOR i IN 1..2 LOOP 
+		WITH 	FreieKarten AS (
+		SELECT 	KartenID
+		FROM 	ZimmerKarten
+		WHERE 	gesperrt = FALSE
+		EXCEPT ALL
+		-- ausser Karten schon im Umlauf
+		SELECT 	KartenID
+		FROM 	erhalten)
+
+		neuKartenID = getNaechsteFreieKarte();
+
+		INSERT INTO erhalten VALUES (NEW.KID, neuKartenID,NEW.Reservierungsnummer);
+	END LOOP;
+END
+$$ LANGUAGE plpgsql;
 
 
--- Bezahlen
-
-
+CREATE TRIGGER KartenvergabeTrigger AFTER UPDATE OF Gaestestatus
+ON Reservierungen 
+	FOR EACH ROW
+	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
+	EXECUTE PROCEDURE Kartenvergabe();
 
 -- Kartenverlust
 -- Beim Verlust der Karte, wird diese gesperrt und aus erhalten geloescht.
@@ -340,21 +423,9 @@ BEGIN
 	SELECT 	KundenID , reservierungsnummer INTO kundennummervar,revnummervar
 	FROM 	erhalten
 	WHERE 	NEW.KartenID = erhalten.KartenID; 
-	
+
 	-- neue Karte austellen
-	WITH 	FreieKarten AS (
-	SELECT 	KartenID
-	FROM 	ZimmerKarten
-	WHERE 	gesperrt = FALSE
-	EXCEPT ALL
-	-- ausser Karten schon im Umlauf
-	SELECT 	KartenID
-	FROM 	erhalten)
-
-	SELECT 	KartenID into neuKartenID
-	FROM 	FreieKarten
-	FETCH FIRST 1 ROWS ONLY;
-
+	neuKartenID = getNaechsteFreieKarte();
 	INSERT INTO erhalten VALUES (kundennummervar, neuKartenID,revnummervar);
 
 	-- Zugangsberechtigung der alten karte loeschen
@@ -364,7 +435,7 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER verloreneKarte AFTER UPDATE OF gesperrt
+CREATE TRIGGER verloreneKarteTrigger AFTER UPDATE OF gesperrt
 ON Zimmerkarte 
 	FOR EACH ROW
 	WHEN (NEW.gesperrt = TRUE)
@@ -407,7 +478,7 @@ CREATE TRIGGER CheckOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
 	EXECUTE PROCEDURE schonBezahlt();
 
 
--- VIP
+-- VIP -- TODO ELLI
 -- Bei der 100 Uebernachtung bekommt der Gast VIP Status
 
 
