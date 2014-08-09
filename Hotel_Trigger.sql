@@ -23,7 +23,7 @@ DO ALSO
 	UPDATE Zimmerkarte
 	SET gesperrt = FALSE 
 	WHERE NEW.KartenID = Zimmerkarte.KartenID;
-
+	
 
 
 -- FUNKTIONEN 
@@ -47,6 +47,24 @@ BEGIN
 
 END	
 $$LANGUAGE plpgsql; 
+
+
+-- Berechne Haupt/Nebensaison Naechte
+CREATE OR REPLACE FUNCTION berechneSaison(Anreise int,Abreise int) RETURNS AnzahlnaechteType
+AS $$
+	DECLARE beginHaupt date DEFAULT current-year||'01-08' ; endHaupt date DEFAULT current-year||'10-31'; countHaupt int;
+BEGIN
+
+	FOR i IN 0..(Abreise-Anreise) LOOP
+		IF (Anreise + i BETWEEN beginHaupt AND endHaupt) THEN
+			countHaupt = countHaupt + 1;
+		END IF;
+	END LOOP;
+
+	RETURN (countHaupt, (Abreise-Anreise-countHaupt));
+END
+$$LANGUAGE plpgsql; 
+
 
 
 
@@ -135,16 +153,34 @@ BEGIN
 	END LOOP;
 	
 	-- Der Kunde erhaelt ein Angebot
-	RETURN (Hotel, preisvar*AnzahlZimmer, AnzahlZimmer) ;		
+	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer,  preisvar*AnzahlZimmer,) ;		
 END
 $$ LANGUAGE plpgsql; 
 
 
--- Ablehnung // TODO ELLI
+-- Ablehnung 
 -- Der Kunde kann ein Angebot ablehnen
-CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
+CREATE OR REPLACE FUNCTION AnnahmeAngebot( Angebotsdaten Angebot, Grund varChar) RETURNS VOID 
+AS $$
+BEGIN
+	WITH vorgemerkt AS (
+	-- die vorgemerkten Reservierungen
+	SELECT 	Reservierungsnummer
+	FROM 	Reservierungen
+	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
+		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
+	OFFSET O
+	LIMIT Angebotsdaten.AnzahlZimmer::count)
+	
+	-- die jetzt als Turn-Downs eingetragen werden
+	UPDATE 	Reservierungen
+	SET 	GaesteStatus = 'TURN-DOWN'
+	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkte.Reservierungsnummer;
 
-
+	
+	INSERT INTO Ablehnungen VALUES (Angebotsdaten.reservierungsnummer, Grund);
+END
+$$LANGUAGE plpgsql;
 
 
 -- AnnahmeAngebot Teil 1
@@ -152,31 +188,51 @@ CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkatego
 CREATE OR REPLACE FUNCTION AnnahmeAngebot(KundenID int, Angebotsdaten Angebot) RETURNS VOID 
 AS $$
 BEGIN
-	WITH vorgemerkteZimmer AS (
-	-- durch das splitten ist zimmer eindeutig durch 
-	-- reservierungsnummer gegeben
-	SELECT Reservierungsnummer
-	FROM Reservierungen
-	WHERE Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
-	-- zusammenhaengende Zimmer waeren nett
+	-- hier werden die bei der anfrage vorgemerkte zimmer
+	-- dem kunden zugeteilt. bei mehreren kundenanfragen gleichzeitig
+	-- werden die zimmer durch neusortierung moeglichst zusammenhaengend verteilt
+	WITH vorgemerkte AS (
+	-- durch das splitten der reservierung ist 
+	-- zimmer jetzt eindeutig durch reservierungsnummer gegeben
+	SELECT 	Reservierungsnummer
+	FROM 	Reservierungen
+	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
+		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
+	-- zusammenhaengende Zimmer waere nett
 	ORDER BY Zimmer ASC
-	-- kunde wird den im vorigen Schritt 
-	-- vorgemerkt zimmer zugeteilt, auch bei gleichzeitigen
-	-- Anfragen geht die gesamtzahl auf 
+	-- kunde wird den vorgemerkte zimmer zugeteilt, 
+	-- auch bei gleichzeitigen Anfragen geht die gesamtzahl auf 
 	OFFSET O
 	LIMIT Angebotsdaten.AnzahlZimmer::count)
 	
 	UPDATE 	Reservierungen
-	SET 	Reservierungen.KID = KundenId
-	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkteZimmer.Reservierungsnummer;
+	SET 	Reservierungen.KID = KundenId, GaesteStatus = 'RESERVED'
+	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkte.Reservierungsnummer;
 	
 END
 $$LANGUAGE plpgsql;
 
 -- AnnahmeAngebot Teil 2
--- Ein neuer Kunde nimmt ein Angebot an //TODO ELLI
+-- Ein neuer Kunde nimmt ein Angebot an
+CREATE OR REPLACE FUNCTION AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
+						Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot) RETURNS VOID 
+AS $$
+	DECLARE neuID int;
+BEGIN
+	-- Atomizitaet wichtig, wegen ermitteln des IDs
+	BEGIN;
+	INSERT INTO Kunden  VALUES (DEFAULT, Vorname, Name, Adresse, Telefonnummer, Kreditkarte, Besonderheiten, DEFAULT, now());
+	SELECT KID INTO neuID
+	FROM Kunden
+	ORDER BY KID DESC
+	FETCH FIRST 1 ROWS ONLY;
+	
+	SELECT AnnahmeAngebot(neuID, Angebotsdaten);
 
+	COMMIT;
 
+END
+$$LANGUAGE plpgsql;
 
 
 
@@ -232,8 +288,9 @@ $$ LANGUAGE plpgsql;
 
 -- EinChecken
 -- Beim Einchecken von einem Gast, muessen fuer alle 
--- zusaetzlichen einen Eintrag in Kunden stattfinden
--- Allen Gaesten des Zimmers wird eine Karte ausgehaendigt TODO: ER Modell anpassen, aus 1 wird 0!
+-- extra Zimmer mindestens ein Verantwortlichen pro Zimmer als 
+-- Kunde eingetragen werden.  
+-- Allen Gaesten des Zimmers wird eine Karte ausgehaendigt 
 
 
 
@@ -243,13 +300,47 @@ $$ LANGUAGE plpgsql;
 
 
 
-
-
-
 -- Kartenverlust
 -- Beim Verlust der Karte, wird diese gesperrt und aus erhalten geloescht.
 -- Der Kunde bekommt eine neue
+CREATE OR REPLACE FUNCTION sperreUndErsetzeZimmerkarte() RETURNS TRIGGER 
+AS $$
+	DECLARE neuKartenID int;kundennummervar int; revnummervar int;
+BEGIN
 
+	-- finde zur verlorenen Karte KundenID und reservierungsnummer
+	SELECT 	KundenID , reservierungsnummer INTO kundennummervar,revnummervar
+	FROM 	erhalten
+	WHERE 	NEW.KartenID = erhalten.KartenID; 
+	
+	-- neue Karte austellen
+	WITH 	FreieKarten AS (
+	SELECT 	KartenID
+	FROM 	ZimmerKarten
+	WHERE 	gesperrt = FALSE
+	EXCEPT ALL
+	-- ausser Karten schon im Umlauf
+	SELECT 	KartenID
+	FROM 	erhalten)
+
+	SELECT 	KartenID into neuKartenID
+	FROM 	FreieKarten
+	FETCH FIRST 1 ROWS ONLY;
+
+	INSERT INTO erhalten VALUES (kundennummervar, neuKartenID,revnummervar);
+
+	-- Zugangsberechtigung der alten karte loeschen
+	DELETE FROM erhalten
+	WHERE 	NEW.KartenID = erhalten.KartenID;
+
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER verloreneKarte AFTER UPDATE OF gesperrt
+ON Zimmerkarte 
+	FOR EACH ROW
+	WHEN (NEW.gesperrt = TRUE)
+	EXECUTE PROCEDURE sperreUndErsetzeZimmerkarte();
 
 
 
@@ -275,6 +366,9 @@ BEGIN
 
 	IF(!FOUND) THEN
 		RAISE EXCEPTION 'Gast muss noch bezahlen';
+
+	ELSE 
+		PERFORM CheckOut();
 	END IF;
 END
 $$ LANGUAGE plpgsql;
@@ -283,7 +377,6 @@ CREATE TRIGGER CheckOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'CHECKED-OUT')
 	EXECUTE PROCEDURE schonBezahlt();
-	EXECUTE PROCEDURE KartenRueckgabe();
 
 
 -- VIP
@@ -296,5 +389,27 @@ CREATE TRIGGER CheckOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
 -- TuerOeffner
 -- Beim oeffnen einer Tuer wird die Zugangsberechtigung geprueft
 -- Nur zugelassene Tueren duerfen geoeffnet werden
+CREATE OR REPLACE FUNCTION checkZimmerkartenRechte() RETURNS TRIGGER 
+AS $$
+BEGIN
+	WITH 	berechtigtesZimmer AS (
+	SELECT 	gehoertZuHotel, Zimmer
+	FROM 	Reservierungen
+	WHERE 	Reservierungen.Reservierungsnummer = NEW.Reservierungsnummer) 
+	SELECT  *
+	FROM 	erhalten
+	WHERE 	NEW.KartenId = erhalten.KartenId AND NEW.Zimmernummer = berechtigtesZimmer.Zimmer
+		AND NEW.gehoertZuHotel = berechtigtesZimmer;
 
+	IF (!FOUND) THEN
+		RAISE NOTICE 'Kein Zutritt!'; 
+		RAISE EXCEPTION 'Hey, du Spanner!';
+	END IF;	
+
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
+	FOR EACH ROW
+	EXECUTE PROCEDURE checkZimmerkartenRechte();
 
