@@ -23,7 +23,7 @@ DO ALSO
 	UPDATE 	Zimmerkarte
 	SET 	gesperrt = FALSE 
 	WHERE 	NEW.KartenID = Zimmerkarte.KartenID;
-	
+
 
 
 -- FUNKTIONEN 
@@ -218,7 +218,7 @@ CREATE OR REPLACE FUNCTION AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,A
 AS $$
 	DECLARE neuID int;
 BEGIN
-	-- Atomizitaet wichtig, wegen ermitteln des IDs, aber Syntaxfehler tritt auf
+	-- Atomizitaet wichtig, wegen ermitteln des IDs, aber Postgres meckert wecken Syntax
 	-- BEGIN;
 	INSERT INTO Kunden  VALUES (DEFAULT, Vorname, Name, Adresse, Telefonnummer, Kreditkarte, Besonderheiten, DEFAULT, now());
 	SELECT 	KID INTO neuID
@@ -340,13 +340,15 @@ BEGIN
 END 
 $$ LANGUAGE plpgsql;
 
+
+
 -- TRIGGER 
 
 -- EinChecken
 -- Falls beim Einchecken von einem Gast, in Reservierungen
 -- mehr als ein Zimmer auf den Kunden eingetragen sind, muss aus Sicherheitsgruenden
 -- pro zusaestzliches Zimmer eine Verantwortliche Person eingetragen werden.   
-CREATE OR REPLACE FUNCTION EinChecken() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION einChecken() RETURNS TRIGGER 
 AS $$
 	DECLARE AnzahlZimmer int; Reservierungsnummervar int; 
 BEGIN
@@ -373,17 +375,17 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER EinCheckenTrigger BEFORE UPDATE OF Gaestestatus
+CREATE TRIGGER einCheckenTrigger BEFORE UPDATE OF Gaestestatus
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
-	EXECUTE PROCEDURE EinChecken();
+	EXECUTE PROCEDURE einChecken();
 
 
 
 -- Kartenvergabe
 -- Jeder Kunde erhaelt 2 Karten fuer Zimmer
-CREATE OR REPLACE FUNCTION Kartenvergabe() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION kartenvergabe() RETURNS TRIGGER 
 AS $$
 	DECLARE neuKartenID int;
 BEGIN
@@ -405,11 +407,11 @@ END
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER KartenvergabeTrigger AFTER UPDATE OF Gaestestatus
+CREATE TRIGGER kartenvergabeTrigger AFTER UPDATE OF Gaestestatus
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
-	EXECUTE PROCEDURE Kartenvergabe();
+	EXECUTE PROCEDURE kartenvergabe();
 
 -- Kartenverlust
 -- Beim Verlust der Karte, wird diese gesperrt und aus erhalten geloescht.
@@ -447,7 +449,7 @@ ON Zimmerkarte
 -- Beim CHECK-OUT des Kunden, gibt dieser die Karte ab 
 -- Alle Karten, die der Reservierung zugeteilt wurden werden 
 -- aus erhalten geloescht und koennen nicht mehr die entsprechende Tuer oeffnen
-CREATE OR REPLACE FUNCTION CheckOut() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION checkOut() RETURNS TRIGGER 
 AS $$
 BEGIN
 	DELETE FROM erhalten
@@ -467,12 +469,12 @@ BEGIN
 		RAISE EXCEPTION 'Gast muss noch bezahlen';
 
 	ELSE 
-		PERFORM CheckOut();
+		PERFORM checkOut();
 	END IF;
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER CheckOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
+CREATE TRIGGER checkOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'CHECKED-OUT')
 	EXECUTE PROCEDURE schonBezahlt();
