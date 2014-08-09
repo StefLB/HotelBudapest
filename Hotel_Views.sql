@@ -132,6 +132,74 @@ ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
 
 -- HotelManager 
 -- Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die beliebteste Zimmerkategorie
+SELECT * 
+FROM (SELECT hotelid from hotel) as hotels
+
+LEFT OUTER JOIN
+
+(SELECT gehoertzuhotel as hotelsresa, sum(gesamtbetrag) as Umsatzrooms
+FROM
+(SELECT gehoertzuhotel,zimmerpreis,zimmerkategorie,reserviertvonkunde,anreise,abreise, reservierungsnummer, gaestestatus, ((abreise-anreise)*zimmerpreis) as gesamtbetrag
+FROM reservierungen
+WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE'
+ORDER BY gehoertzuHotel) AS GesamtproResa
+GROUP BY hotelsresa) as umsatz --gesamtumsatz Zimmerpreis betrachtet
+
+on hotelid=hotelsresa
+
+LEFT OUTER JOIN
+
+(SELECT gehoertzuhotel as hotelskonsum, sum(preis) as konsum
+FROM
+(SELECT DISTINCT *
+FROM (konsumieren
+CROSS JOIN
+(SELECT gehoertzuhotel, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
+FROM reservierungen
+WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE'
+ORDER BY gehoertzuHotel) as Kunden) as Kombis
+WHERE kid = reserviertvonkunde) as KonsumationenzuREsas
+JOIN speisenundgetraenke
+ON speisenundgetraenke.speiseid = KonsumationenzuREsas.Speiseid
+GROUP BY hotelskonsum) as konsum --extraskonsumieren per hotel
+
+ON hotelid=hotelskonsum
+
+LEFT OUTER JOIN
+
+(SELECT hotelid1 as hotelidmieten, sum(preis) as mieteneinahmen
+FROM
+(SELECT DISTINCT *
+FROM (mieten
+CROSS JOIN
+(SELECT gehoertzuhotel as hotelid1, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
+FROM reservierungen
+WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE'
+ORDER BY hotelid1) as Kunden) as Kombis
+WHERE kid = reserviertvonkunde) as Gemietet
+JOIN sporteinrichtungen
+ON sporteinrichtungen.aid = Gemietet.aid
+GROUP BY hotelidmieten) mieteinnahmens --extramietenprohotel
+
+ON hotelid=hotelidmieten
+
+LEFT OUTER JOIN
+
+(SELECT hotelid1 as hotelbe, sum(preis) as benutzteinnahmen
+FROM
+(SELECT DISTINCT *
+FROM (benutzen
+CROSS JOIN
+(SELECT gehoertzuhotel as hotelid1, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
+FROM reservierungen
+WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE'
+ORDER BY hotelid1) as Kunden) as Kombis
+WHERE kid = reserviertvonkunde and von >= anreise) as Benutzt
+JOIN schwimmbad
+ON schwimmbad.aid = Benutzt.aid
+GROUP BY hotelbe) as Benutzen --extrabenutzen 
+
+ON hotelid=hotelbe;
 
 
 
