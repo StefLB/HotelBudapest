@@ -8,6 +8,12 @@ CREATE TYPE Angebot AS (
 	AnzahlZimmer int
 );
 
+CREATE TYPE Anzahlnaechte AS (
+	AnzahlHauptsaison int,
+	AnzahlNebensaison int
+);
+
+
 
 --Domaenen
 
@@ -110,7 +116,7 @@ CREATE TABLE Preistabelle (
 	CodeUndPosten varChar,
 	Preis money,
 
-	PRIMARY KEY (Hotelpreistabelle,Posten)
+	PRIMARY KEY (CodeUndPosten)
 
 );
 
