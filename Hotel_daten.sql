@@ -2,13 +2,12 @@
 
 --Hotels--
 INSERT INTO Hotel VALUES
-	(DEFAULT,'Hotel Budapest', 'Am schwarzen Weg 166, 66121 Traumstadt', 'Romantik');
-INSERT INTO Hotel VALUES
-	(DEFAULT, 'Hotel NoSleep', 'Loud Avenue 10, 59874 Elinoise', 'Business'),
-	(DEFAULT, 'The Witz-Garlton', 'Schickimicki Allee 501, 68745 Werlin', 'Luxus'),
-	(DEFAULT, 'The Octopus', 'Korallenriff 478, 87465 Seaside', 'Wellness'),
-	(DEFAULT, 'BudgetInn', 'Jansbillig 1, 00001 Pennyton', 'Budget'),
-	(DEFAULT, 'The Shining', 'Scary Road 666, 66666 De Vilstown', 'Family');
+	(DEFAULT,'Hotel Budapest', 'Am schwarzen Weg 166, 66121 Traumstadt', 'Romantik',1),
+	(DEFAULT, 'Hotel NoSleep', 'Loud Avenue 10, 59874 Elinoise', 'Business',1),
+	(DEFAULT, 'The Witz-Garlton', 'Schickimicki Allee 501, 68745 Werlin', 'Luxus',1),
+	(DEFAULT, 'The Octopus', 'Korallenriff 478, 87465 Seaside', 'Wellness',1),
+	(DEFAULT, 'BudgetInn', 'Jansbillig 1, 00001 Pennyton', 'Budget',1),
+	(DEFAULT, 'The Shining', 'Scary Road 666, 66666 De Vilstown', 'Family',1);
 
 --Kunden--
 insert into Kunden (erstellungszeitpunkt,vorname,nachname) values (now(),'Michelle','Hamilton');
