@@ -61,15 +61,16 @@ select * from reservierungen
 
 
 CREATE TYPE Angebot AS (
-	reservierungsnummer  int,
-	preis money,
+	Hotel int,
+	Gesamtpreis money,
 	AnzahlZimmer int
 );
 
 -- Zimmeranfrage
 -- Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs
 CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
-					Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) RETURNS Angebot
+					Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) 
+RETURNS TABLE(Reservierungsnummern int, Gesamtpreis money)
 AS $$
 	DECLARE Anzahl int; zimmervar int; preisvar money; 
 BEGIN
@@ -92,12 +93,20 @@ BEGIN
 	FROM PreisTabelle
 	WHERE Posten LIKE Zimmerkategorie OR Posten LIKE Verpflegung;
 
-	-- Falls ja, lege eine provisorische Reservierung an
-	INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, NULL, Verpflegung, Zimmerkategorie,
-					Anreise, Abreise, 500, NULL, NULL, Wuensche, Personenanzahl, now());
+	-- Falls ja, lege eine vorgemerkte Reservierung an
+	-- eine reservierung pro zimmer
+	FOR i IN 0..AnzahlZimmer LOOP
+		PERFORM Zimmernummer INTO zimmervar
+		FROM temptable
+		ORDER BY Zimmernummer ASC
+		OFFSET i
+		FETCH FIRST 1 ROWS ONLY;
+		
+		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
+					Anreise, Abreise, DEFAULT , NULL, 'AWAITING_CONFIRMATION', Wuensche, Personenanzahl, now());
 	
-	-- Zeige Kunde Preis insgesamt
-	RETURN (500,preisvar*AnzahlZimmer,AnzahlZimmer);		
+	-- Der Kunde bekommt ein Angebot
+	RETURN (Hotel, preisvar, AnzahlZimmer) ;		
 END
 $$LANGUAGE plpgsql; 
 
@@ -109,16 +118,27 @@ $$LANGUAGE plpgsql;
 
 -- AnnahmeAngebot Teil 1
 -- Ein Kunde mit bereits angelegter KID nimmt ein Angebot an
-CREATE OR REPLACE FUNCTION AnnahmeAngebot(Angebotsnummer Angebot, KID int) RETURNS VOID 
+CREATE OR REPLACE FUNCTION AnnahmeAngebot(KundenID int, Angebotsdaten Angebot) RETURNS VOID 
 AS $$
 BEGIN
-	FOR i IN 0..Angebotsnummer.AnzahlZimmer LOOP
-		SELECT	Zimmernummer INTO zimmervar
-		FROM 	temptable
-		ORDER BY Zimmernummer ASC 
-		OFFSET i
-		FETCH FIRST 1 ROWS ONLY;
-	END LOOP;
+	WITH vorgemerkteZimmer AS (
+	-- durch das splitten ist zimmer eindeutig durch 
+	-- reservierungsnummer gegeben
+	SELECT Reservierungsnummer
+	FROM Reservierungen
+	WHERE Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
+	-- zusammenhaengende Zimmer waeren nett
+	ORDER BY Zimmer ASC
+	-- kunde wird den im vorigen Schritt 
+	-- vorgemerkt zimmer zugeteilt, auch bei gleichzeitigen
+	-- Anfragen geht die gesamtzahl auf 
+	OFFSET O
+	LIMIT Angebotsdaten.AnzahlZimmer::count)
+	
+	UPDATE 	Reservierungen
+	SET 	Reservierungen.KID = KundenId
+	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkteZimmer.Reservierungsnummer;
+	
 END
 $$LANGUAGE plpgsql;
 
