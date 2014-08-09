@@ -12,6 +12,8 @@ DO INSTEAD
 	SET dreckig = true
 	WHERE Zimmernummer = NEW.zugewiesenesZimmer AND gehoertZuHotel = NEW.ZimmerInHotel; 
 
+
+
 -- kartenGueltigInsert
 -- Bei der Ausgabe einer Zimmerkarte, darf diese nicht gesperrt sein
 -- offentsichtlich kann nur eine wiedergefundene karte aushaendigt werden
@@ -26,8 +28,102 @@ DO ALSO
 
 -- FUNKTIONEN 
 
+-- ZimmerFreiAnDate
+-- Gibt Zimmer in Hotel zurueck die frei sind von-bis
+CREATE OR REPLACE FUNCTION ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date) RETURNS TABLE (Zimmernummer  int)
+AS $$	
+BEGIN
+	RETURN QUERY
+	WITH freieZimmer AS(
+	SELECT 	Zimmer.Zimmernummer,Zimmer.Zimmerkategorie
+	FROM 	Zimmer
+	WHERE 	gehoertZuHotel = Hotel 
+	EXCEPT ( 
+	SELECT Reservierungen.Zimmer, Reservierungen.Zimmerkategorie
+	FROM 	Reservierungen 
+	WHERE 	gehoertZuHotel = Hotel AND ((von >= Anreise AND von <= Abreise) 
+		OR (bis >= Anreise AND bis <= Abreise))))
+
+	SELECT 	freieZimmer.Zimmernummer AS Zimmernummer
+	FROM 	freieZimmer
+	WHERE 	freieZimmer.Zimmerkategorie = Zimmerkat;
+	
+	
+END
+	
+$$LANGUAGE plpgsql; 
+
+
+
+select Zimmeranfrage(1,'DZOM', current_date +1,  current_date +2,'FB', 'nix', 1, 1); 
+select * from reservierungen
+
+
+
+CREATE TYPE Angebot AS (
+	reservierungsnummer  int,
+	preis money,
+	AnzahlZimmer int
+);
+
 -- Zimmeranfrage
--- 
+-- Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs
+CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
+					Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) RETURNS Angebot
+AS $$
+	DECLARE Anzahl int; zimmervar int; preisvar money; 
+BEGIN
+	-- Pruefe ob soviele Zimmer frei sind
+	CREATE TEMP TABLE temptable
+	(Zimmernummer)
+	ON COMMIT DROP AS
+	SELECT ZimmerFreiAnDate(Hotel, Zimmerkategorie, Anreise, Abreise);
+
+	SELECT count(*) INTO Anzahl
+	FROM temptable;
+			
+	-- Falls nicht, dann Anfragender informieren
+	IF (Anzahl > AnzahlZimmer) THEN
+		RAISE EXCEPTION 'Die gewuenschte Anzahl an Zimmer ist nicht frei';
+	END IF;
+
+	-- Berechne Preis
+	SELECT sum(preis) INTO preisvar
+	FROM PreisTabelle
+	WHERE Posten LIKE Zimmerkategorie OR Posten LIKE Verpflegung;
+
+	-- Falls ja, lege eine provisorische Reservierung an
+	INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, NULL, Verpflegung, Zimmerkategorie,
+					Anreise, Abreise, 500, NULL, NULL, Wuensche, Personenanzahl, now());
+	
+	-- Zeige Kunde Preis insgesamt
+	RETURN (500,preisvar*AnzahlZimmer,AnzahlZimmer);		
+END
+$$LANGUAGE plpgsql; 
+
+
+-- Ablehnung // TODO ELLI
+-- Der Kunde kann ein Angebot ablehnen
+
+
+
+-- AnnahmeAngebot Teil 1
+-- Ein Kunde mit bereits angelegter KID nimmt ein Angebot an
+CREATE OR REPLACE FUNCTION AnnahmeAngebot(Angebotsnummer Angebot, KID int) RETURNS VOID 
+AS $$
+BEGIN
+	FOR i IN 0..Angebotsnummer.AnzahlZimmer LOOP
+		SELECT	Zimmernummer INTO zimmervar
+		FROM 	temptable
+		ORDER BY Zimmernummer ASC 
+		OFFSET i
+		FETCH FIRST 1 ROWS ONLY;
+	END LOOP;
+END
+$$LANGUAGE plpgsql;
+
+-- AnnahmeAngebot Teil 2
+-- Ein neuer Kunde nimmt ein Angebot an //TODO ELLI
 
 
 
@@ -46,32 +142,27 @@ $$ LANGUAGE SQL;
 
 -- Rechnungsposten
 -- Ausammeln aller Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
--- Entspricht ein Zimmerkonto 
+-- Entspricht einem Zimmerkonto 
 CREATE OR REPLACE FUNCTION Rechnungsposten(Hotelnummer int, Zimmernummer int) RETURNS 
 SETOF RECORD
 AS $$
-
 BEGIN	
-	WITH Rechnungskunde AS 
-	(SELECT KID, anreise 
-	FROM Reservierungen 
-	WHERE Hotelnummer = Reservierungen.gehoertZuHotel AND Zimmernummer = Reservierungen.Zimmernummer
+	WITH Rechnungskunde AS( 
+	SELECT 	KID, anreise 
+	FROM 	Reservierungen 
+	WHERE 	Hotelnummer = Reservierungen.gehoertZuHotel AND Zimmernummer = Reservierungen.Zimmernummer
 	-- zeige letzte Reservierung des Zimmers an
 	ORDER BY anreise
 	FETCH FIRST 1 ROWS ONLY)
 
-	SELECT SpeiseID, Name, Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
-	FROM konsumieren JOIN SpeisenUndGetraenke ON konsumieren.SpeiseID = SpeisenUndGetraenke.SpeiseID
-	WHERE Rechnungskunde. KID = konsumieren.KID AND konsumieren.zeitpunkt > anreise; 
+	SELECT 	SpeiseID, Name, Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	FROM 	konsumieren 
+		JOIN SpeisenUndGetraenke ON konsumieren.SpeiseID = SpeisenUndGetraenke.SpeiseID
+	WHERE 	Rechnungskunde. KID = konsumieren.KID AND konsumieren.zeitpunkt > anreise; 
 
 	RETURN;
-
-END
-		 
+END		 
 $$ LANGUAGE plpgsql;
-
-
-
 
 
 -- GourmetGast
