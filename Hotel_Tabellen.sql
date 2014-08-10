@@ -357,7 +357,7 @@ CREATE TABLE wirdServiertIn(
 	SpeiseID int NOT NULL ,
 
 	FOREIGN KEY(SpeiseID) REFERENCES SpeisenUndGetraenke,
-	FOREIGN KEY(AID, gehoertZuHotel) REFERENCES Restauration
+	FOREIGN KEY(gehoertZuHotel,AID) REFERENCES Restauration
 );
 
 
