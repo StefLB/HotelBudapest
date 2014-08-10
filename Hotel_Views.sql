@@ -230,5 +230,14 @@ WITH Anreisende AS
 
 
 
-
+--freieKartenView
+--zeigt die verfügbaren Karten 
+CREATE OR REPLACE VIEW FreieKArten AS
+  SELECT  KartenID
+  FROM  ZimmerKarten
+  WHERE  gesperrt = FALSE
+  EXCEPT ALL
+  -- ausser Karten schon im Umlauf
+  SELECT  KartenID
+  FROM  erhalten;
 
