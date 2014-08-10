@@ -578,7 +578,7 @@ BEGIN
 
 	
 	
-	IF (zimmerstatus = 0) THEN RETURN NEW; ELSE
+	IF (zimmerstatus = FALSE) THEN RETURN NEW; ELSE
 		SELECT FIRST(zimmernummer) INTO newzimmer
 		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.von, NEW.bis);
 		IF NOT FOUND THEN
