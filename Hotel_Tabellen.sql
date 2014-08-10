@@ -140,7 +140,7 @@ CREATE TABLE Kunden(
 	Nachname varChar NOT NULL,
 	Adresse varChar ,
 	Telefonnummer int ,
-	Kreditkarte int ,
+	Kreditkarte int(16) , --Kreditkaren koennen nur 16 Zimmern haeben
 	Besonderheiten BESONDERHEIT,
 	VIP boolean DEFAULT FALSE,
 	Erstellungszeitpunkt timestamp NOT NULL DEFAULT now(),
