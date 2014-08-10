@@ -28,7 +28,7 @@ CREATE OR REPLACE VIEW freiZimmerAktuell AS
 -- bewohnteZimmerView
 -- Zimmer in der ein Gast anwesend sind, werden angezeigt
 CREATE OR REPLACE VIEW bewohnteZimmerView AS
-	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, Anreise, Abreise
+	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, Anreise, Abreise, dreckig
 	FROM 	Reservierungen 
 	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
 		AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel) 
