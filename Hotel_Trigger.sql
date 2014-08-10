@@ -71,7 +71,8 @@ $$LANGUAGE plpgsql;
 
 -- ZimmerFreiAnDate
 -- Gibt alle Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, aufsteigend sortiert
-CREATE OR REPLACE FUNCTION ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date) RETURNS TABLE (Zimmernummer  int)
+CREATE OR REPLACE FUNCTION ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date) 
+RETURNS TABLE (Zimmernummer  int)
 AS $$	
 BEGIN
 	RETURN QUERY
@@ -89,7 +90,7 @@ BEGIN
 		-- nur vorgemerkte, ankommende oder belegte Zimmer abziehen
 		AND (Gaestestatus = 'RESERVED' OR Gaestestatus = 'ARRIVAL' OR Gaestestatus = 'IN-HOUSE')))
 
-	SELECT 	freieZimmer.Zimmernummer AS Zimmernummer
+	SELECT 	freieZimmer.Zimmernummer
 	FROM 	freieZimmer
 	WHERE 	freieZimmer.Zimmerkategorie = Zimmerkat
 	ORDER BY  Zimmernummer ASC;
@@ -106,14 +107,18 @@ CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkatego
 RETURNS Angebot
 AS $$
 	DECLARE AnzahlZimmervar int; zimmervar int; preisvar money; Anzahlnaechte AnzahlnaechteType;
-		Hauptsaisonzuschlag int; countMaxPersonen int; maxPersonenvar int;
+		Hauptsaisonzuschlag money; countMaxPersonen int; maxPersonenvar int;
 BEGIN
-	-- Pruefe ob soviele Zimmer frei sind
+	-- hole alle freien Zimmer des gefragten typs
 	CREATE TEMP TABLE temptable
-		(Zimmernummer)
+		(Zimmernummer, maxPersonen)
 	ON COMMIT DROP AS
-	SELECT 	ZimmerFreiAnDate(Hotel, Zimmerkategorie, Anreise, Abreise);
-	
+	SELECT 	Zimmer.Zimmernummer, maxPersonen
+	FROM  	ZimmerFreiAnDate(Hotel, Zimmerkategorie, Anreise, Abreise)
+		JOIN Zimmer ON ZimmerFreiAnDate.Zimmernummer = Zimmer.Zimmernummer
+	WHERE 	gehoertZuHotel = Hotel;
+
+	-- Pruefe ob soviele Zimmer frei sind	
 	SELECT 	count(*) INTO AnzahlZimmervar
 	FROM 	temptable;
 			
@@ -126,8 +131,8 @@ BEGIN
 	-- und addiere diese zusammen
 	SELECT 	sum(preis) INTO preisvar 
 	FROM 	getPreisTabelle(Hotel) 
-	WHERE 	Zimmerkategorie LIKE ltrim(CodeUndPosten::string , '-0123456789')
-		OR Verpflegung  LIKE ltrim(CodeUndPosten::string , '-0123456789');
+	WHERE 	Zimmerkategorie LIKE ltrim(Posten::text , '-0123456789')
+		OR Verpflegung  LIKE ltrim(Posten::text , '-0123456789');
 
 		
 	-- Berechne Anzahl an Haupt- und Nebensaisontagen
@@ -135,10 +140,10 @@ BEGIN
 	-- beruecksichtige Hauptsaisonzuschlag
 	SELECT 	Preis INTO Hauptsaisonzuschlag
 	FROM 	getPreisTabelle(Hotel) 
-	WHERE 	'HS' LIKE  ltrim(CodeUndPosten::string , '-0123456789');
+	WHERE 	'HS' LIKE  ltrim(Posten::text , '-0123456789');
 	
-	preisvar = (preisvar + Hauptsaisonzuschlag ) * Anzahlnaechte.Hauptsaisonanzahl 
-		  + preisvar * Anzahlnaechte.Nebensaisonanzahl;
+	preisvar = (preisvar + Hauptsaisonzuschlag ) * Anzahlnaechte.AnzahlHauptsaison 
+		  + preisvar * Anzahlnaechte.AnzahlNebensaison;
 
 	-- Falls ja, lege eine vorgemerkte Reservierung an
 	-- eine reservierung pro zimmer
@@ -150,7 +155,7 @@ BEGIN
 		FETCH FIRST 1 ROWS ONLY;
 		
 		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
-					Anreise, Abreise, DEFAULT , NULL, 'AWAITING_CONFIRMATION', Wuensche, Personenanzahl, now());
+					Anreise, Abreise, DEFAULT , DEFAULT, 'AWAITING-CONFIRMATION', Wuensche, Personenanzahl, now());
 
 		-- addiere maxPersonen der vorgemerkten Zimmer 
 		countmaxPersonen = countmaxPersonen + maxPersonenvar;
@@ -175,7 +180,7 @@ BEGIN
 	-- die vorgemerkten Reservierungen
 	SELECT 	Reservierungsnummer
 	FROM 	Reservierungen
-	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
+	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING-CONFIRMATION'
 		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
 	OFFSET 	O
 	LIMIT 	Angebotsdaten.AnzahlZimmer::count)
