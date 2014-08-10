@@ -3,48 +3,59 @@
 -- freieZimmerView 
 -- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
 CREATE OR REPLACE VIEW freieZimmerView AS
-SELECT hotelid, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
+SELECT hotelid, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, 
+		count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, 
+		count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, 
+		count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, 
+		count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, 
+		count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, 
+		count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
 FROM
-(WITH BelegtenZimmer AS (SELECT *
-	FROM reservierungen
-	WHERE Anreise=current_date OR Gaestestatus = 'IN-HOUSE')
-SELECT zimmer.gehoertzuhotel as hotelid, zimmer.zimmerkategorie
-	FROM zimmer LEFT OUTER JOIN BelegtenZimmer
-	 ON (zimmernummer = zimmer AND zimmer.gehoertzuhotel = BelegtenZimmer.gehoertzuhotel)
-	 ORDER By hotelid ASC) freieZimmer
-GROUP BY hotelid;
+	(WITH 	BelegtenZimmer AS ( 
+	SELECT *
+	FROM 	reservierungen
+	WHERE 	Anreise=current_date OR Gaestestatus = 'IN-HOUSE')
+	SELECT 	zimmer.gehoertzuhotel as hotelid, zimmer.zimmerkategorie
+	FROM 	zimmer LEFT OUTER JOIN BelegtenZimmer
+	ON 	(zimmernummer = zimmer AND zimmer.gehoertzuhotel = BelegtenZimmer.gehoertzuhotel)
+	ORDER By hotelid ASC) freieZimmer
+	GROUP BY hotelid;
+
+select * from freieZimmerView
 
 -- belegteZimmerView
--- Belegte Zimmer, sortiert nach Hotel und Zimmernummer
+-- Zimmer in der ein Gast anwesend ist, sortiert nach Hotel und Zimmernummer
+-- fuer das Reinigungspersonal
 CREATE OR REPLACE VIEW belegteZimmerView AS
-SELECT zugewiesenesZimmer, ZimmerInHotel, anreise, abreise, dreckig
-	FROM Reservierungen JOIN Zimmer ON (zugewiesenesZimmer = Zimmernummer AND  ZimmerInHotel = gehoertZuHotel)
-	WHERE Gaestestatus = 'IN-HOUSE'
+	SELECT 	Reservierungen.gehoertzuHotel, Zimmernummer, anreise, abreise, dreckig
+	FROM 	Reservierungen 
+	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel)
+	WHERE 	Gaestestatus = 'IN-HOUSE'
 	ORDER BY gehoertZuHotel ASC, ZimmerNummer ASC;
 
 -- ReinigungspersonalView
 -- Zeigt Zimmer an, die vom Personal gereinigt werden muessen, sortiert nach Hotel und Zimmernummer
 CREATE OR REPLACE VIEW ReinigungspersonalView AS 
-SELECT ZimmerInHotel, zugewiesenesZimmer, CASE WHEN ((current_date - Anreise > 14)OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
-FROM belegteZimmerView
-WHERE dreckig
-ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
+	SELECT 	gehoertZuHotel, Zimmernummer, CASE WHEN ((current_date - Anreise > 14)OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
+	FROM 	belegteZimmerView
+	WHERE 	dreckig
+	ORDER BY gehoertZuHotel ASC, Zimmernummer ASC;
 
 -- HotelManager 
 -- Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die beliebteste Zimmerkategorie
 CREATE OR REPLACE VIEW HotelmanagerView AS
-SELECT hotelid,(umsatzrooms+konsum+mieteinnahmen+benutzteinnahmen) as gesamtumsatz, COALESCE (umsatzbar, '0,00 €') as Barumsatz, COALESCE (ezom, 0)as ezom, COALESCE(ezmm,0) as ezmm, COALESCE(dzom,0) as dzom, COALESCE(dzmm,0) as dzmm, COALESCE (trom,0) as trom , COALESCE (trmm,0) as trmm, COALESCE (suit,0) as suit
-FROM
-((SELECT hotelid,COALESCE (umsatzrooms, '0,00€') as umsatzrooms, COALESCE(konsum, '0,00 €') as konsum , COALESCE(mieteneinahmen, '0,00 €') as mieteinnahmen , COALESCE (benutzteinnahmen, '0,00 €') as benutzteinnahmen 
-FROM (SELECT hotelid from hotel) as hotels
-LEFT OUTER JOIN
-(SELECT gehoertzuhotel as hotelsresa, sum(gesamtbetrag) as Umsatzrooms
-FROM
-(SELECT gehoertzuhotel,zimmerpreis,zimmerkategorie,reserviertvonkunde,anreise,abreise, reservierungsnummer, gaestestatus, ((abreise-anreise)*zimmerpreis) as gesamtbetrag
-FROM reservierungen
-WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE'
-ORDER BY gehoertzuHotel) AS GesamtproResa
-GROUP BY hotelsresa) as umsatz --gesamtumsatz Zimmerpreis betrachtet
+	SELECT hotelid,(umsatzrooms+konsum+mieteinnahmen+benutzteinnahmen) as gesamtumsatz, COALESCE (umsatzbar, '0,00 €') as Barumsatz, COALESCE (ezom, 0)as ezom, COALESCE(ezmm,0) as ezmm, COALESCE(dzom,0) as dzom, COALESCE(dzmm,0) as dzmm, COALESCE (trom,0) as trom , COALESCE (trmm,0) as trmm, COALESCE (suit,0) as suit
+	FROM
+	((SELECT hotelid,COALESCE (umsatzrooms, '0,00€') as umsatzrooms, COALESCE(konsum, '0,00 €') as konsum , COALESCE(mieteneinahmen, '0,00 €') as mieteinnahmen , COALESCE (benutzteinnahmen, '0,00 €') as benutzteinnahmen 
+	FROM (SELECT hotelid from hotel) as hotels
+	LEFT OUTER JOIN
+	(SELECT gehoertzuhotel as hotelsresa, sum(gesamtbetrag) as Umsatzrooms
+	FROM
+	(SELECT gehoertzuhotel,zimmerpreis,zimmerkategorie,reserviertvonkunde,anreise,abreise, reservierungsnummer, gaestestatus, ((abreise-anreise)*zimmerpreis) as gesamtbetrag
+	FROM reservierungen
+	WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE'
+	ORDER BY gehoertzuHotel) AS GesamtproResa
+	GROUP BY hotelsresa) as umsatz --gesamtumsatz Zimmerpreis betrachtet
 
 on hotelid=hotelsresa
 
@@ -217,24 +228,21 @@ GROUP BY resa, kunde, anreise2,abreise2, zimmerpreis) as AlleSummen;
 -- Zeigt Kundenname und Zimmer aller anreisenden Gaeste des Tages an
 -- sortiert nach Hotel und Kunden Nachname
 CREATE OR REPLACE VIEW AnreisendeView AS
-WITH Anreisende AS
-	(SELECT Reservierungsnummer
+WITH Anreisende AS (
+	SELECT gehoertZuHotel, Zimmer, reserviertvonkunde
 	FROM Reservierungen
-	WHERE Stornierungsnummer = NULL AND Anreise = current_date
-	EXCEPT ALL 
-	(SELECT Reservierungsnummer
-	FROM Ablehnungen))
+	WHERE Gaestestatus = 'ARRIVAL' )
 
-	SELECT gehoertZuHotel, Nachname, Zimmernummer, VIP 
-	FROM Anreisende JOIN Reservierungen ON Anreisende.Reservierungsnummer = Reservierungen.Reservierungsnummer;
-
+	SELECT 	gehoertZuHotel, Nachname, Zimmer, VIP 
+	FROM 	Anreisende 
+		JOIN Kunden ON Anreisende.reserviertvonkunde = Kunden.KID;
 
 
 --freieKartenView
 --zeigt die verfügbaren Karten 
 CREATE OR REPLACE VIEW FreieKArten AS
   SELECT  KartenID
-  FROM  ZimmerKarten
+  FROM  ZimmerKarte
   WHERE  gesperrt = FALSE
   EXCEPT ALL
   -- ausser Karten schon im Umlauf
