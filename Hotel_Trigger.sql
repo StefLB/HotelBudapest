@@ -594,8 +594,7 @@ END
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER checkoutoforder AFTER UPDATE OF Gaestestatus ON Reservierungen
-ON Reservierungen 
+CREATE TRIGGER checkoutoforder AFTER UPDATE OF Gaestestatus ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'ARRIVAL')
 	EXECUTE PROCEDURE checkoutoforder();
