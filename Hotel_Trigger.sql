@@ -242,12 +242,12 @@ $$LANGUAGE plpgsql;
 
 
 
--- ZimmerDreckig
+-- zuReinigendeZimmer
 -- Um 0:00 Uhr werden alle belegte Zimmer auf dreckig gestellt.
 -- Simuliert hier durch eine Funktion
 CREATE OR REPLACE FUNCTION ZimmerDreckig() RETURNS VOID 
 AS $$
-	UPDATE 	belegteZimmer 
+	UPDATE 	zuReinigendeZimmer 
 	SET 	dreckig = TRUE
 $$ LANGUAGE SQL;
 
@@ -292,7 +292,7 @@ BEGIN
 END		 
 $$ LANGUAGE plpgsql;
 
-
+select * from gourmetGast(1)
 -- gourmetGast
 -- Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 3 Sterne haben,
 -- dazu das exklusivste (Teuerste) Gericht. 
@@ -301,20 +301,24 @@ AS $$
 BEGIN
 	RETURN QUERY
 	WITH 	gourmetRestaurants AS (
-	SELECT	* 
-	FROM 	Restaurant
-	WHERE 	gehoertZuHotel = Hotel AND Restaurant.Sterne >= drei ),
+	SELECT	Abteilung.gehoertZuHotel, Abteilung.AID, Name
+	FROM 	Restaurant 
+		JOIN Abteilung ON Restaurant.gehoertZuHotel = Abteilung.gehoertZuHotel AND Restaurant.AID = Abteilung.AID
+	WHERE 	Abteilung.gehoertZuHotel = Hotel AND Restaurant.Sterne >= 1),
 	gourmetSpeiseID AS (
-	SELECT  gourmetRestaurants.Name AS Restaurant, Location, Sterne, SpeiseID
+	SELECT  Name AS Restaurant, Location, Sterne, SpeiseID
 	FROM 	wirdServiertIn
 		JOIN gourmetRestaurants ON wirdServiertIn.gehoertZuHotel = gourmetRestaurants.gehoertZuHotel
-		AND wirdServiertIn.AID = gourmetRestaurants.AID
-	WHERE 	Preis = max(Preis) )
-	SELECT 	gourmetRestaurants.Name AS Restaurant, Location, Sterne, SpeisenUndGetraenke.Name AS ExklusivMenu
+		AND wirdServiertIn.AID = gourmetRestaurants.AID )
+		
+	SELECT 	gourmetSpeiseID.Name AS Restaurant, gourmetSpeiseID.Location, gourmetSpeiseID.Sterne, SpeisenUndGetraenke.Name AS ExklusivMenu
 	FROM 	gourmetSpeiseID 
 		JOIN SpeisenUndGetraenke ON gourmetSpeiseID.SpeiseID = SpeisenUndGetraenke.SpeiseID ;
+	
 END 
 $$ LANGUAGE plpgsql;
+
+
 
 -- freieSportplaetze 
 -- Ein Gast moechte sehen, welche Sportplaetze am jetzigen Tag noch frei zum vermieten sind
@@ -327,11 +331,15 @@ BEGIN
 	FROM 	mieten 
 	WHERE	bis > now() AND von >= (current_date + 1  || ' 00:00:00')::timestamp )
 
-	SELECT 	Name, Location, Oeffnungszeiten
-	FROM 	Sporteinrichtungen
-	WHERE 	sportplatzIDs.gehoertZuHotel = Sporteinrichtungen.gehoertZuHotel AND sportplatzIDs.AID = Sporteinrichtungen.AID;
+	SELECT 	Name, Abteilung.Location, Abteilung.Oeffnungszeiten
+	FROM 	Abteilung 
+		JOIN sportplatzIDs ON sportplatzIDs.gehoertZuHotel = Abteilung.gehoertZuHotel 
+		AND sportplatzIDs.AID = Abteilung.AID 
+	WHERE 	sportplatzIDs.gehoertZuHotel = Abteilung.gehoertZuHotel AND sportplatzIDs.AID = Abteilung.AID;
 END 
 $$ LANGUAGE plpgsql;
+
+
 
 -- getNaechsteFreieKarte
 -- gibt naechste freie zimmerkarte zurueck
@@ -488,11 +496,29 @@ CREATE TRIGGER checkOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
 	EXECUTE PROCEDURE schonBezahlt();
 
 
--- VIP -- TODO ELLI
+-- VIPTrigger
 -- Bei der 100 Uebernachtung bekommt der Gast VIP Status
+CREATE OR REPLACE FUNCTION checkVIP() RETURNS TRIGGER 
+AS $$
+	DECLARE sum int;
+BEGIN
+	SELECT 	sum(Abreise-Anreise) INTO sum
+	FROM 	Reservierungen
+	WHERE 	NEW.reserviertVonKunde = Reservierungen.reserviertVonKunde;
 
+	IF (sum > 99 ) THEN
+		UPDATE 	Kunden 
+		SET 	VIP = TRUE
+		WHERE	Kunden.Kid = New.reserviertVonKunde;
+	END IF;
 
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
 
+CREATE TRIGGER VIPTrigger AFTER INSERT ON Reservierungen
+	FOR EACH ROW
+	EXECUTE PROCEDURE checkVIP();
 
 
 -- TuerOeffner
@@ -522,8 +548,7 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 	FOR EACH ROW
 	EXECUTE PROCEDURE checkZimmerkartenRechte();
 
--- checkZimmerKategorieInsert
--- Reservierungen duerfen nur auf gueltigen Zimmerkategorien angewendet werden
+
 
 -- checkZimmerOutOfORder
 -- Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht vermietbar ist (OUT OF ORDER)
