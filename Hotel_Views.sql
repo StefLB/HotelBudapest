@@ -25,9 +25,19 @@ CREATE OR REPLACE VIEW freiZimmerAktuell AS
 			ORDER BY hotelid;
 
 
+-- bewohnteZimmerView
+-- Zimmer in der ein Gast anwesend sind, werden angezeigt
+CREATE OR REPLACE VIEW bewohnteZimmerView AS
+	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, Anreise, Abreise
+	FROM 	Reservierungen 
+	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
+		AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel) 
+	WHERE 	GaesteStatus = 'IN-HOUSE'
+
 -- ReinigungspersonalView
 -- Zimmer in der ein Gast anwesend ist, werden um 0.00 auf dreckig gestellt
 -- Das Reinigunspersonal bekommt diese angezeigt, sortiert nach Hotel und Zimmernummer
+-- Anmerkung: auch ausgecheckte Zimmer koennen noch dreckig sein, daher nicht bewohnteZimmerView verwendet 
 CREATE OR REPLACE VIEW ReinigungspersonalView AS
 	SELECT  Zimmer.gehoertZuHotel, Zimmernummer, CASE WHEN ((current_date - Anreise > 14)OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
 	FROM 	Reservierungen 
@@ -231,10 +241,10 @@ WITH Anreisende AS (
 --freieKartenView
 --zeigt die verfügbaren Karten 
 CREATE OR REPLACE VIEW FreieKArten AS
-  SELECT  KartenID
-  FROM  ZimmerKarte
-  WHERE  gesperrt = FALSE
-  EXCEPT ALL
-  -- ausser Karten schon im Umlauf
-  SELECT  KartenID
-  FROM  erhalten;
+	  SELECT  KartenID
+	  FROM  ZimmerKarte
+	  WHERE  gesperrt = FALSE
+	  EXCEPT ALL
+	  -- ausser Karten schon im Umlauf
+	  SELECT  KartenID
+	  FROM  erhalten;
