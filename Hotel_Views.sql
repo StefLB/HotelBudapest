@@ -131,6 +131,87 @@ ORDER BY hotelid ASC;
 -- Zeigt Kundennummer und Gesamtrechnungspreis von allen Kunden die ihre Rechnungen noch nicht bezahlt haben
 
 
+SELECT resa,kunde, anreise,abreise, Konsumsumme, Benutzensumme, mietensumme, zimmerpreis, (Konsumsumme+Benutzensumme+mietensumme+zimmerpreis) as OffeneREchnungssumme
+FROM
+(SELECT resa,kunde, anreise2 as anreise,abreise2 as abreise, COALESCE(sum(preis), '0,00 €') as Konsumsumme, COALESCE(sum(benutzensumme), '0,00 €') as Benutzensumme, COALESCE(sum(mietensumme), '0,00 €') as mietensumme, zimmerpreis
+FROM
+((((SELECT reservierungen.reservierungsnummer as resa,kunde, anreise, abreise
+FROM
+(SELECT reservierungsnummer,reserviertvonkunde as kunde
+FROM reservierungen
+WHERE gaestestatus='IN-HOUSE'
+EXCEPT
+SELECT reservierungsnummer,kid
+from bezahlen) as NichtbezahlteREservierungen
+JOIN
+reservierungen
+on NichtBezahlteReservierungen.reservierungsnummer = reservierungen.reservierungsnummer) NichtBezahlt
+LEFT OUTER JOIN
+konsumieren
+JOIN
+speisenundgetraenke ON konsumieren.speiseid = speisenundgetraenke.speiseid
+on Nichtbezahlt.kunde=konsumieren.kid AND zeitpunkt >= anreise AND zeitpunkt <=Abreise) as konsum  -- extras speisen und getraenke
+
+LEFT OUTER JOIN
+
+(SELECT resanr,kunde2, preis as benutzensumme
+FROM
+((SELECT reservierungsnummer as resanr,reserviertvonkunde as kunde2
+FROM reservierungen
+WHERE gaestestatus='IN-HOUSE'
+EXCEPT
+SELECT reservierungsnummer,kid
+from bezahlen) as NichtbezahlteREservierungen
+JOIN
+reservierungen
+on NichtBezahlteReservierungen.resanr = reservierungen.reservierungsnummer ) as NichtBezahlt
+LEFT OUTER join
+benutzen
+join 
+schwimmbad on benutzen.aid = schwimmbad.aid
+on Nichtbezahlt.kunde2 = benutzen.kid and von >= Anreise and bis <=Abreise) as Benutzensumme --BENUtzenSumme
+ON Benutzensumme.resanr = konsum.resa) as STEP1
+
+
+LEFT OUTER JOIN
+
+(SELECT resanr,kunde3,preis as mietensumme
+FROM
+(((SELECT reservierungsnummer as resanr,reserviertvonkunde as kunde3
+FROM reservierungen
+WHERE gaestestatus='IN-HOUSE'
+EXCEPT
+SELECT reservierungsnummer,kid
+from bezahlen) as NichtbezahlteReservierungen
+JOIN
+reservierungen
+on NichtBezahlteReservierungen.resanr = reservierungen.reservierungsnummer ) NichtBezahlt
+join
+mieten
+join 
+sporteinrichtungen on sporteinrichtungen.aid= mieten.aid 
+on Nichtbezahlt.kunde3 = mieten.kid and von >= Anreise and bis <=Abreise) as gemietet) as Summemiete --mieten SUMME
+on step1.resanr = Summemiete.resanr) as STEP2
+
+LEFT OUTER JOIN
+
+(SELECT NichtbezahlteReservierungen.reservierungsnummer as resa2, kid,anreise as anreise2,abreise as abreise2, ((current_date-anreise)*zimmerpreis)as Zimmerpreis
+FROM
+(SELECT reservierungsnummer,reserviertvonkunde as kid
+FROM reservierungen
+WHERE gaestestatus='IN-HOUSE'
+EXCEPT
+SELECT reservierungsnummer,kid
+from bezahlen) as NichtbezahlteREservierungen
+JOIN
+reservierungen
+on NichtBezahlteReservierungen.reservierungsnummer = reservierungen.reservierungsnummer) as zimmersumme --Zimmerpeis Summe
+
+ON Step2.resa=zimmersumme.resa2
+
+GROUP BY resa, kunde, anreise2,abreise2, zimmerpreis) as AlleSummen;
+
+
 
 -- AnreisendeView
 -- Zeigt Kundenname und Zimmer aller anreisenden Gaeste des Tages an
@@ -145,7 +226,7 @@ WITH Anreisende AS
 	FROM Ablehnungen))
 
 	SELECT gehoertZuHotel, Nachname, Zimmernummer, VIP 
-	FROM Anreisende JOIN Reservierungen ON Anreisende.Reservierungsnummer = Reservierungen.Reservierungsnummer
+	FROM Anreisende JOIN Reservierungen ON Anreisende.Reservierungsnummer = Reservierungen.Reservierungsnummer;
 
 
 
