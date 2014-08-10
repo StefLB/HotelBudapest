@@ -2,24 +2,19 @@
 
 -- freieZimmerView 
 -- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
-CREATE OR REPLACE VIEW freieZimmerView AS
-SELECT hotelid, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, 
-		count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, 
-		count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, 
-		count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, 
-		count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, 
-		count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, 
-		count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
+CREATE OR REPLACE VIEW freiZimmerAktuell AS
+SELECT hotelid, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
 FROM
-	(WITH 	BelegtenZimmer AS ( 
-	SELECT *
-	FROM 	reservierungen
-	WHERE 	Anreise=current_date OR Gaestestatus = 'IN-HOUSE')
-	SELECT 	zimmer.gehoertzuhotel as hotelid, zimmer.zimmerkategorie
-	FROM 	zimmer LEFT OUTER JOIN BelegtenZimmer
-	ON 	(zimmernummer = zimmer AND zimmer.gehoertzuhotel = BelegtenZimmer.gehoertzuhotel)
-	ORDER By hotelid ASC) freieZimmer
-	GROUP BY hotelid;
+(SELECT*
+FROM
+(SELECT gehoertzuhotel as hotelid, zimmernummer, zimmerkategorie
+FROM zimmer) AS AlleZimmer -- allezimmer in allen hotels
+EXCEPT 	
+(SELECT gehoertzuhotel, zimmer, zimmerkategorie
+FROM reservierungen
+WHERE Anreise=current_date AND zimmer!= NULL OR Gaestestatus = 'IN-HOUSE' OR Gaestestatus='CANCELED' OR Gaestestatus='TURN-DOWN')) as SELEKTION--BElegteZimmer)
+GROUP BY hotelid
+ORDER BY hotelid;
 
 select * from freieZimmerView
 
