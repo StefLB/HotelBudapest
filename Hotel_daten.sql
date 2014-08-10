@@ -2,8 +2,7 @@
 
 --Hotels--
 INSERT INTO Hotel VALUES
-	(DEFAULT,'Hotel Budapest', 'Am schwarzen Weg 166, 66121 Traumstadt', 'Romantik', 1);
-INSERT INTO Hotel VALUES
+	(DEFAULT,'Hotel Budapest', 'Am schwarzen Weg 166, 66121 Traumstadt', 'Romantik', 1),
 	(DEFAULT, 'Hotel NoSleep', 'Loud Avenue 10, 59874 Elinoise', 'Business',2),
 	(DEFAULT, 'The Witz-Garlton', 'Schickimicki Allee 501, 68745 Werlin', 'Luxus',3),
 	(DEFAULT, 'The Octopus', 'Korallenriff 478, 87465 Seaside', 'Wellness',4),
@@ -348,11 +347,11 @@ INSERT INTO schwimmbad VALUES
 --BENUTZEN--
 
 INSERT INTO benutzen VALUES
-	(8,4,2, now(),now());
+	(8,4,2, now(),now()+'1 day');
 
 INSERT INTO benutzen VALUES
 	(4,3,44,'2014-05-08 19:00:00', '2014-05-08 20:00:00'),
-	(4,3,44,'2014-05-09 19:00:00', '2014-05-08 20:00:00');
+	(4,3,44,'2014-05-09 19:00:00', '2014-05-09 20:00:00');
 
 
 --SPORTEINRICHTUNGEN--
@@ -392,11 +391,11 @@ INSERT INTO fahrraeder VALUES
 --mieten
 
 INSERT INTO mieten VALUES
-	(4,5,43, '2014-10-19 10:00:00', '2014-10-19 10:00:00');
+	(4,5,43, '2014-10-19 10:00:00', '2014-10-19 11:00:00');
 
 INSERT INTO mieten VALUES
-	(4,5,44,'2014-05-10 14:00:00', '2014-05-08 16:00:00'),
-	(4,5,44,'2014-05-11 14:00:00', '2014-05-08 16:00:00');
+	(4,5,44,'2014-05-10 14:00:00', '2014-05-10 16:00:00'),
+	(4,5,44,'2014-05-08 14:00:00', '2014-05-08 16:00:00');
 
 
 
@@ -413,7 +412,7 @@ insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinr
 
 --leihen
 INSERT INTO leihen VALUES
-	(4,5,43, 1, 'Schlaeger',  '2014-10-19 10:00:00', '2014-10-19 10:00:00');
+	(4,5,43, 1, 'Schlaeger',  '2014-10-19 10:00:00', '2014-10-19 11:00:00');
 
 --RESERVIERUNGEN
 
