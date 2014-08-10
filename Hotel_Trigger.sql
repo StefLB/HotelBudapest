@@ -557,8 +557,8 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 
 
 
--- checkZimmerOutOfORder
--- Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht vermietbar ist (OUT OF ORDER)
+-- checkZimmerOutOfOrder
+-- check ob zugewiesenes Zimmer out of order -> wenn ja neues zuweisen
 CREATE OR REPLACE FUNCTION checkoutoforder() RETURNS TRIGGER 
 AS $$
 	DECLARE zimmernr int; hotelnr int; zimmerstatus boolean; newzimmer int;
@@ -566,11 +566,11 @@ BEGIN
 
 	SELECT 	zimmer INTO Zimmernr
 	FROM 	Reservierungen 
-	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer;
 
 	SELECT 	gehoertzuhotel INTO hotelnr
 	FROM 	Reservierungen 
-	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer;
 
 	select outoforder INTO zimmerstatus
 	from zimmer
@@ -594,7 +594,7 @@ END
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER checkoutoforder BEFORE UPDATE OF Gaestestatus
+CREATE TRIGGER checkoutoforder AFTER UPDATE OF Gaestestatus ON Reservierungen
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'ARRIVAL')
