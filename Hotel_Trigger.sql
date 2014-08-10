@@ -5,8 +5,8 @@
 -- belegteZimmerUpdate 
 -- Beim Updaten der belegten Zimmer auf dreckig in der belegteZimmerView werden in
 -- Relation Zimmer, die entsprechenden Zimmer auf dreckig gestellt. 
-CREATE OR REPLACE RULE belegteZimmerUpdate AS ON UPDATE 
-TO belegteZimmerView WHERE NEW.dreckig = true 
+CREATE OR REPLACE RULE bewohnteZimmerZimmerUpdate AS ON UPDATE 
+TO bewohnteZimmerView 
 DO INSTEAD 
 	UPDATE 	Zimmer
 	SET 	dreckig = true
@@ -34,24 +34,27 @@ CREATE OR REPLACE FUNCTION getPreisTabelle(Hotelparam int) RETURNS TABLE (Posten
 AS $$	
 	DECLARE Tabellennummer int;
 BEGIN
-	RETURN 	QUERY
+	
 	SELECT 	hatPreistabelle INTO Tabellennummer
 	FROM 	Hotel
 	WHERE 	Hotelparam = HotelID;
 
+	RETURN 	QUERY
 	SELECT 	*
 	FROM 	Preistabelle
-	-- 
-	WHERE 	Tabellennummer::varchar LIKE rtrim(CodeUndPosten::string , '-abcdefghijklmnopqrstuvwxyz');
+	--  
+	WHERE 	Tabellennummer::text LIKE rtrim(CodeUndPosten::text , '-ABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
 END	
 $$LANGUAGE plpgsql; 
 
 -- berechneSaison
 -- Berechnet die Anzahl an Haupt/Nebensaison Naechte im Zeitraum von Anreise bis Abreise
-CREATE OR REPLACE FUNCTION berechneSaison(Anreise int,Abreise int) RETURNS AnzahlnaechteType
+CREATE OR REPLACE FUNCTION berechneSaison(Anreise date,Abreise date) RETURNS AnzahlnaechteType
 AS $$
-	DECLARE beginHaupt date DEFAULT current-year||'01-08' ; endHaupt date DEFAULT current-year||'10-31'; countHaupt int;
+	DECLARE beginHaupt date DEFAULT EXTRACT(YEAR FROM now())::text||'-01-08' ; 
+		endHaupt date DEFAULT   EXTRACT(YEAR FROM now())::text||'-10-31'; 
+		countHaupt int DEFAULT 0;
 BEGIN
 
 	FOR i IN 0..(Abreise-Anreise) LOOP
@@ -60,7 +63,8 @@ BEGIN
 		END IF;
 	END LOOP;
 
-	RETURN (countHaupt, (Abreise-Anreise-countHaupt));
+	RETURN (countHaupt, (Abreise-Anreise-countHaupt+1));
+	
 END
 $$LANGUAGE plpgsql; 
 
@@ -247,74 +251,77 @@ $$LANGUAGE plpgsql;
 -- Simuliert hier durch eine Funktion
 CREATE OR REPLACE FUNCTION ZimmerDreckig() RETURNS VOID 
 AS $$
-	UPDATE 	zuReinigendeZimmer 
-	SET 	dreckig = TRUE
-$$ LANGUAGE SQL;
-
+BEGIN
+	UPDATE 	bewohnteZimmerView 
+	SET 	dreckig = TRUE;
+END
+$$ LANGUAGE plpgsql;
 
 
 -- Rechnungsposten
 -- Ausammeln aller Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
 -- Entspricht einem Zimmerkonto 
 CREATE OR REPLACE FUNCTION Rechnungsposten(Hotelnummer int, Zimmernummer int) 
-RETURNS TABLE(Posten varChar, Zeitpunkt timestamp, Preis money, GesamtPreis money)
+RETURNS TABLE(Posten varChar, Zeitpunkt timestamp, Preis money)
 AS $$
 BEGIN	
 	RETURN QUERY
 	WITH 	Rechnungskunde AS( 
-	SELECT 	KID, anreise 
+	SELECT 	reserviertvonkunde AS KID, anreise 
 	FROM 	Reservierungen 
-	WHERE 	Hotelnummer = Reservierungen.gehoertZuHotel AND Zimmernummer = Reservierungen.Zimmernummer
+	WHERE 	Hotelnummer = Reservierungen.gehoertZuHotel AND Zimmernummer = Reservierungen.Zimmer
 	-- zeige letzte Reservierung des Zimmers an
 	ORDER BY anreise
 	FETCH FIRST 1 ROWS ONLY)
 
-	-- konsumierte Posten 
-	SELECT 	Name, Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	-- konsumierte Posten
+	SELECT 	Name, konsumieren.Zeitpunkt, SpeisenUndGetraenke.Preis
 	FROM 	konsumieren 
 		JOIN SpeisenUndGetraenke ON konsumieren.SpeiseID = SpeisenUndGetraenke.SpeiseID
-	WHERE 	Rechnungskunde. KID = konsumieren.KID AND konsumieren.zeitpunkt >= anreise
+		JOIN Rechnungskunde ON Rechnungskunde.KID = konsumieren.KID
+	WHERE 	konsumieren.zeitpunkt >= anreise
 	-- gemietete Posten
 	UNION 
-	SELECT 	Name , Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	SELECT 	Name , mieten.Zeitpunkt, Preis
 	FROM 	mieten 
-		JOIN Sporteinrichtungen ON mieten.gehoertZuHotel = Sporteinrichtungen.gehoertZuHotel
-		AND mieten.AID = Sporteinrichtungen.AID
-	WHERE 	Rechnungskunde.KID = mieten.KID AND mieten.zeitpunkt >= anreise
+		JOIN Abteilung ON mieten.gehoertZuHotel = Abteilung.gehoertZuHotel
+		AND mieten.AID = Abteilung.AID
+		JOIN Rechnungskunde ON Rechnungskunde.KID = mieten.KID		
+	WHERE 	mieten.zeitpunkt >= anreise
 	-- benutzte Posten
 	UNION
-	SELECT 	Name , Zeitpunkt, Preis, sum(Preis) AS GesamtPreis
+	SELECT 	Name , von AS Zeitpunkt, Preis
 	FROM 	benutzen 
-		JOIN Schimmbad ON mieten.gehoertZuHotel = Schimmbad.gehoertZuHotel
-		AND benutzen.AID = Schimmbad.AID
-	WHERE 	Rechnungskunde.KID = benutzen.KID AND benutzen.zeitpunkt >= anreise; 
-	
+		JOIN Abteilung ON benutzen.gehoertZuHotel = Abteilung.gehoertZuHotel
+		AND benutzen.AID = Abteilung.AID
+		JOIN Rechnungskunde ON Rechnungskunde.KID = benutzen.KID		
+	WHERE 	von >= anreise;
 END		 
 $$ LANGUAGE plpgsql;
 
-select * from gourmetGast(1)
 -- gourmetGast
 -- Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 3 Sterne haben,
 -- dazu das exklusivste (Teuerste) Gericht. 
-CREATE OR REPLACE FUNCTION gourmetGast(Hotel int) RETURNS TABLE(Restaurantname varChar, Location varChar, Sterne int, ExklusivMenu varChar)
+CREATE OR REPLACE FUNCTION gourmetGast(Hotel int) RETURNS TABLE(Restaurantname varChar, Location varChar, Sterne int, ExklusivMenu varChar,Preis money)
 AS $$
 BEGIN
 	RETURN QUERY
 	WITH 	gourmetRestaurants AS (
 	SELECT	Abteilung.gehoertZuHotel, Abteilung.AID, Name
 	FROM 	Restaurant 
-		JOIN Abteilung ON Restaurant.gehoertZuHotel = Abteilung.gehoertZuHotel AND Restaurant.AID = Abteilung.AID
+		JOIN Abteilung ON Restaurant.gehoertZuHotel = Abteilung.gehoertZuHotel 
+		AND Restaurant.AID = Abteilung.AID
 	WHERE 	Abteilung.gehoertZuHotel = Hotel AND Restaurant.Sterne >= 1),
 	gourmetSpeiseID AS (
 	SELECT  Name AS Restaurant, Location, Sterne, SpeiseID
 	FROM 	wirdServiertIn
 		JOIN gourmetRestaurants ON wirdServiertIn.gehoertZuHotel = gourmetRestaurants.gehoertZuHotel
-		AND wirdServiertIn.AID = gourmetRestaurants.AID )
-		
-	SELECT 	gourmetSpeiseID.Name AS Restaurant, gourmetSpeiseID.Location, gourmetSpeiseID.Sterne, SpeisenUndGetraenke.Name AS ExklusivMenu
+		AND wirdServiertIn.AID = gourmetRestaurants.AID )	
+	SELECT 	Restaurant, gourmetSpeiseID.Location, gourmetSpeiseID.Sterne,SpeisenUndGetraenke.Name,
+		max(SpeisenUndGetraenke.Preis)	
 	FROM 	gourmetSpeiseID 
-		JOIN SpeisenUndGetraenke ON gourmetSpeiseID.SpeiseID = SpeisenUndGetraenke.SpeiseID ;
-	
+		JOIN SpeisenUndGetraenke ON gourmetSpeiseID.SpeiseID = SpeisenUndGetraenke.SpeiseID 
+	GROUP BY Restaurant, gourmetSpeiseID.Location, gourmetSpeiseID.Sterne,SpeisenUndGetraenke.Name, SpeisenUndGetraenke.Preis;
 END 
 $$ LANGUAGE plpgsql;
 
