@@ -350,6 +350,10 @@ INSERT INTO schwimmbad VALUES
 INSERT INTO benutzen VALUES
 	(8,4,2, now(),now());
 
+INSERT INTO benutzen VALUES
+	(4,3,44,'2014-05-08 19:00:00', '2014-05-08 20:00:00'),
+	(4,3,44,'2014-05-09 19:00:00', '2014-05-08 20:00:00');
+
 
 --SPORTEINRICHTUNGEN--
 
@@ -389,6 +393,10 @@ INSERT INTO fahrraeder VALUES
 
 INSERT INTO mieten VALUES
 	(4,5,43, '2014-10-19 10:00:00', '2014-10-19 10:00:00');
+
+INSERT INTO mieten VALUES
+	(4,5,44,'2014-05-10 14:00:00', '2014-05-08 16:00:00'),
+	(4,5,44,'2014-05-11 14:00:00', '2014-05-08 16:00:00');
 
 
 
@@ -432,9 +440,12 @@ values(10, 98.00,NULL, 'ROOM', 'EZOM', '2014-01-01', '2014-01-04', 'CHECKED-OUT'
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(11, 130.00,NULL, 'ROOM', 'DZOM', '2013-05-01', '2014-07-04', 'CHECKED-OUT', 'KA', 1, now(), 23, 3, 5 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-values(12, 100.00,NULL, 'ROOM', 'TROM', 2014-07-07, '2014-10-04', 'IN-HOUSE', 'KA', 1, now(), 58, 22, 5 );
+values(12, 100.00,NULL, 'ROOM', 'TROM', '2014-07-07', '2014-10-04', 'IN-HOUSE', 'KA', 1, now(), 58, 22, 5 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(13, 100.00,NULL, 'ROOM', 'TROM', '2014-01-01', '2014-03-05', 'CHECKED-OUT', 'KA', 1, now(), 6, 22, 5 );
+	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
+values(14, 120.00,NULL, 'ROOM', 'SUIT','2014-05-07', '2014-11-04', 'IN-HOUSE', 'KA', 1, now(), 44, 15, 4 );
+
 
 --ABLEHNUNGEN
 
@@ -527,6 +538,14 @@ INSERT INTO konsumieren VALUES
 INSERT INTO konsumieren VALUES
 	(3,2 ,4, 3 ,'2014-03-03 08:00:00'),
 	(1,2,87,4 ,'2014-07-04 08:00:00');
+
+INSERT INTO konsumieren VALUES
+	(2,1,66,9, '2014-08-05 09:00:00'), 
+	(2,2,66,3, '2014-08-06 08:00:00'), 
+	(2,2,66,4, '2014-08-06 08:05:00'), 
+	(4,1,44, 1, '2014-05-08 08:00:00'),
+	(4,2,44, 8, '2014-05-09 08:00:00');
+	
 
 --preistabelle
 
