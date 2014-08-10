@@ -524,3 +524,47 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 
 -- checkZimmerKategorieInsert
 -- Reservierungen duerfen nur auf gueltigen Zimmerkategorien angewendet werden
+
+-- checkZimmerOutOfORder
+-- Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht vermietbar ist (OUT OF ORDER)
+CREATE OR REPLACE FUNCTION checkoutoforder() RETURNS TRIGGER 
+AS $$
+	DECLARE zimmernr int; hotelnr int; zimmerstatus boolean; newzimmer int;
+BEGIN
+
+	SELECT 	zimmer INTO Zimmernr
+	FROM 	Reservierungen 
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
+
+	SELECT 	gehoertzuhotel INTO hotelnr
+	FROM 	Reservierungen 
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
+
+	select outoforder INTO zimmerstatus
+	from zimmer
+	WHERE zimmernummer=zimmernr and gehoertzuhotel=hotelnr;
+
+	
+	
+	IF (zimmerstatus = 0) THEN RETURN NEW; ELSE
+		SELECT FIRST(zimmernummer) INTO newzimmer
+		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.von, NEW.bis);
+		IF NOT FOUND THEN
+		RAISE EXCEPTION 'Keine freien ZImmer vorhanden'; ELSE
+		UPDATE 	Reservierungen
+		SET 	zimmer = newzimmer
+		WHERE 	Reservierungen.Reservierungsnummer= new.reservierungsnummer;	
+		END IF;
+
+	END IF;
+
+END
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER checkoutoforder BEFORE UPDATE OF Gaestestatus
+ON Reservierungen 
+	FOR EACH ROW
+	WHEN (NEW.Gaestestatus = 'ARRIVAL')
+	EXECUTE PROCEDURE checkoutoforder();
+	
