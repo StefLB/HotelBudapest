@@ -580,7 +580,7 @@ BEGIN
 	
 	IF (zimmerstatus = FALSE) THEN RETURN NEW; ELSE
 		SELECT FIRST(zimmernummer) INTO newzimmer
-		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.von, NEW.bis);
+		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.anreise, NEW.abreise);
 		IF NOT FOUND THEN
 		RAISE EXCEPTION 'Keine freien ZImmer vorhanden'; ELSE
 		UPDATE 	Reservierungen
