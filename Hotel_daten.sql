@@ -512,7 +512,7 @@ INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Vodka', 3.50
 INSERT INTO wirdserviertin VALUES
 	(1,1,1),
 	(1,3,9),
-	(2,4,14),
+	(4,2,14),
 	(3,1,5),
 	(3,2,16),
 	(2,1,3),
