@@ -10,7 +10,7 @@ TO belegteZimmerView WHERE NEW.dreckig = true
 DO INSTEAD 
 	UPDATE 	Zimmer
 	SET 	dreckig = true
-	WHERE 	Zimmernummer = NEW.zugewiesenesZimmer AND gehoertZuHotel = NEW.ZimmerInHotel; 
+	WHERE 	Zimmer.Zimmernummer = NEW.Zimmernummer AND Zimmer.gehoertZuHotel = NEW.gehoertZuHotel; 
 
 
 
@@ -65,8 +65,6 @@ END
 $$LANGUAGE plpgsql; 
 
 
-
-
 -- ZimmerFreiAnDate
 -- Gibt alle Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, aufsteigend sortiert
 CREATE OR REPLACE FUNCTION ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date) RETURNS TABLE (Zimmernummer  int)
@@ -104,7 +102,7 @@ CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkatego
 RETURNS Angebot
 AS $$
 	DECLARE AnzahlZimmervar int; zimmervar int; preisvar money; Anzahlnaechte AnzahlnaechteType;
-		Hauptsaisonzuschlag int;
+		Hauptsaisonzuschlag int; countMaxPersonen int; maxPersonenvar int;
 BEGIN
 	-- Pruefe ob soviele Zimmer frei sind
 	CREATE TEMP TABLE temptable
@@ -141,7 +139,7 @@ BEGIN
 	-- Falls ja, lege eine vorgemerkte Reservierung an
 	-- eine reservierung pro zimmer
 	FOR i IN 0..AnzahlZimmer LOOP
-		PERFORM Zimmernummer INTO zimmervar
+		SELECT 	Zimmernummer,maxPersonen INTO zimmervar,maxPersonenvar
 		FROM 	temptable
 		ORDER BY Zimmernummer ASC
 		OFFSET i
@@ -149,7 +147,14 @@ BEGIN
 		
 		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
 					Anreise, Abreise, DEFAULT , NULL, 'AWAITING_CONFIRMATION', Wuensche, Personenanzahl, now());
+
+		-- addiere maxPersonen der vorgemerkten Zimmer 
+		countmaxPersonen = countmaxPersonen + maxPersonenvar;
 	END LOOP;
+	-- Pruefe ob vergebene Zimmer die Personenanzahl beherbergen kann
+	IF (countmaxPersonen < AnzahlPersonen) THEN
+		RAISE EXCEPTION 'Zu viele Gaeste fuer diese Zimmerkombination';
+	END IF;
 	
 	-- Der Kunde erhaelt ein Angebot
 	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer,  preisvar*AnzahlZimmer) ;		
@@ -157,7 +162,7 @@ END
 $$ LANGUAGE plpgsql; 
 
 
--- AblehnungeAngebot 
+-- AblehnungAngebot 
 -- Der Kunde kann ein Angebot ablehnen
 CREATE OR REPLACE FUNCTION AblehnungAngebot( Angebotsdaten Angebot, Grund varChar) RETURNS VOID 
 AS $$
@@ -210,6 +215,8 @@ BEGIN
 	
 END
 $$LANGUAGE plpgsql;
+
+
 
 -- AnnahmeAngebotNeuKunde 
 -- Ein neuer Kunde nimmt ein Angebot an
