@@ -71,8 +71,7 @@ CREATE DOMAIN MENUKATEGORIE varchar
 		VALUE = 'Seniors');
 
 CREATE DOMAIN GAESTESTATUS varchar
-	CHECK ( VALUE = 'AWAITING
-		-CONFIRMATION'OR	-- abwarten auf annahme oder ablehnung
+	CHECK ( VALUE = 'AWAITING-CONFIRMATION' OR	-- abwarten auf annahme oder ablehnung
 		VALUE = 'ARRIVAL' OR	-- am Tag der Anreise
 		VALUE = 'RESERVED' OR 	-- normale Reservierung
 		VALUE = 'CANCELED' OR 	-- storniert, war reserved
