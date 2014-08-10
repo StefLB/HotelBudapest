@@ -390,14 +390,15 @@ AS $$
 	DECLARE neuKartenID int;
 BEGIN
 	FOR i IN 1..2 LOOP 
-		WITH 	FreieKarten AS (
-		SELECT 	KartenID
-		FROM 	ZimmerKarten
-		WHERE 	gesperrt = FALSE
-		EXCEPT ALL
-		-- ausser Karten schon im Umlauf
-		SELECT 	KartenID
-		FROM 	erhalten)
+
+		SELECT *
+		FROM freieKarten;
+
+		-- keine freie Karten mehr im umlauf
+		IF(!FOUND) THEN 
+			-- erstelle 
+			INSERT INTO Zimmerkarte VALUES (DEFAULT,DEFAULT);
+		END IF;
 
 		neuKartenID = getNaechsteFreieKarte();
 
@@ -514,3 +515,5 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 	FOR EACH ROW
 	EXECUTE PROCEDURE checkZimmerkartenRechte();
 
+-- checkZimmerKategorieInsert
+-- Reservierungen duerfen nur auf gueltigen Zimmerkategorien angewendet werden
