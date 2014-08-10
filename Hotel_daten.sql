@@ -110,8 +110,11 @@ insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jose
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Steve','Dunn');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Laura','Franklin');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Arthur','Green');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Stefanie','Lehmann');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Elisabeth','Pich');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname,VIP) values ( now(),'Stefanie','Lehmann',true);
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname,VIP) values ( now(),'Elisabeth','Pich',true);
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Mister','Lover-Lover');
+
+
 
 --Zimmer
 
@@ -445,6 +448,13 @@ values(13, 100.00,NULL, 'ROOM', 'TROM', '2014-01-01', '2014-03-05', 'CHECKED-OUT
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(14, 120.00,NULL, 'ROOM', 'SUIT','2014-05-07', '2014-11-04', 'IN-HOUSE', 'KA', 1, now(), 44, 15, 4 );
 
+	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
+values(15, 100000.00,NULL, 'ROOM', 'SUIT','2000-01-01', '2000-01-01'::date + '99 days'::interval, 'CHECKED-OUT', 'KA', 1, now(),103, 15, 4);
+	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
+values(16, 100.00,NULL, 'ROOM', 'SUIT','2015-01-01', '2015-01-02', 'RESERVED', 'KA', 1, now(),103, 15, 4);
+	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
+values(17, 100.00,NULL, 'ROOM', 'SUIT','2016-01-01', '2016-01-02', 'RESERVED', 'KA', 1, now(),103, 15, 4);
+
 
 --ABLEHNUNGEN
 
@@ -549,21 +559,20 @@ INSERT INTO konsumieren VALUES
 --preistabelle
 
 INSERT INTO preistabelle VALUES
-	('ROOM', 80.00),
-	('BRFST', 80.00),
-	('HBL', 80.00),
-	('HBD', 80.00),
-	('FB', 80.00),
-	('ALL', 80.00),
-	('EZMM', 80.00),
-	('EZOM', 80.00),
-	('DZMM', 80.00),
-	('DZOM', 80.00),
-	('TRMM', 80.00),
-	('TROM', 80.00), 
-	('SUIT', 80.00),
-	('HS',30.00 ), 	-- Haupsaison Aufschlag 
-	('NS',0.00 ); 	-- kein Aufschlag
+	('1-ROOM', 80.00),
+	('1-BRFST', 80.00),
+	('1-HBL', 80.00),
+	('1-HBD', 80.00),
+	('1-FB', 80.00),
+	('1-ALL', 80.00),
+	('1-EZMM', 80.00),
+	('1-EZOM', 80.00),
+	('1-DZMM', 80.00),
+	('1-DZOM', 80.00),
+	('1-TRMM', 80.00),
+	('1-TROM', 80.00), 
+	('1-SUIT', 80.00),
+	('1-HS',30.00 ); -- Haupsaison Aufschlag 
 	
 
 
