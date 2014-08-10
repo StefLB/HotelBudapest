@@ -234,7 +234,7 @@ CREATE TABLE mieten (
 	bis timestamp NOT NULL,
 	Zeitpunkt timestamp,
 
-	CHECK ((bis - von) <= 3), -- Es gilt eine maximale Mietdauer fuer Sportplaetze 
+	CHECK ((bis - von) <= '3 hours' ), -- Es gilt eine maximale Mietdauer fuer Sportplaetze 
 	CHECK (bis > von ),
 	
 	FOREIGN KEY (gehoertZuHotel, AID) REFERENCES Sporteinrichtungen(gehoertZuHotel,AID),
@@ -273,7 +273,7 @@ CREATE TABLE leihen (
 	von timestamp NOT NULL,
 	bis timestamp NOT NULL,
 
-	CHECK ((bis - von) <= 3), -- Es gilt eine maximale Leihdauer fuer Sportgeraete 
+	CHECK ((bis - von) <= '3 hours' ), -- Es gilt eine maximale Leihdauer fuer Sportgeraete 
 	CHECK (bis > von ),
 
 	FOREIGN KEY (KID) REFERENCES Kunden,
@@ -435,7 +435,7 @@ CREATE TABLE oeffnet (
 	Zeitpunkt timestamp NOT NULL,
 	
 	UNIQUE (Zimmernummer, Zeitpunkt), -- angenommen jedes Zimmer hat nur eine Tuer
-	FOREIGN KEY (Zimmernummer,ZimmerInHotel) REFERENCES Zimmer(Zimmernummer,gehoertZuHotel),
+	FOREIGN KEY (gehoertZuHotel,Zimmernummer) REFERENCES Zimmer(gehoertZuHotel,Zimmernummer),
 	FOREIGN KEY (KartenID) REFERENCES Zimmerkarte,
 	PRIMARY KEY (KartenID, Zeitpunkt)
 );
