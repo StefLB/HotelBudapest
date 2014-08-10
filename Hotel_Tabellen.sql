@@ -339,8 +339,8 @@ CREATE TABLE wirdServiertIn(
 
 
 CREATE TABLE konsumieren(
-	gehoertzuHotel int NOT NULL	
-	verspeistIn INT NOT NULL
+	gehoertzuHotel int NOT NULL,	
+	verspeistIn INT NOT NULL,
 	KID int NOT NULL,
 	SpeiseID int NOT NULL, 
 	Zeitpunkt timestamp NOT NULL,
