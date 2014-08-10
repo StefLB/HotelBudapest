@@ -1,22 +1,5 @@
 ﻿--Hotelverwaltugssystem
 
--- TYPES
-
-CREATE TYPE Angebot AS (
-	Hotel int,
-	Zimmerkategorie Zimmerkategorie,
-	AnzahlZimmer int,
-	Gesamtpreis money
-
-);
-
-CREATE TYPE Anzahlnaechtetype AS (
-	AnzahlHauptsaison int,
-	AnzahlNebensaison int
-);
-
-
-
 --Domaenen
 
 CREATE DOMAIN HOTELTYP varchar
@@ -112,11 +95,27 @@ CREATE DOMAIN ZIMMERKATEGORIE varchar
 		VALUE = 'TROM' OR	--Drei-Bett-Zimmer ohne Meerblick
 		VALUE = 'SUIT');
 
+-- TYPES
+
+CREATE TYPE Angebot AS (
+	Hotel int,
+	Zimmerkategorie Zimmerkategorie,
+	AnzahlZimmer int,
+	Gesamtpreis money
+
+);
+
+CREATE TYPE Anzahlnaechtetype AS (
+	AnzahlHauptsaison int,
+	AnzahlNebensaison int
+);
+
+
 --Tabellen fuer Hotelverwaltung
 
 CREATE TABLE Preistabelle (
 	CodeUndPosten varChar,
-	Preis money,
+	Preis money NOT NULL,
 
 	PRIMARY KEY (CodeUndPosten)
 
@@ -142,8 +141,10 @@ CREATE TABLE Kunden(
 	Kreditkarte int ,
 	Besonderheiten BESONDERHEIT,
 	VIP boolean DEFAULT FALSE,
-	Erstellungszeitpunkt timestamp NOT NULL,
+	Erstellungszeitpunkt timestamp NOT NULL DEFAULT now(),
 
+	UNIQUE (Kreditkarte),
+	UNIQUE (Vorname, Nachname, Adresse),
 	PRIMARY KEY (KID)
 );
 
@@ -154,6 +155,9 @@ CREATE TABLE Zimmer (
 	maxPersonen int NOT NULL,
 	Dreckig boolean NOT NULL,
 	OutofOrder boolean NOT NULL,
+
+	CHECK (Zimmernummer > 0),
+	CHECK (maxPersonen > 0),
 
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY (gehoertZuHotel,Zimmernummer)
@@ -167,7 +171,7 @@ CREATE TABLE Abteilung(
 	Location varchar NOT NULL,
 	Oeffnungszeiten OEFFNUNGSZEIT NOT NULL,
 	
-
+	UNIQUE (Name, Location), -- damit der Gast die Abteilung eindeutig finden kann
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY(gehoertZuHotel, AID)
 );
@@ -204,6 +208,8 @@ CREATE TABLE Golf (
 	gehoertzuHotel int NOT NULL,
 	AID int NOT NULL,
 	Schwierigkeitsgrad int,
+
+	CHECK (Schwierigkeitsgrad > 0),
 	
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY(AID, gehoertZuHotel)
@@ -213,7 +219,9 @@ CREATE TABLE Minigolf (
 	gehoertzuHotel int NOT NULL,
 	AID int NOT NULL,
 	Schwierigkeitsgrad int,
-	
+
+	CHECK (Schwierigkeitsgrad > 0),
+
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
@@ -226,7 +234,9 @@ CREATE TABLE mieten (
 	bis timestamp NOT NULL,
 	Zeitpunkt timestamp,
 
-
+	CHECK ((bis - von) <= 3), -- Es gilt eine maximale Mietdauer fuer Sportplaetze 
+	CHECK (bis > von ),
+	
 	FOREIGN KEY (gehoertZuHotel, AID) REFERENCES Sporteinrichtungen(gehoertZuHotel,AID),
 	FOREIGN KEY (KID) REFERENCES Kunden,
 	PRIMARY KEY (von, gehoertZuHotel,AID)
@@ -238,6 +248,8 @@ CREATE TABLE Schwimmbad (
 	LaengeBecken int NOT NULL,
 	Sauna boolean,
 	Preis money,
+
+	CHECK (LaengeBecken > 0),
 
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY (gehoertZuHotel,AID)
@@ -261,6 +273,9 @@ CREATE TABLE leihen (
 	von timestamp NOT NULL,
 	bis timestamp NOT NULL,
 
+	CHECK ((bis - von) <= 3), -- Es gilt eine maximale Leihdauer fuer Sportgeraete 
+	CHECK (bis > von ),
+
 	FOREIGN KEY (KID) REFERENCES Kunden,
 	FOREIGN KEY (gehoertZuHotel, gehoertZuSporteinrichtung, Ausruestungsnummer,Ausruestungstyp) REFERENCES Ausruestung,
 	PRIMARY KEY (gehoertZuHotel, gehoertZuSporteinrichtung, Ausruestungsnummer,Ausruestungstyp, von)
@@ -273,6 +288,9 @@ CREATE TABLE benutzen (
 	von timestamp NOT NULL,
 	bis timestamp NOT NULL,
 
+	CHECK (bis > von ),
+
+	UNIQUE (KID, bis),
 	FOREIGN KEY (KID) REFERENCES Kunden,
 	PRIMARY KEY (KID,von)
 );
@@ -298,6 +316,8 @@ CREATE TABLE Restaurant  (
 	AID int NOT NULL,
 	Kueche Kueche NOT NULL,
 	Sterne int NOT NULL,
+
+	CHECK (Sterne > 0),
 	
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
 	PRIMARY KEY (gehoertZuHotel, AID)
@@ -323,6 +343,8 @@ CREATE TABLE Trinken(
 	SpeiseID int NOT NULL,
 	Alkoholgehalt numeric,
 	
+	CHECK (Alkoholgehalt > 0::numeric),
+	
 	PRIMARY KEY (SpeiseID)	
 );
 
@@ -343,9 +365,9 @@ CREATE TABLE konsumieren(
 	verspeistIn INT NOT NULL,
 	KID int NOT NULL,
 	SpeiseID int NOT NULL, 
-	Zeitpunkt timestamp NOT NULL,
+	Zeitpunkt timestamp NOT NULL DEFAULT now(),
 
-	FOREIGN KEY (imHotel, verspeistIN) REFERENCES Restauration,
+	FOREIGN KEY (imHotel, verspeistIn) REFERENCES Restauration,
 	FOREIGN KEY (KID) REFERENCES Kunden,
 	PRIMARY KEY (KID, Zeitpunkt)
 	
@@ -356,7 +378,7 @@ CREATE TABLE Reservierungen(
 	gehoertZuHotel int,
 	Zimmer int,
 	Zimmerpreis money NOT NULL,
-	Stornierungsnummer int,
+	Stornierungsnummer int DEFAULT NULL,
 	Verpflegungsstufe VERPFLEGUNGSSTUFE NOT NULL,
 	Zimmerkategorie ZIMMERKATEGORIE,
 	Anreise date NOT NULL,
@@ -368,6 +390,10 @@ CREATE TABLE Reservierungen(
 	Personenanzahl int NOT NULL,
 	Reservierungszeitpunkt timestamp NOT NULL,
 
+	CHECK (Personenanzahl > 0),
+	CHECK (Anreise < Abreise ),
+	CHECK (Anreise > now()),
+	
 	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden,
 	FOREIGN KEY (gehoertzuhotel, Zimmer) REFERENCES Zimmer,
 	UNIQUE (Reservierungsnummer),
@@ -379,7 +405,7 @@ CREATE TABLE Reservierungen(
 CREATE TABLE Ablehnungen(
 	Reservierungsnummer int NOT NULL,
 	Grund varchar,
-	Ablehnungszeitpunkt timestamp,
+	Ablehnungszeitpunkt timestamp DEFAULT now(),
 	
 	PRIMARY KEY  (Reservierungsnummer)
 );
@@ -397,7 +423,7 @@ CREATE TABLE bezahlen (
 
 CREATE TABLE Zimmerkarte (
 	KartenID SERIAL,
-	gesperrt boolean,
+	gesperrt boolean DEFAULT FALSE,
 
 	PRIMARY KEY (KartenID)
 );
@@ -408,7 +434,7 @@ CREATE TABLE oeffnet (
 	KartenID int NOT NULL,
 	Zeitpunkt timestamp NOT NULL,
 	
-
+	UNIQUE (Zimmernummer, Zeitpunkt), -- angenommen jedes Zimmer hat nur eine Tuer
 	FOREIGN KEY (Zimmernummer,ZimmerInHotel) REFERENCES Zimmer(Zimmernummer,gehoertZuHotel),
 	FOREIGN KEY (KartenID) REFERENCES Zimmerkarte,
 	PRIMARY KEY (KartenID, Zeitpunkt)
