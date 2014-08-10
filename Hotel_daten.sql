@@ -522,11 +522,11 @@ INSERT INTO wirdserviertin VALUES
 --konsumieren
 
 INSERT INTO konsumieren VALUES
-	(43,9, now());
+	(4,1 ,43,9, now());
 
 INSERT INTO konsumieren VALUES
-	(4, 3 ,'2014-03-03 08:00:00'),
-	(87,4 ,'2014-07-04 08:00:00');
+	(3,2 ,4, 3 ,'2014-03-03 08:00:00'),
+	(1,2,87,4 ,'2014-07-04 08:00:00');
 
 --preistabelle
 
