@@ -132,11 +132,12 @@ ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
 
 -- HotelManager 
 -- Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die beliebteste Zimmerkategorie
-SELECT * 
+CREATE OR REPLACE VIEW HotelmanagerView AS
+SELECT hotelid, (umsatzrooms+konsum+mieteinnahmen+benutzteinnahmen) as gesamtumsatz
+FROM
+(SELECT hotelid,COALESCE (umsatzrooms, '0,00€') as umsatzrooms, COALESCE(konsum, '0,00 €') as konsum , COALESCE(mieteneinahmen, '0,00 €') as mieteinnahmen , COALESCE (benutzteinnahmen, '0,00 €') as benutzteinnahmen 
 FROM (SELECT hotelid from hotel) as hotels
-
 LEFT OUTER JOIN
-
 (SELECT gehoertzuhotel as hotelsresa, sum(gesamtbetrag) as Umsatzrooms
 FROM
 (SELECT gehoertzuhotel,zimmerpreis,zimmerkategorie,reserviertvonkunde,anreise,abreise, reservierungsnummer, gaestestatus, ((abreise-anreise)*zimmerpreis) as gesamtbetrag
@@ -199,9 +200,7 @@ JOIN schwimmbad
 ON schwimmbad.aid = Benutzt.aid
 GROUP BY hotelbe) as Benutzen --extrabenutzen 
 
-ON hotelid=hotelbe;
-
-
+ON hotelid=hotelbe) as Umsatzkomplett
 
 
 
