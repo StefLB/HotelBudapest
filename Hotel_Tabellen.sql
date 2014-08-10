@@ -339,13 +339,13 @@ CREATE TABLE wirdServiertIn(
 
 
 CREATE TABLE konsumieren(
-	gehoertzuHotel int NOT NULL,	
+	imHotel int NOT NULL,	
 	verspeistIn INT NOT NULL,
 	KID int NOT NULL,
 	SpeiseID int NOT NULL, 
 	Zeitpunkt timestamp NOT NULL,
 
-	FOREIGN KEY (gehoertZuHotel, verspeistIN) REFERENCES Restauration,
+	FOREIGN KEY (imHotel, verspeistIN) REFERENCES Restauration,
 	FOREIGN KEY (KID) REFERENCES Kunden,
 	PRIMARY KEY (KID, Zeitpunkt)
 	

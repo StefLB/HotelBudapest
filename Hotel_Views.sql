@@ -33,9 +33,9 @@ ORDER BY ZimmerInHotel ASC, zugewiesenesZimmer ASC;
 -- HotelManager 
 -- Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die beliebteste Zimmerkategorie
 CREATE OR REPLACE VIEW HotelmanagerView AS
-SELECT hotelid, (umsatzrooms+konsum+mieteinnahmen+benutzteinnahmen) as gesamtumsatz, COALESCE (ezom, 0)as ezom, COALESCE(ezmm,0) as ezmm, COALESCE(dzom,0) as dzom, COALESCE(dzmm,0) as dzmm, COALESCE (trom,0) as trom , COALESCE (trmm,0) as trmm, COALESCE (suit,0) as suit
+SELECT hotelid,(umsatzrooms+konsum+mieteinnahmen+benutzteinnahmen) as gesamtumsatz, COALESCE (umsatzbar, '0,00 €') as Barumsatz, COALESCE (ezom, 0)as ezom, COALESCE(ezmm,0) as ezmm, COALESCE(dzom,0) as dzom, COALESCE(dzmm,0) as dzmm, COALESCE (trom,0) as trom , COALESCE (trmm,0) as trmm, COALESCE (suit,0) as suit
 FROM
-(SELECT hotelid,COALESCE (umsatzrooms, '0,00€') as umsatzrooms, COALESCE(konsum, '0,00 €') as konsum , COALESCE(mieteneinahmen, '0,00 €') as mieteinnahmen , COALESCE (benutzteinnahmen, '0,00 €') as benutzteinnahmen 
+((SELECT hotelid,COALESCE (umsatzrooms, '0,00€') as umsatzrooms, COALESCE(konsum, '0,00 €') as konsum , COALESCE(mieteneinahmen, '0,00 €') as mieteinnahmen , COALESCE (benutzteinnahmen, '0,00 €') as benutzteinnahmen 
 FROM (SELECT hotelid from hotel) as hotels
 LEFT OUTER JOIN
 (SELECT gehoertzuhotel as hotelsresa, sum(gesamtbetrag) as Umsatzrooms
@@ -110,7 +110,18 @@ FROM reservierungen
 WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE'
 GROUP BY wo
 ORDER BY wo) as TOTALGebuchteZImmer --alle kategorieszimmerreservierungen checked-out und in-house
-on hotelid=wo;
+on hotelid=wo) as alles
+
+LEFT OUTER JOIN
+
+(SELECT imhotel, sum(preis) UmsatzBar
+from (konsumieren join hotelbar ON imhotel=hotelbar.gehoertzuhotel and verspeistin = hotelbar.aid) as Hotelbars
+JOIN
+speisenundgetraenke
+ON Hotelbars.speiseid = speisenundgetraenke.speiseid
+GROUP BY imhotel) as Barumsatz
+on Barumsatz.imhotel = hotelid
+ORDER BY hotelid ASC;
 
 
 
