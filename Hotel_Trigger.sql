@@ -153,6 +153,8 @@ BEGIN
 		ORDER BY Zimmernummer ASC
 		OFFSET i
 		FETCH FIRST 1 ROWS ONLY;
+
+		select * from reservierungen
 		
 		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
 					Anreise, Abreise, DEFAULT , DEFAULT, 'AWAITING-CONFIRMATION', Wuensche, Personenanzahl, now());
@@ -562,8 +564,8 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 
 
 
--- checkZimmerOutOfOrder
--- check ob zugewiesenes Zimmer out of order -> wenn ja neues zuweisen
+-- checkZimmerOutOfORder
+-- Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht vermietbar ist (OUT OF ORDER)
 CREATE OR REPLACE FUNCTION checkoutoforder() RETURNS TRIGGER 
 AS $$
 	DECLARE zimmernr int; hotelnr int; zimmerstatus boolean; newzimmer int;
@@ -571,11 +573,11 @@ BEGIN
 
 	SELECT 	zimmer INTO Zimmernr
 	FROM 	Reservierungen 
-	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer;
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
 
 	SELECT 	gehoertzuhotel INTO hotelnr
 	FROM 	Reservierungen 
-	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer;
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
 
 	select outoforder INTO zimmerstatus
 	from zimmer
@@ -583,9 +585,9 @@ BEGIN
 
 	
 	
-	IF (zimmerstatus = FALSE) THEN RETURN NEW; ELSE
+	IF (zimmerstatus = 0) THEN RETURN NEW; ELSE
 		SELECT FIRST(zimmernummer) INTO newzimmer
-		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.anreise, NEW.abreise);
+		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.von, NEW.bis);
 		IF NOT FOUND THEN
 		RAISE EXCEPTION 'Keine freien ZImmer vorhanden'; ELSE
 		UPDATE 	Reservierungen
@@ -599,7 +601,8 @@ END
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER checkoutoforder AFTER UPDATE OF Gaestestatus ON Reservierungen 
+CREATE TRIGGER checkoutoforder BEFORE UPDATE OF Gaestestatus
+ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'ARRIVAL')
 	EXECUTE PROCEDURE checkoutoforder();
