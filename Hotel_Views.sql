@@ -3,29 +3,38 @@
 -- freieZimmerView 
 -- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
 CREATE OR REPLACE VIEW freiZimmerAktuell AS
-SELECT hotelid, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
-FROM
-(SELECT*
-FROM
-(SELECT gehoertzuhotel as hotelid, zimmernummer, zimmerkategorie
-FROM zimmer) AS AlleZimmer -- allezimmer in allen hotels
-EXCEPT 	
-(SELECT gehoertzuhotel, zimmer, zimmerkategorie
-FROM reservierungen
-WHERE Anreise=current_date AND zimmer!= NULL OR Gaestestatus = 'IN-HOUSE' OR Gaestestatus='CANCELED' OR Gaestestatus='TURN-DOWN')) as SELEKTION--BElegteZimmer)
-GROUP BY hotelid
-ORDER BY hotelid;
+	SELECT hotelid, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, 
+			count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, 
+			count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, 
+			count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, 
+			count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, 
+			count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, 
+			count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
+			FROM	(SELECT*
+				FROM
+				(SELECT gehoertzuhotel as hotelid, zimmernummer, zimmerkategorie
+				FROM 	zimmer) AS AlleZimmer -- allezimmer in allen hotels
+				EXCEPT 	
+				(SELECT gehoertzuhotel, zimmer, zimmerkategorie
+				FROM 	reservierungen
+				WHERE 	Anreise=current_date AND zimmer!= NULL 
+					OR Gaestestatus = 'IN-HOUSE' 
+					OR Gaestestatus='CANCELED' 
+					OR Gaestestatus='TURN-DOWN')) as SELEKTION--BElegteZimmer)
+			GROUP BY hotelid
+			ORDER BY hotelid;
 
-select * from freieZimmerView
 
 -- belegteZimmerView
 -- Zimmer in der ein Gast anwesend ist, sortiert nach Hotel und Zimmernummer
 -- fuer das Reinigungspersonal
-CREATE OR REPLACE VIEW belegteZimmerView AS
-	SELECT 	Reservierungen.gehoertzuHotel, Zimmernummer, anreise, abreise, dreckig
+CREATE OR REPLACE VIEW ReinigungspersonalView AS
+	SELECT  Zimmer.gehoertZuHotel, Zimmernummer, CASE WHEN ((current_date - Anreise > 14)OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
 	FROM 	Reservierungen 
-	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel)
+	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
+		AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel)
 	WHERE 	Gaestestatus = 'IN-HOUSE'
+		OR (Gaestestatus = 'CHECKED-OUT' AND Zimmer.dreckig )
 	ORDER BY gehoertZuHotel ASC, ZimmerNummer ASC;
 
 -- ReinigungspersonalView
@@ -35,6 +44,8 @@ CREATE OR REPLACE VIEW ReinigungspersonalView AS
 	FROM 	belegteZimmerView
 	WHERE 	dreckig
 	ORDER BY gehoertZuHotel ASC, Zimmernummer ASC;
+
+select * from ReinigungspersonalView
 
 -- HotelManager 
 -- Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die beliebteste Zimmerkategorie
