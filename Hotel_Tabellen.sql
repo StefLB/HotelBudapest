@@ -140,7 +140,7 @@ CREATE TABLE Kunden(
 	Nachname varChar NOT NULL,
 	Adresse varChar ,
 	Telefonnummer int ,
-	Kreditkarte int(16) , --Kreditkaren koennen nur 16 Zimmern haeben
+	Kreditkarte int, 
 	Besonderheiten BESONDERHEIT,
 	VIP boolean DEFAULT FALSE,
 	Erstellungszeitpunkt timestamp NOT NULL DEFAULT now(),
@@ -357,7 +357,7 @@ CREATE TABLE wirdServiertIn(
 	SpeiseID int NOT NULL ,
 
 	FOREIGN KEY(SpeiseID) REFERENCES SpeisenUndGetraenke,
-	FOREIGN KEY(AID, gehoertZuHotel) REFERENCES Restauration
+	FOREIGN KEY(gehoertZuHotel,AID) REFERENCES Restauration
 );
 
 

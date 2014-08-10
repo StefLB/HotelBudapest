@@ -350,9 +350,7 @@ INSERT INTO schwimmbad VALUES
 --BENUTZEN--
 
 INSERT INTO benutzen VALUES
-	(8,4,2, now(),now()+'1 day');
-
-INSERT INTO benutzen VALUES
+	(8,4,2, now(),now()+'1 day'),
 	(4,3,44,'2014-05-08 19:00:00', '2014-05-08 20:00:00'),
 	(4,3,44,'2014-05-09 19:00:00', '2014-05-09 20:00:00');
 
@@ -447,7 +445,6 @@ values(12, 100.00,NULL, 'ROOM', 'TROM', '2014-07-07', '2014-10-04', 'IN-HOUSE', 
 values(13, 100.00,NULL, 'ROOM', 'TROM', '2014-01-01', '2014-03-05', 'CHECKED-OUT', 'KA', 1, now(), 6, 22, 5 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(14, 120.00,NULL, 'ROOM', 'SUIT','2014-05-07', '2014-11-04', 'IN-HOUSE', 'KA', 1, now(), 44, 15, 4 );
-
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(15, 100000.00,NULL, 'ROOM', 'SUIT','2000-01-01', '2000-01-01'::date + '99 days'::interval, 'CHECKED-OUT', 'KA', 1, now(),103, 15, 4);
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
@@ -465,14 +462,21 @@ INSERT INTO ablehnungen VALUES
 
 INSERT INTO Zimmerkarte VALUES
 	(1, false),
-	(2, true);
+	(2, true),
+	(3, false),
+	(4, false),
+	(5, false);
 
 --oeffnet
 
 --erhalten
 
 INSERT INTO erhalten VALUES
-	(55,1,3);
+	(55,1,4),
+	(66,3,8),
+	(58,4,12),
+	(44,5,14);
+
 
 --BEZAHLEN
 
@@ -503,16 +507,27 @@ INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('nKurzer', 3.
 INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Kaffee', 2.50, 'Heissgetraenk');
 INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Vodka', 3.50,'Hochprozentiges');
 
+--wird serviert in
+
+INSERT INTO wirdserviertin VALUES
+	(1,1,1),
+	(3,1,9),
+	(4,2,14),
+	(3,1,5),
+	(3,2,16),
+	(2,1,3),
+	(4,1,13),
+	(6,1,6),
+	(1,2,4),
+	(3,2,12);
+	
+
 
 --ESSEN
 
 INSERT INTO Essen VALUES
-	(1,NULL); 
-
-INSERT INTO Essen VALUES
-	(2,'vegetarisch');
-
-INSERT INTO Essen VALUES
+	(1,NULL),
+	(2,'vegetarisch'),
 	(3, 'vegetarisch'),
 	(4, 'vegetarisch'),
 	(5, 'vegetarisch'),
@@ -532,23 +547,13 @@ INSERT INTO Trinken VALUES
 	(15,  NULL),
 	(16,  NULL);
 
---wird serviert in
-
-INSERT INTO wirdserviertin VALUES
-	(1,1,1),
-	(1,3,9),
-	(2,4,14);
 
 --konsumieren
 
 INSERT INTO konsumieren VALUES
-	(4,1 ,43,9, now());
-
-INSERT INTO konsumieren VALUES
+	(4,1 ,43,9, now()),
 	(3,2 ,4, 3 ,'2014-03-03 08:00:00'),
-	(1,2,87,4 ,'2014-07-04 08:00:00');
-
-INSERT INTO konsumieren VALUES
+	(1,2,87,4 ,'2014-07-04 08:00:00'),
 	(2,1,66,9, '2014-08-05 09:00:00'), 
 	(2,2,66,3, '2014-08-06 08:00:00'), 
 	(2,2,66,4, '2014-08-06 08:05:00'), 
