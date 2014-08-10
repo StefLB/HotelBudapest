@@ -71,10 +71,12 @@ CREATE DOMAIN MENUKATEGORIE varchar
 		VALUE = 'Seniors');
 
 CREATE DOMAIN GAESTESTATUS varchar
-	CHECK ( VALUE = 'ARRIVAL' OR	--am Tag der Anreise
+	CHECK ( VALUE = 'AWAITING
+		-CONFIRMATION'OR	-- abwarten auf annahme oder ablehnung
+		VALUE = 'ARRIVAL' OR	-- am Tag der Anreise
 		VALUE = 'RESERVED' OR 	-- normale Reservierung
 		VALUE = 'CANCELED' OR 	-- storniert, war reserved
-		VALUE = 'IN-HOUSE' OR	--im Haus eingecheckt
+		VALUE = 'IN-HOUSE' OR	-- im Haus eingecheckt
 		VALUE = 'CHECKED-OUT' OR --abgereist
 		VALUE = 'TURN-DOWN' ) ;	-- Reservierung nicht angenommen (Ablehnung)
 
@@ -234,7 +236,7 @@ CREATE TABLE mieten (
 	bis timestamp NOT NULL,
 	Zeitpunkt timestamp,
 
-	CHECK ((bis - von) <= '3 hours' ), -- Es gilt eine maximale Mietdauer fuer Sportplaetze 
+	CHECK ((bis - von) <= '1 day' ), -- Es gilt eine maximale Mietdauer fuer Sportplaetze 
 	CHECK (bis > von ),
 	
 	FOREIGN KEY (gehoertZuHotel, AID) REFERENCES Sporteinrichtungen(gehoertZuHotel,AID),
@@ -273,7 +275,7 @@ CREATE TABLE leihen (
 	von timestamp NOT NULL,
 	bis timestamp NOT NULL,
 
-	CHECK ((bis - von) <= '3 hours' ), -- Es gilt eine maximale Leihdauer fuer Sportgeraete 
+	CHECK ((bis - von) <= '1 day' ), -- Es gilt eine maximale Leihdauer fuer Sportgeraete 
 	CHECK (bis > von ),
 
 	FOREIGN KEY (KID) REFERENCES Kunden,
@@ -392,7 +394,7 @@ CREATE TABLE Reservierungen(
 
 	CHECK (Personenanzahl > 0),
 	CHECK (Anreise < Abreise ),
-	CHECK (Anreise > now()),
+	--CHECK (Anreise >= current_date), aukommentiert, da sonst keine daten in der vergangenheit eingefuegt werden koennen
 	
 	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden,
 	FOREIGN KEY (gehoertzuhotel, Zimmer) REFERENCES Zimmer,
