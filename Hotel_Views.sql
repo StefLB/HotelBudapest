@@ -3,7 +3,7 @@
 -- freieZimmerView 
 -- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
 CREATE OR REPLACE VIEW freieZimmerView AS
-SELECT hotelid,ezmm,ezom,dzmm,dzom,suit,trmm,trom
+SELECT hotelid,COALESCE(ezmm,0) as ezmm,COALESCE(ezom,0) as ezom,COALESCE(dzmm,0) as dzmm ,COALESCE(dzom,0) as dzom,COALESCE (suit,0) as suit,COALESCE(trmm,0) as trmm,COALESCE(trom,0)as trom
 FROM
 
 (SELECT hotelid from hotel) AS HOTELSA
