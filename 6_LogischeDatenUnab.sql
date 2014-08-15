@@ -1,4 +1,39 @@
-﻿-- VIEWS
+﻿-- LOGISCHE DATENUNABHAENGIGKEIT
+-- TODO: Auflistung der Regeln und Sichten
+
+
+-- RULES
+-- TODO: Kurze Einleitung
+
+
+-- belegteZimmerUpdate 
+-- Beim Updaten der belegten Zimmer auf dreckig in der belegteZimmerView werden in
+-- Relation Zimmer, die entsprechenden Zimmer auf dreckig gestellt. 
+CREATE OR REPLACE RULE bewohnteZimmerZimmerUpdate AS ON UPDATE 
+TO bewohnteZimmerView 
+DO INSTEAD 
+	UPDATE 	Zimmer
+	SET 	dreckig = true
+	WHERE 	Zimmer.Zimmernummer = NEW.Zimmernummer AND Zimmer.gehoertZuHotel = NEW.gehoertZuHotel; 
+
+
+
+-- kartenGueltigInsert
+-- Bei der Ausgabe einer Zimmerkarte, darf diese nicht gesperrt sein
+-- offentsichtlich kann nur eine wiedergefundene karte aushaendigt werden
+CREATE OR REPLACE RULE kartenGueltigInsert AS ON INSERT
+TO erhalten 
+DO ALSO 
+	UPDATE 	Zimmerkarte
+	SET 	gesperrt = FALSE 
+	WHERE 	NEW.KartenID = Zimmerkarte.KartenID;
+
+
+
+
+
+-- VIEWS
+-- TODO: Kurze Einleitung
 
 -- freieZimmerView 
 -- zeigt Hotels an, die noch freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
