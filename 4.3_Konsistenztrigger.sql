@@ -1,29 +1,7 @@
 ﻿-- KONSISTENZTRIGGER
+-- TODO: Auflistung der Funktionen und Trigger
 
--- RULES
-
--- belegteZimmerUpdate 
--- Beim Updaten der belegten Zimmer auf dreckig in der belegteZimmerView werden in
--- Relation Zimmer, die entsprechenden Zimmer auf dreckig gestellt. 
-CREATE OR REPLACE RULE bewohnteZimmerZimmerUpdate AS ON UPDATE 
-TO bewohnteZimmerView 
-DO INSTEAD 
-	UPDATE 	Zimmer
-	SET 	dreckig = true
-	WHERE 	Zimmer.Zimmernummer = NEW.Zimmernummer AND Zimmer.gehoertZuHotel = NEW.gehoertZuHotel; 
-
-
-
--- kartenGueltigInsert
--- Bei der Ausgabe einer Zimmerkarte, darf diese nicht gesperrt sein
--- offentsichtlich kann nur eine wiedergefundene karte aushaendigt werden
-CREATE OR REPLACE RULE kartenGueltigInsert AS ON INSERT
-TO erhalten 
-DO ALSO 
-	UPDATE 	Zimmerkarte
-	SET 	gesperrt = FALSE 
-	WHERE 	NEW.KartenID = Zimmerkarte.KartenID;
-
+-- TODO: Beispielanfragen für Funktionen und Trigger
 
 
 -- FUNKTIONEN 
@@ -371,7 +349,7 @@ $$ LANGUAGE plpgsql;
 
 
 
--- TRIGGER 
+-- KONSISTENZTRIGGER 
 
 -- EinChecken
 -- Falls beim Einchecken von einem Gast, in Reservierungen
@@ -425,7 +403,7 @@ BEGIN
 
 		-- keine freie Karten mehr im umlauf
 		IF(!FOUND) THEN 
-			-- erstelle 
+			-- erstelle eine neue Karte
 			INSERT INTO Zimmerkarte VALUES (DEFAULT,DEFAULT);
 		END IF;
 
@@ -442,6 +420,8 @@ ON Reservierungen
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
 	EXECUTE PROCEDURE kartenvergabe();
+
+
 
 -- Kartenverlust
 -- Beim Verlust der Karte, wird diese gesperrt und aus erhalten geloescht.
@@ -564,8 +544,9 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 
 
 
--- checkZimmerOutOfORder
--- Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht vermietbar ist (OUT OF ORDER)
+-- checkZimmerOutOfOrder
+-- Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht 
+-- vermietbar ist (OUT OF ORDER)
 CREATE OR REPLACE FUNCTION checkoutoforder() RETURNS TRIGGER 
 AS $$
 	DECLARE zimmernr int; hotelnr int; zimmerstatus boolean; newzimmer int;
