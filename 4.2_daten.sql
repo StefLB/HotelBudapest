@@ -328,7 +328,7 @@ INSERT INTO restauration VALUES
 
 INSERT INTO restaurant values
 	(1,1,'organic',1),
-	(3,1,'italienisch',2),
+	(3,1,'italienisch',3),
 	(2,1, 'urbanisch',1),
 	(4,1, 'rustikal',1),
 	(6,1, 'vegetarisch',1);
