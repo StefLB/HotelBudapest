@@ -18,13 +18,13 @@ INHALTSANGABE:
 3. BEISPIELANFRAGEN
 
 */
--- FUNKTIONEN 
 
+-- FUNKTIONEN 
 
 /* 
 1.1. getPreisTabelle(Hotel int) 
-returns: die Preise des Hotels aus der Preistabelle zurueck
-benoetigt fuer: die Preisberechnungen bei zimmeranfrage funktion 
+Returns: die Preise des Hotels aus der Preistabelle zurueck
+Benoetigt fuer: die Preisberechnungen bei zimmeranfrage funktion 
 */
 CREATE OR REPLACE FUNCTION getPreisTabelle(Hotelparam int) RETURNS TABLE (Posten varChar, Preis money)
 AS $$	
@@ -47,8 +47,8 @@ $$LANGUAGE plpgsql;
 
 /* 
 1.2. berechneSaison(Anreise date,Abreise date)
-returns: die Anzahl an Haupt- und Nebensaisonaechte im Zeitraum von Anreise bis Abreise
-benoetigt fuer: die Preisberechnungen bei zimmeranfrage funktion 
+Returns: die Anzahl an Haupt- und Nebensaisonaechte im Zeitraum von Anreise bis Abreise
+Benoetigt fuer: die Preisberechnungen bei zimmeranfrage funktion 
 */
 CREATE OR REPLACE FUNCTION berechneSaison(Anreise date,Abreise date) RETURNS AnzahlnaechteType
 AS $$
@@ -71,8 +71,8 @@ $$LANGUAGE plpgsql;
 
 /* 
 1.3. ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date)
-returns: alle Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, aufsteigend sortiert
-benoetigt fuer: die Vergabe von freien Zimmer bei zimmeranfrage funktion
+Returns: alle Zimmer einer gewuenschten Kategorie in Hotel zurueck, die frei sind von-bis, aufsteigend sortiert
+Benoetigt fuer: die Vergabe von freien Zimmer bei zimmeranfrage funktion
 */
 CREATE OR REPLACE FUNCTION ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date) 
 RETURNS TABLE (Zimmernummer  int)
@@ -106,19 +106,19 @@ $$LANGUAGE plpgsql;
 /*
 1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
      Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) 
-returns: ein Angebot (Hotel int , Zimmerkategorie Zimmerkategorie, AnzahlZimmer int, Gesamtpreis money)
-info: Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs er reservieren moechte
+Returns: ein Angebot (Hotel int , Zimmerkategorie Zimmerkategorie, AnzahlZimmer int, Gesamtpreis money)
+Info: Der Anfragende gibt seine Anfrage Parameter an, und wieviele Zimmer des Typs er reservieren moechte
       Das Angebot das er erhaelt kann in weiteren Funktionen angenommen oder abgelehnt werden 
-benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
+Benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
 */ 
 CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
 					Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) 
 RETURNS Angebot
 AS $$
 	DECLARE AnzahlZimmervar int; zimmervar int; preisvar money; Anzahlnaechte AnzahlnaechteType;
-		Hauptsaisonzuschlag money; countMaxPersonen int; maxPersonenvar int;
+		Hauptsaisonzuschlag money; countMaxPersonen int; maxPersonenvar int; tempID int;
 BEGIN
-	-- hole alle freien Zimmer des gefragten typs
+	-- Hole alle freien Zimmer des gefragten typs
 	CREATE TEMP TABLE temptable
 		(Zimmernummer, maxPersonen)
 	ON COMMIT DROP AS
@@ -154,7 +154,7 @@ BEGIN
 	preisvar = (preisvar + Hauptsaisonzuschlag ) * Anzahlnaechte.AnzahlHauptsaison 
 		  + preisvar * Anzahlnaechte.AnzahlNebensaison;
 
-	-- Falls ja, lege eine vorgemerkte Reservierung an
+	-- Lege eine vorgemerkte Reservierung an,
 	-- eine reservierung pro zimmer
 	FOR i IN 0..AnzahlZimmer LOOP
 		SELECT 	Zimmernummer,maxPersonen INTO zimmervar,maxPersonenvar
@@ -162,11 +162,17 @@ BEGIN
 		ORDER BY Zimmernummer ASC
 		OFFSET i
 		FETCH FIRST 1 ROWS ONLY;
-		
-		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
-					Anreise, Abreise, DEFAULT , DEFAULT, 'AWAITING-CONFIRMATION', Wuensche, Personenanzahl, now());
 
-		-- addiere maxPersonen der vorgemerkten Zimmer 
+		-- Benutze den temporaeren Kunden um die Reservierungen anzulegen
+		SELECT KundenID INTO tempID
+		FROM Kunden
+		WHERE Vorname LIKE '' AND Nachname LIKE '';
+		
+		-- Lege temporaere Reservierungen an mit den gewuenschten Daten
+		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
+					Anreise, Abreise, DEFAULT , tempID, 'AWAITING-CONFIRMATION', Wuensche, Personenanzahl, now());
+
+		-- Addiere maxPersonen der vorgemerkten Zimmer 
 		countmaxPersonen = countmaxPersonen + maxPersonenvar;
 	END LOOP;
 	
@@ -175,7 +181,7 @@ BEGIN
 		RAISE EXCEPTION 'Zu viele Gaeste fuer diese Zimmerkombination';
 	END IF;
 	
-	-- Der Kunde erhaelt ein Angebot
+	-- Falls alles klappt, erhaelt der Kunde ein Angebot
 	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer,  preisvar*AnzahlZimmer) ;		
 END
 $$ LANGUAGE plpgsql; 
@@ -183,9 +189,9 @@ $$ LANGUAGE plpgsql;
 
 /* 
 1.4. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
-returns: void 
-info: Der Kunde kann ein Angebot ablehnen
-benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
+Returns: void 
+Info: Der Kunde kann ein Angebot ablehnen
+Benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
 */
 CREATE OR REPLACE FUNCTION AblehnungAngebot( Angebotsdaten Angebot, Grund varChar) RETURNS VOID 
 AS $$
@@ -204,23 +210,25 @@ BEGIN
 	SET 	GaesteStatus = 'TURN-DOWN'
 	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkte.Reservierungsnummer;
 
-	
 	INSERT INTO Ablehnungen VALUES (Angebotsdaten.reservierungsnummer, Grund);
+	-- Anmerkung: bei Abgelehnten Anfragen, bleibt der temporaere Kunde eingetragen
 END
 $$LANGUAGE plpgsql;
 
 
--- AnnahmeAngebot 
--- Ein Kunde mit bereits angelegter KID nimmt ein Angebot an
+/* AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
+1.5. AnnahmeAngebot 
+Info: Ein Kunde mit bereits angelegter KID nimmt ein Angebot an
+*/
 CREATE OR REPLACE FUNCTION AnnahmeAngebot(KundenID int, Angebotsdaten Angebot) RETURNS VOID 
 AS $$
 BEGIN
-	-- hier werden die bei der anfrage vorgemerkte zimmer
-	-- dem kunden zugeteilt. bei mehreren kundenanfragen gleichzeitig
+	-- Hier werden die bei der anfrage vorgemerkte zimmer
+	-- dem kunden zugeteilt. Bei mehreren kundenanfragen gleichzeitig
 	-- werden die zimmer durch neusortierung moeglichst zusammenhaengend verteilt
 	WITH 	vorgemerkte AS (
-	-- durch das splitten der reservierung ist 
-	-- zimmer jetzt eindeutig durch reservierungsnummer gegeben
+	-- Durch das splitten der reservierung ist ein 
+	-- Zimmer jetzt eindeutig durch reservierungsnummer gegeben
 	SELECT 	Reservierungsnummer
 	FROM 	Reservierungen
 	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
@@ -233,6 +241,7 @@ BEGIN
 	LIMIT 	Angebotsdaten.AnzahlZimmer::count)
 	
 	UPDATE 	Reservierungen
+	-- der temporaere Kunde wird ersetzt
 	SET 	Reservierungen.KID = KundenId, GaesteStatus = 'RESERVED'
 	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkte.Reservierungsnummer;
 	
@@ -383,7 +392,33 @@ $$ LANGUAGE plpgsql;
 
 
 
--- KONSISTENZTRIGGER 
+-- 2. KONSISTENZTRIGGER
+
+/* 
+2.1. ReserviertVonKundeCheck
+Info: Da wir bei der Zimmeranfrage erlauben, dass eine Reservierung temporaer mit einem namenlosen Kunden gespeichert wird, muessen 
+wir sicher stellen, dass spaetestens nach dem Update des Angebots auf Reserved, eine echter Kunde eingetragen ist. 
+*/ 
+CREATE OR REPLACE FUNCTION ReserviertVonKundeCheck() RETURNS TRIGGER 
+AS $$
+BEGIN
+	SELECT Name, Vorname
+	FROM Kunden
+	WHERE NEW.reserviertVonKunde = Kunden.KundenId;
+
+	IF(QUERY.Vorname LIKE '' OR QUERY.Nachname LIKE '') THEN
+		RAISE EXCEPTION 'Kunde hat keine Namen';
+	END IF;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ReserviertVonKundeCheckTrigger AFTER UPDATE OF Gaestestatus
+ON Reservierungen 
+	FOR EACH ROW
+	WHEN (NEW.Gaestestatus = 'RESERVED')
+	EXECUTE PROCEDURE ReserviertVonKundeCheck();
+
+
 
 -- EinChecken
 -- Falls beim Einchecken von einem Gast, in Reservierungen
