@@ -15,6 +15,12 @@ INHALTSANGABE:
 1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
 		Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
 1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
+1.6. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
+1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
+1.8. annahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
+						Kreditkarte bigint, Besonderheiten varChar, Angebotsdaten Angebot)
+1.9. ZimmerDreckig()
+1.10. Rechnungsposten(Hotelnummer int, Zimmernummer int)
 
 
 2.KONSISTENZTRIGGER
