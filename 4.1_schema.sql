@@ -386,7 +386,7 @@ CREATE TABLE Reservierungen(
 	Anreise date NOT NULL,
 	Abreise date NOT NULL,
 	Reservierungsnummer SERIAL,
-	reserviertVonKunde int, 
+	reserviertVonKunde int NOT NULL, 
 	Gaestestatus GAESTESTATUS,
 	Wuensche varchar,
 	Personenanzahl int NOT NULL,
