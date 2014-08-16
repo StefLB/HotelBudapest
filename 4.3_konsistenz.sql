@@ -14,6 +14,7 @@ INHALTSANGABE:
 1.3. ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date)
 1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
 		Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
+1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
 
 
 2.KONSISTENZTRIGGER
