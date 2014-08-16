@@ -435,7 +435,7 @@ values(DEFAULT, 80.00,NULL, 'ALL', 'TRMM', '2014-12-01', '2014-12-03', 'TURN-DOW
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(DEFAULT, 180.00,1, 'ROOM', 'DZOM', '2014-12-01', '2014-12-03', 'CANCELED', 'KA', 1, now(), 11, 11, 6 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-values(DEFAULT, 180.00,NULL, 'ROOM', 'EZOM', '2014-08-01', '2014-08-20', 'IN-HOUSE', 'KA', 1, now(), 66, 14, 2 );
+values(DEFAULT, 180.00,NULL, 'ROOM', 'EZOM', '2014-08-01', '2014-09-30', 'IN-HOUSE', 'KA', 1, now(), 66, 14, 2 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(DEFAULT, 144.00,NULL, 'ROOM', 'DZOM', '2014-07-01', '2014-07-04', 'CHECKED-OUT', 'KA', 1, now(), 87, 4, 1 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 

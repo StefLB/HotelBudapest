@@ -274,35 +274,41 @@ AS $$
 BEGIN	
 	RETURN QUERY
 	WITH 	Rechnungskunde AS( 
-	SELECT 	reserviertvonkunde AS KID, anreise 
+	SELECT 	reserviertvonkunde AS KIDKunde, anreise,abreise 
 	FROM 	Reservierungen 
-	WHERE 	Hotelnummer = Reservierungen.gehoertZuHotel AND Zimmernummer = Reservierungen.Zimmer
-	-- zeige letzte Reservierung des Zimmers an
-	ORDER BY anreise
-	FETCH FIRST 1 ROWS ONLY)
-
+	WHERE 	Reservierungen.gehoertZuHotel = 4 AND Reservierungen.Zimmer=15 AND reservierungen.gaestestatus='IN-HOUSE'
+	)
+	--zeigt den aktuellen Rechnungsposten des Gasten im Zimmer
 	-- konsumierte Posten
-	SELECT 	Name, konsumieren.Zeitpunkt, SpeisenUndGetraenke.Preis
+	SELECT 	kid as kidkons, name as namekonsum, konsumieren.Zeitpunkt, SpeisenUndGetraenke.Preis as preiskonsum
 	FROM 	konsumieren 
 		JOIN SpeisenUndGetraenke ON konsumieren.SpeiseID = SpeisenUndGetraenke.SpeiseID
-		JOIN Rechnungskunde ON Rechnungskunde.KID = konsumieren.KID
-	WHERE 	konsumieren.zeitpunkt >= anreise
+		JOIN Rechnungskunde ON Rechnungskunde.KIDKunde = konsumieren.KID
+	WHERE 	konsumieren.zeitpunkt >= anreise and konsumieren.zeitpunkt <=abreise
+	
 	-- gemietete Posten
 	UNION 
-	SELECT 	Name , mieten.Zeitpunkt, Preis
+	SELECT 	kid,name, mieten.Zeitpunkt, Preis as preismieten
 	FROM 	mieten 
-		JOIN Abteilung ON mieten.gehoertZuHotel = Abteilung.gehoertZuHotel
-		AND mieten.AID = Abteilung.AID
-		JOIN Rechnungskunde ON Rechnungskunde.KID = mieten.KID		
-	WHERE 	mieten.zeitpunkt >= anreise
+		JOIN sporteinrichtungen ON mieten.gehoertZuHotel = sporteinrichtungen.gehoertZuHotel
+		AND mieten.AID = sporteinrichtungen.AID
+		JOIN Rechnungskunde ON Rechnungskunde.KIDKunde = mieten.KID
+		JOIN abteilung on sporteinrichtungen.aid=abteilung.aid		
+	WHERE 	mieten.zeitpunkt >= anreise and mieten.zeitpunkt<=abreise
 	-- benutzte Posten
 	UNION
-	SELECT 	Name , von AS Zeitpunkt, Preis
+	WITH 	Rechnungskunde AS( 
+	SELECT 	reserviertvonkunde AS KIDKunde, anreise,abreise 
+	FROM 	Reservierungen 
+	WHERE 	Reservierungen.gehoertZuHotel = 4 AND Reservierungen.Zimmer=15 AND reservierungen.gaestestatus='IN-HOUSE'
+	)
+	SELECT 	DISTINCT *
 	FROM 	benutzen 
-		JOIN Abteilung ON benutzen.gehoertZuHotel = Abteilung.gehoertZuHotel
-		AND benutzen.AID = Abteilung.AID
-		JOIN Rechnungskunde ON Rechnungskunde.KID = benutzen.KID		
-	WHERE 	von >= anreise;
+		JOIN schwimmbad ON benutzen.gehoertZuHotel = schwimmbad.gehoertZuHotel
+		AND benutzen.AID = schwimmbad.AID
+		JOIN Rechnungskunde ON Rechnungskunde.KIDKunde = benutzen.KID
+		JOIN Abteilung on schwimmbad.aid =abteilung.aid and abteilung.gehoertzuhotel=benutzen.gehoertzuhotel			
+	WHERE 	Rechnungskunde.KIDkunde = benutzen.kid and von >= anreise and bis<=abreise;
 END		 
 $$ LANGUAGE plpgsql;
 
