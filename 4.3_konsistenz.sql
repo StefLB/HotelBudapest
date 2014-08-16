@@ -2,7 +2,10 @@
 KONSISTENZTRIGGER
 Hier werden einige Funktionen implementiert, die Funktionalitaeten eines Hotelsystems enthalten koennte, wie etwa Zimmeranfragen
 oder das erstellen einer Rechnung. Weiter unten sind Konsistenztrigger aufgelistet, die einige wichtige Invarianten unserer Hoteltabellen
-sicher stellen.  
+sicher stellen. 
+
+Anmerkung: Fuer einige der Funktionen oder Trigger werden auf Views zurueckgegegriffen. Daher ist vor Ausfuehrung der Beispieldaten 
+das Einlesen der Views in 6_LogischeDatenun.sql wichtig. 
 
 INHALTSANGABE:
 1.FUNKTIONEN
@@ -273,11 +276,15 @@ END
 $$LANGUAGE plpgsql;
 
 
-
--- AnnahmeAngebotNeuKunde 
--- Ein neuer Kunde nimmt ein Angebot an
-CREATE OR REPLACE FUNCTION AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
-						Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot) RETURNS VOID 
+/*
+1.8. annahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
+						Kreditkarte bigint, Besonderheiten varChar, Angebotsdaten Angebot)
+Returns: Void
+Info: Ein ganz neuer Kunde nimmt ein Angebot an
+Benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
+*/
+CREATE OR REPLACE FUNCTION annahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
+						Kreditkarte bigint, Besonderheiten varChar, Angebotsdaten Angebot) RETURNS VOID 
 AS $$
 	DECLARE neuID int;
 BEGIN
@@ -289,7 +296,7 @@ BEGIN
 	ORDER BY KID DESC
 	FETCH FIRST 1 ROWS ONLY;
 	
-	SELECT AnnahmeAngebot(neuID, Angebotsdaten);
+	PERFORM annahmeAngebot(neuID, Angebotsdaten);
 
 	--COMMIT;
 
@@ -298,9 +305,12 @@ $$LANGUAGE plpgsql;
 
 
 
--- zuReinigendeZimmer
--- Um 0:00 Uhr werden alle belegte Zimmer auf dreckig gestellt.
--- Simuliert hier durch eine Funktion
+/*
+1.9. ZimmerDreckig()
+Returns: Void
+Info: Hierdurch werden (um 0:00 Uhr) alle belegte Zimmer auf dreckig gestellt. Simuliert hier durch eine Funktion
+Benoetigt fuer: Die Zimmerreinigung, die taeglich alle belegten Zimmer reinigen muss. 
+*/
 CREATE OR REPLACE FUNCTION ZimmerDreckig() RETURNS VOID 
 AS $$
 BEGIN
@@ -310,9 +320,11 @@ END
 $$ LANGUAGE plpgsql;
 
 
--- Rechnungsposten
--- Ausammeln aller Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
--- Entspricht einem Zimmerkonto 
+/*
+1.10. Rechnungsposten(Hotelnummer int, Zimmernummer int)
+Ausammeln aller Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
+Entspricht einem Zimmerkonto 
+*/
 CREATE OR REPLACE FUNCTION Rechnungsposten(Hotelnummer int, Zimmernummer int) 
 RETURNS TABLE(Posten varChar, Zeitpunkt timestamp, Preis money)
 AS $$
@@ -500,7 +512,17 @@ ON Reservierungen
 -- EinChecken
 -- Falls beim Einchecken von einem Gast, in Reservierungen
 -- mehr als ein Zimmer auf den Kunden eingetragen sind, muss aus Sicherheitsgruenden
--- pro zusaestzliches Zimmer eine Verantwortliche Person eingetragen werden.   
+-- pro zusaestzliches Zimmer eine Verantwortliche Person eingetragen werden. 
+CREATE OR REPLACE FUNCTION checkInNeuKunde(Reservierungsnummer int) 
+RETURNS VOID
+AS $$
+BEGIN
+	-- Consolen Ein und Ausgabe Funktion fuer die Aufnahme der Kundendaten
+END
+$$ LANGUAGE plpgsql;
+
+
+  
 CREATE OR REPLACE FUNCTION einChecken() RETURNS TRIGGER 
 AS $$
 	DECLARE AnzahlZimmer int; Reservierungsnummervar int; 
@@ -520,7 +542,8 @@ BEGIN
 			ORDER BY Reservierungsnummer
 			OFFSET 	i
 			FETCH FIRST 1 ROWS ONLY; 
-			-- Nehme neue Kundendaten auf fuer Reservierung		
+			-- Nehme neue Kundendaten auf fuer Reservierung, dazu muessen
+			-- alle Kundendaten an der Rezeption aufgenommen werden	
 			SELECT checkInNeuKunde(Reservierungsnummervar);
 		END LOOP;
 	END IF;
@@ -737,7 +760,7 @@ ON Reservierungen
 
 
 
--- 3.BEISPIELANFRAGEN
+-- 3.BEISPIELANFRAGEN 
 -- Wobei die Nummern den Funktionen entsprechen
 
 -- 1.1. getPreisTabelle(Hotel int) 
@@ -762,8 +785,19 @@ SELECT AblehnungAngebot((1,'EZMM',1,current_date, current_date+1,190.00)::Angebo
 -- 1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
 SELECT AnnahmeAngebot(102, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
 
+-- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
+					--Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
+-- es muss nochmal eine Anfrage gemacht werden
+SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
+SELECT annahmeAngebotNeuKunde('Gunner'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
+					234357868909, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+1,190.00)::Angebot );
+-- 1.9.ZimmerDreckig() 
+-- Anmerkung: Hier wird auf eine View in 6_LogischeDatenun.sql zurueckgegegriffen.
+SELECT ZimmerDreckig();
 
-select * from reservierungen
+-- 1.10.
+
+
 
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
