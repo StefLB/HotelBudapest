@@ -189,29 +189,29 @@ $$ LANGUAGE plpgsql;
 
 
 /* 
-1.4. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
+1.5. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
 Returns: void 
 Info: Der Kunde kann ein Angebot ablehnen
 Benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
 */
 CREATE OR REPLACE FUNCTION AblehnungAngebot( Angebotsdaten Angebot, Grund varChar) RETURNS VOID 
 AS $$
+	DECLARE vorgemerkt int;
 BEGIN
-	WITH 	vorgemerkt AS (
 	-- die vorgemerkten Reservierungen
-	SELECT 	Reservierungsnummer
+	SELECT 	Reservierungsnummer INTO vorgemerkt
 	FROM 	Reservierungen
-	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING-CONFIRMATION'
+	WHERE 	Angebotsdaten.Hotel =  Reservierungen.gehoertZuHotel AND GaesteStatus = 'AWAITING-CONFIRMATION'
 		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
-	OFFSET 	O
-	LIMIT 	Angebotsdaten.AnzahlZimmer::count)
+	OFFSET 	0
+	LIMIT 	Angebotsdaten.AnzahlZimmer;
 	
 	-- die jetzt als Turn-Downs eingetragen werden
 	UPDATE 	Reservierungen
 	SET 	GaesteStatus = 'TURN-DOWN'
-	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkte.Reservierungsnummer;
+	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkt ;
 
-	INSERT INTO Ablehnungen VALUES (Angebotsdaten.reservierungsnummer, Grund);
+	INSERT INTO Ablehnungen VALUES (vorgemerkt, Grund);
 	-- Anmerkung: bei Abgelehnten Anfragen, bleibt der temporaere Kunde eingetragen
 END
 $$LANGUAGE plpgsql;
@@ -661,7 +661,8 @@ ON Reservierungen
 
 
 
--- BEISPIELANFRAGEN
+-- 3.BEISPIELANFRAGEN
+-- Wobei die Nummern den Funktionen entsprechen
 
 -- 1.1. getPreisTabelle(Hotel int) 
 SELECT getPreisTabelle(2);
@@ -675,6 +676,10 @@ SELECT ZimmerFreiAnDate(1, 'EZMM', current_date, current_date+1);
 -- 1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
 					--Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
 SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
+
+-- 1.5. AblehnungAngebot( Angebot Angebot, Grund varChar)
+SELECT AblehnungAngebot((1,'EZMM',1,190.00)::Angebot, 'Too Expensive');
+
 
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
