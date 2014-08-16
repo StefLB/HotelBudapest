@@ -1,6 +1,6 @@
-﻿--Hotelverwaltugssystem
+﻿-- SCHEMA
 
---Domaenen
+-- DOMAENEN
 
 CREATE DOMAIN HOTELTYP varchar
 	CHECK (	VALUE = 'Romantik' OR 
@@ -96,7 +96,7 @@ CREATE DOMAIN ZIMMERKATEGORIE varchar
 		VALUE = 'TROM' OR	--Drei-Bett-Zimmer ohne Meerblick
 		VALUE = 'SUIT');
 
--- TYPES
+-- TYPEN
 
 CREATE TYPE Angebot AS (
 	Hotel int,
@@ -112,10 +112,11 @@ CREATE TYPE Anzahlnaechtetype AS (
 );
 
 
---Tabellen fuer Hotelverwaltung
+-- TABELLEN
 
 CREATE TABLE Preistabelle (
-	CodeUndPosten varChar,
+	CodeUndPosten varChar,		-- ein CodeUndPosten hat bspw. die Form 1-EZMM. Die Nummer korrespondiert 
+					-- mit dem hatPreistabelle in der Tabelle Hotel. Der zweite Teil ist der eigentliche Posten. 
 	Preis money NOT NULL,
 
 	PRIMARY KEY (CodeUndPosten)
@@ -128,7 +129,7 @@ CREATE TABLE Hotel (
 	Hotelname varchar NOT NULL,
 	Adresse varchar NOT NULL,
 	Hoteltyp HOTELTYP NOT NULL,
-	hatPreistabelle int NOT NULL, -- zeigt welche Preise fuer das Hotel gelten 
+	hatPreistabelle int NOT NULL, 	-- zeigt welche Preise fuer das Hotel gelten 
 
 	PRIMARY KEY (HotelID)
 );
@@ -274,7 +275,7 @@ CREATE TABLE leihen (
 	von timestamp NOT NULL,
 	bis timestamp NOT NULL,
 
-	CHECK ((bis - von) <= '1 day' ), -- Es gilt eine maximale Leihdauer fuer Sportgeraete 
+	CHECK ((bis - von) <= '1 day' ), 	-- Es gilt eine maximale Leihdauer fuer Sportgeraete 
 	CHECK (bis > von ),
 
 	FOREIGN KEY (KID) REFERENCES Kunden,
@@ -385,7 +386,7 @@ CREATE TABLE Reservierungen(
 	Anreise date NOT NULL,
 	Abreise date NOT NULL,
 	Reservierungsnummer SERIAL,
-	reserviertVonKunde int NOT NULL,
+	reserviertVonKunde int, 
 	Gaestestatus GAESTESTATUS,
 	Wuensche varchar,
 	Personenanzahl int NOT NULL,
@@ -435,7 +436,7 @@ CREATE TABLE oeffnet (
 	KartenID int NOT NULL,
 	Zeitpunkt timestamp NOT NULL,
 	
-	UNIQUE (Zimmernummer, Zeitpunkt), -- angenommen jedes Zimmer hat nur eine Tuer
+	UNIQUE (gehoertZuHotel,Zimmernummer, Zeitpunkt), -- angenommen jedes Zimmer hat nur eine Tuer
 	FOREIGN KEY (gehoertZuHotel,Zimmernummer) REFERENCES Zimmer(gehoertZuHotel,Zimmernummer),
 	FOREIGN KEY (KartenID) REFERENCES Zimmerkarte,
 	PRIMARY KEY (KartenID, Zeitpunkt)
