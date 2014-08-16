@@ -413,11 +413,6 @@ INSERT INTO mieten VALUES
 	(4,5,44,'2014-05-08 14:00:00', '2014-05-08 16:00:00'),
 	(6,7,88, now(), now()+interval '3 hours');
 
-
-
-
-
-
 --Ausruestung 
 
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Schlaeger', 1, 5,4);
@@ -485,9 +480,28 @@ INSERT INTO Zimmerkarte VALUES
 	(2, true),
 	(3, false),
 	(4, false),
-	(5, false);
+	(5, false),
+	(6, false),
+	(7, false),
+	(8, false),
+	(9, false),
+	(10, false),
+	(11, false),
+	(12, false),
+	(13, false),
+	(14, false),
+	(15, false),
+	(16, false);
 
 --oeffnet
+
+INSERT INTO oeffnet VALUES
+(2,14,3, '2014-08-01 14:00:00),
+(3,10,1, now() ),
+(4,15,5, '2014-05-07 13:00:00),
+(5,22,4, '2014-07-07 12:00:00),
+(6,11,6, now());
+	
 
 --erhalten
 
@@ -495,15 +509,14 @@ INSERT INTO erhalten VALUES
 	(55,1,4),
 	(66,3,8),
 	(58,4,12),
-	(44,5,14);
+	(44,5,14),
+	(88,6,18);
 
 
 --BEZAHLEN
 
 INSERT INTO bezahlen VALUES
-	(4,55,now());
-
-INSERT INTO bezahlen VALUES
+	(4,55,now()),
 	(3,4, '2014-03-03 08:00:00'),
 	(9,87, '2014-07-04 08:00:00');
 
