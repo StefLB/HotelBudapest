@@ -102,7 +102,6 @@ $$LANGUAGE plpgsql;
 
 
 
-
 /*
 1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
      Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int) 
@@ -183,13 +182,47 @@ BEGIN
 	END IF;
 	
 	-- Falls alles klappt, erhaelt der Kunde ein Angebot
-	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer,  preisvar*AnzahlZimmer) ;		
+	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer, Anreise,Abreise,  preisvar*AnzahlZimmer) ;		
 END
 $$ LANGUAGE plpgsql; 
 
 
+
+/*
+1.5. getNextVorgemerktZimmer
+Returns: Reservierungsnummer eines vorgemerkten Zimmers
+Info: Der Kunde hat eine Angebot angekommen und bekommt nun die vorgemerkten Zimmer
+Benoetigt fuer: die Zimmervergabe bei der Ablehung oder Annahme einer Anfrage
+*/
+CREATE OR REPLACE FUNCTION getNextVorgemerktZimmer(Angebotsdaten Angebot)
+RETURNS int
+AS $$
+	DECLARE vorgemerkt int;
+BEGIN
+	-- Hole eine der vorgemerkten Reservierungen = Zimmer
+	SELECT 	Reservierungsnummer INTO vorgemerkt
+	FROM 	Reservierungen
+	WHERE 	Angebotsdaten.Hotel =  Reservierungen.gehoertZuHotel 
+		-- Stelle sicher dass sie in allen Punkten dem Angebot uebereinstimmen
+		AND GaesteStatus = 'AWAITING_CONFIRMATION'
+		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
+		AND Angebotsdaten.Gesamtpreis/Anzahlzimmer = Reservierungen.Zimmerpreis
+		AND Angebotsdaten.Anreise = Reservierung.Anreise
+		AND Angebotsdaten.Abreise = Reservierung.Abreise
+		-- Herausgeben der Zimmer moeglichst zusammenhaengend waere nett, 
+		ORDER BY Zimmer ASC
+		-- Kunde wird den vorgemerkte zimmer zugeteilt, 
+		-- Auch bei gleichzeitigen Anfragen geht die gesamtzahl auf 
+		OFFSET 	0
+		LIMIT 	Angebotsdaten.AnzahlZimmer;
+
+		RETURN vorgemerkt;
+END
+$$LANGUAGE plpgsql;
+
+
 /* 
-1.5. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
+1.6. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
 Returns: void 
 Info: Der Kunde kann ein Angebot ablehnen
 Benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
@@ -198,53 +231,39 @@ CREATE OR REPLACE FUNCTION AblehnungAngebot( Angebotsdaten Angebot, Grund varCha
 AS $$
 	DECLARE vorgemerkt int;
 BEGIN
-	-- die vorgemerkten Reservierungen
-	SELECT 	Reservierungsnummer INTO vorgemerkt
-	FROM 	Reservierungen
-	WHERE 	Angebotsdaten.Hotel =  Reservierungen.gehoertZuHotel AND GaesteStatus = 'AWAITING-CONFIRMATION'
-		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
-	OFFSET 	0
-	LIMIT 	Angebotsdaten.AnzahlZimmer;
-	
-	-- die jetzt als Turn-Downs eingetragen werden
-	UPDATE 	Reservierungen
-	SET 	GaesteStatus = 'TURN-DOWN'
-	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkt ;
+	-- Für die gesamtanzahl an vorgemerkten Zimmer
+	FOR i IN 1..Angebotsdaten.AnzahlZimmer LOOP		
+		-- Dieses wird jetzt als Turn-Down eingetragen werden
+		UPDATE 	Reservierungen
+		SET 	GaesteStatus = 'TURN-DOWN'
+		WHERE 	Reservierungen.Reservierungsnummer= getVorgemerktesZimmer(Angebot);
 
-	INSERT INTO Ablehnungen VALUES (vorgemerkt, Grund);
-	-- Anmerkung: bei Abgelehnten Anfragen, bleibt der temporaere Kunde eingetragen
+		INSERT INTO Ablehnungen VALUES (vorgemerkt, Grund);
+	END LOOP;
+	-- Anmerkung: bei Abgelehnten Anfragen, bleibt die temporaere KundenID eingetragen
+
 END
 $$LANGUAGE plpgsql;
 
 
-/* AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
-1.5. AnnahmeAngebot 
+/* 
+1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
+Returns: Void
 Info: Ein Kunde mit bereits angelegter KID nimmt ein Angebot an
+Benoetigt fuer: eventuell eine sinnvoll Funktionalitaet bei einem Webanfragesystem
 */
 CREATE OR REPLACE FUNCTION AnnahmeAngebot(KundenID int, Angebotsdaten Angebot) RETURNS VOID 
 AS $$
+	DECLARE vorgemerkt int;
 BEGIN
-	-- Hier werden die bei der anfrage vorgemerkte zimmer
-	-- dem kunden zugeteilt. Bei mehreren kundenanfragen gleichzeitig
+	-- Hier werden die bei der anfrage vorgemerkte Zimmer
+	-- dem Kunden zugeteilt. Bei mehreren kundenanfragen gleichzeitig
 	-- werden die zimmer durch neusortierung moeglichst zusammenhaengend verteilt
-	WITH 	vorgemerkte AS (
-	-- Durch das splitten der reservierung ist ein 
-	-- Zimmer jetzt eindeutig durch reservierungsnummer gegeben
-	SELECT 	Reservierungsnummer
-	FROM 	Reservierungen
-	WHERE 	Angebotsdaten.Hotel =  Reservierungen.Hotel AND GaesteStatus = 'AWAITING_CONFIRMATION'
-		AND Angebotsdaten.Zimmerkategorie = Reservierungen.Zimmerkategorie
-	-- zusammenhaengende Zimmer waere nett
-	ORDER BY Zimmer ASC
-	-- kunde wird den vorgemerkte zimmer zugeteilt, 
-	-- auch bei gleichzeitigen Anfragen geht die gesamtzahl auf 
-	OFFSET 	O
-	LIMIT 	Angebotsdaten.AnzahlZimmer::count)
-	
+	-- Durch das splitten der reservierung ist ein Zimmer jetzt eindeutig durch reservierungsnummer gegeben
 	UPDATE 	Reservierungen
 	-- der temporaere Kunde wird ersetzt
-	SET 	Reservierungen.KID = KundenId, GaesteStatus = 'RESERVED'
-	WHERE 	Reservierungen.Reservierungsnummer= vorgemerkte.Reservierungsnummer;
+	SET 	reserviertVonKunde = KundenId, GaesteStatus = 'RESERVED'
+	WHERE 	Reservierungen.Reservierungsnummer= getVorgemerktesZimmer(Angebot);
 	
 END
 $$LANGUAGE plpgsql;
@@ -393,10 +412,42 @@ $$ LANGUAGE plpgsql;
 
 
 
--- 2. KONSISTENZTRIGGER
+-- 2.KONSISTENZTRIGGER
 
 /* 
-2.1. ReserviertVonKundeCheck
+2.1.ReservierungDeleteTrigger
+Info: Beim Loeschen einer Reservierungen muessen in Ablehnungen alle korrespondierenden Eintraege geloescht werden. 
+*/
+CREATE OR REPLACE FUNCTION reservierungDelete() RETURNS TRIGGER 
+AS $$
+BEGIN
+	DELETE FROM Ablehnungen 
+	WHERE OLD.Reservierungsnummer = Ablehnungen.Reservierungsnummer;
+	RETURN NEW;
+
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ReservierungDeleteTrigger AFTER DELETE 
+ON Reservierungen 
+	FOR EACH ROW
+	EXECUTE PROCEDURE reservierungDelete();
+
+
+/*
+2. .UeberbuchungCheckTrigger
+
+*/
+
+CREATE TRIGGER ReserviertVonKundeCheckTrigger AFTER UPDATE OF Gaestestatus
+ON Reservierungen 
+	FOR EACH ROW
+	WHEN (NEW.Gaestestatus = 'RESERVED')
+	EXECUTE PROCEDURE ReserviertVonKundeCheck();
+
+
+/* 
+2.. ReserviertVonKundeCheckTrigger
 Info: Da wir bei der Zimmeranfrage erlauben, dass eine Reservierung temporaer mit einem namenlosen Kunden gespeichert wird, muessen 
 wir sicher stellen, dass spaetestens nach dem Update des Angebots auf Reserved, eine echter Kunde eingetragen ist. 
 */ 
@@ -677,9 +728,16 @@ SELECT ZimmerFreiAnDate(1, 'EZMM', current_date, current_date+1);
 					--Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
 SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
 
--- 1.5. AblehnungAngebot( Angebot Angebot, Grund varChar)
-SELECT AblehnungAngebot((1,'EZMM',1,190.00)::Angebot, 'Too Expensive');
+-- 1.5. 
 
+-- 1.6. AblehnungAngebot( Angebot Angebot, Grund varChar)
+SELECT AblehnungAngebot((1,'EZMM',1,190.00,current_date, current_date+1)::Angebot, 'Too Expensive');
+
+-- 1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
+SELECT AnnahmeAngebot(102, (1,'EZMM',1,190.00,current_date, current_date+1)::Angebot);
+
+
+select * from reservierungen
 
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
