@@ -25,7 +25,7 @@ CREATE OR REPLACE VIEW freiZimmerAktuell AS
 				WHERE 	Anreise=current_date AND zimmer!= NULL 
 					OR Gaestestatus = 'IN-HOUSE' 
 					OR Gaestestatus='CANCELED' 
-					OR Gaestestatus='TURN-DOWN')) as SELEKTION--BElegteZimmer)
+					OR Gaestestatus='TURN-DOWN')) as SELEKTION--BelegteZimmer)
 			GROUP BY hotelid
 			ORDER BY hotelid;
 
