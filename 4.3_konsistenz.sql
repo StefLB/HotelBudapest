@@ -57,13 +57,13 @@ AS $$
 		countHaupt int DEFAULT 0;
 BEGIN
 
-	FOR i IN 0..(Abreise-Anreise) LOOP
+	FOR i IN 0..(Abreise-Anreise-1) LOOP
 		IF (Anreise + i BETWEEN beginHaupt AND endHaupt) THEN
 			countHaupt = countHaupt + 1;
 		END IF;
 	END LOOP;
 
-	RETURN (countHaupt, (Abreise-Anreise-countHaupt+1));
+	RETURN (countHaupt, (Abreise-Anreise-countHaupt));
 	
 END
 $$LANGUAGE plpgsql; 
@@ -162,8 +162,6 @@ BEGIN
 		ORDER BY Zimmernummer ASC
 		OFFSET i
 		FETCH FIRST 1 ROWS ONLY;
-
-		select * from reservierungen
 		
 		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
 					Anreise, Abreise, DEFAULT , DEFAULT, 'AWAITING-CONFIRMATION', Wuensche, Personenanzahl, now());
@@ -171,6 +169,7 @@ BEGIN
 		-- addiere maxPersonen der vorgemerkten Zimmer 
 		countmaxPersonen = countmaxPersonen + maxPersonenvar;
 	END LOOP;
+	
 	-- Pruefe ob vergebene Zimmer die Personenanzahl beherbergen kann
 	IF (countmaxPersonen < AnzahlPersonen) THEN
 		RAISE EXCEPTION 'Zu viele Gaeste fuer diese Zimmerkombination';
@@ -627,7 +626,21 @@ ON Reservierungen
 
 
 -- BEISPIELANFRAGEN
---TODO: Beispielanfragen für Funktionen und Trigger
 
 -- 1.1. getPreisTabelle(Hotel int) 
 SELECT getPreisTabelle(2);
+
+-- 1.2. berechneSaison(Anreise date,Abreise date)
+SELECT berechneSaison(current_date,current_date+30); 
+
+-- 1.3. ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date)
+SELECT ZimmerFreiAnDate(1, 'EZMM', current_date, current_date+1);
+
+-- 1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
+					--Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
+SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
+
+
+
+--TODO: vollst. Beispielanfragen für Funktionen und Trigger
+
