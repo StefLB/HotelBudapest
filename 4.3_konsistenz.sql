@@ -723,11 +723,11 @@ BEGIN
 
 	SELECT 	zimmer INTO Zimmernr
 	FROM 	Reservierungen 
-	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer;
 
 	SELECT 	gehoertzuhotel INTO hotelnr
 	FROM 	Reservierungen 
-	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer AND Status = 'RESERVED';
+	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer;
 
 	select outoforder INTO zimmerstatus
 	from zimmer
@@ -735,14 +735,21 @@ BEGIN
 
 	
 	
-	IF (zimmerstatus = 0) THEN RETURN NEW; ELSE
-		SELECT FIRST(zimmernummer) INTO newzimmer
-		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.von, NEW.bis);
+	IF (zimmerstatus = 'false') THEN RETURN NEW; ELSE
+		SELECT zimmernummer INTO newzimmer
+		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.anreise, NEW.abreise)
+		FETCH FIRST 1 ROWS ONLY;
+		
 		IF NOT FOUND THEN
-		RAISE EXCEPTION 'Keine freien ZImmer vorhanden'; ELSE
+		UPDATE 	Reservierungen
+		SET 	zimmer = NULL
+		WHERE 	Reservierungen.Reservierungsnummer= new.reservierungsnummer;
+		RETURN NEW; --keine Exception da automatisiert beim Wechsel des Datums
+		ELSE
 		UPDATE 	Reservierungen
 		SET 	zimmer = newzimmer
 		WHERE 	Reservierungen.Reservierungsnummer= new.reservierungsnummer;	
+		RETURN NEW;
 		END IF;
 
 	END IF;
@@ -751,12 +758,11 @@ END
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER checkoutoforder BEFORE UPDATE OF Gaestestatus
+CREATE TRIGGER checkoutoforder AFTER UPDATE OF Gaestestatus
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'ARRIVAL')
 	EXECUTE PROCEDURE checkoutoforder();
-
 
 
 
