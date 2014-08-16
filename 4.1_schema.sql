@@ -400,7 +400,7 @@ CREATE TABLE Reservierungen(
 	FOREIGN KEY (gehoertzuhotel, Zimmer) REFERENCES Zimmer,
 	UNIQUE (Reservierungsnummer),
 	UNIQUE (Stornierungsnummer),
-	UNIQUE (gehoertzuhotel,Zimmer,Anreise),
+	UNIQUE (gehoertzuhotel,Zimmer,Anreise,Gaestestatus),
 	PRIMARY KEY  (Reservierungsnummer)
 );
 
