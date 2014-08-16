@@ -307,6 +307,11 @@ insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,8, 'MO-SO 07/17', 'Halle 4', 'Platz 4');
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,7,'24/7','Garage 1', 'Fahrrad 1');
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values (3,6,'MO-SO 07/23', 'Werlin','The Diamond' );
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,8,'24/7','Garage 1', 'Fahrrad 2');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,9,'24/7','Garage 1', 'Fahrrad 3');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,10,'24/7','Garage 1', 'Fahrrad 4');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,11,'24/7','Garage 1', 'Fahrrad 5');
+
 
 
 
@@ -371,7 +376,11 @@ INSERT INTO sporteinrichtungen VALUES
 	(4,6, 5.00),
 	(4,7, 5.00),
 	(4,8, 5.00),
-	(6,7, 3.00);
+	(6,7, 3.00),
+	(6,8, 3.00),
+	(6,9, 3.00),
+	(6,10, 3.00),
+	(6,11, 3.00);
 
 --Golfplaetze
 
@@ -399,11 +408,13 @@ INSERT INTO fahrraeder VALUES
 --mieten
 
 INSERT INTO mieten VALUES
-	(4,5,43, '2014-10-19 10:00:00', '2014-10-19 11:00:00');
-
-INSERT INTO mieten VALUES
+	(4,5,43, '2014-10-19 10:00:00', '2014-10-19 11:00:00'),
 	(4,5,44,'2014-05-10 14:00:00', '2014-05-10 16:00:00'),
-	(4,5,44,'2014-05-08 14:00:00', '2014-05-08 16:00:00');
+	(4,5,44,'2014-05-08 14:00:00', '2014-05-08 16:00:00'),
+	(6,7,88, now(), now()+interval '3 hours');
+
+
+
 
 
 
@@ -458,6 +469,8 @@ values(DEFAULT, 100000.00,NULL, 'ROOM', 'SUIT','2000-01-01', '2000-01-01'::date 
 values(DEFAULT, 100.00,NULL, 'ROOM', 'SUIT','2015-01-01', '2015-01-02', 'RESERVED', 'KA', 1, now(),103, 15, 4);
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(DEFAULT, 100.00,NULL, 'ROOM', 'SUIT','2016-01-01', '2016-01-02', 'RESERVED', 'KA', 1, now(),103, 15, 4);
+insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
+values(DEFAULT, 190.00,NULL, 'ROOM', 'DZOM', '2014-08-16', '2014-12-03', 'IN-HOUSE', 'KA', 2, now(), 88, 11, 6 );
 
 
 --ABLEHNUNGEN
