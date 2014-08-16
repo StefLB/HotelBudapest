@@ -142,7 +142,7 @@ CREATE TABLE Kunden(
 	Nachname varChar NOT NULL,
 	Adresse varChar ,
 	Telefonnummer int ,
-	Kreditkarte int, 
+	Kreditkarte bigint, 
 	Besonderheiten BESONDERHEIT,
 	VIP boolean DEFAULT FALSE,
 	Erstellungszeitpunkt timestamp NOT NULL DEFAULT now(),
