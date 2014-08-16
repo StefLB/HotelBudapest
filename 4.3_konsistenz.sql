@@ -815,11 +815,13 @@ SELECT annahmeAngebotNeuKunde('Gunner'::varChar,'Grumpen'::varChar,'Googeytown':
 -- Anmerkung: Hier wird auf eine View in 6_LogischeDatenun.sql zurueckgegegriffen.
 SELECT ZimmerDreckig();
 
--- 1.10.
+-- 1.10.Rechnungsposten(Hotelnummer int, Zimmernummer int) 
 SELECT*
 FROM Rechnungsposten(4,15);
 
-
+-- 1.11. gourmetGast (Hotel int)
+SELECT*
+from gourmetgast(3);
 
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
