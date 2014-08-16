@@ -116,7 +116,7 @@ CREATE OR REPLACE FUNCTION Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkatego
 RETURNS Angebot
 AS $$
 	DECLARE AnzahlZimmervar int; zimmervar int; preisvar money; Anzahlnaechte AnzahlnaechteType;
-		Hauptsaisonzuschlag money; countMaxPersonen int; maxPersonenvar int; tempID int;
+		Hauptsaisonzuschlag money; countMaxPersonen int; maxPersonenvar int; tempID int; nextID int;
 BEGIN
 	-- Hole alle freien Zimmer des gefragten typs
 	CREATE TEMP TABLE temptable
@@ -154,9 +154,10 @@ BEGIN
 	preisvar = (preisvar + Hauptsaisonzuschlag ) * Anzahlnaechte.AnzahlHauptsaison 
 		  + preisvar * Anzahlnaechte.AnzahlNebensaison;
 
+
 	-- Lege eine vorgemerkte Reservierung an,
 	-- eine reservierung pro zimmer
-	FOR i IN 0..AnzahlZimmer LOOP
+	FOR i IN 1..AnzahlZimmer LOOP
 		SELECT 	Zimmernummer,maxPersonen INTO zimmervar,maxPersonenvar
 		FROM 	temptable
 		ORDER BY Zimmernummer ASC
@@ -164,7 +165,7 @@ BEGIN
 		FETCH FIRST 1 ROWS ONLY;
 
 		-- Benutze den temporaeren Kunden um die Reservierungen anzulegen
-		SELECT KundenID INTO tempID
+		SELECT KID INTO tempID
 		FROM Kunden
 		WHERE Vorname LIKE '' AND Nachname LIKE '';
 		
@@ -177,7 +178,7 @@ BEGIN
 	END LOOP;
 	
 	-- Pruefe ob vergebene Zimmer die Personenanzahl beherbergen kann
-	IF (countmaxPersonen < AnzahlPersonen) THEN
+	IF (countmaxPersonen < PersonenAnzahl) THEN
 		RAISE EXCEPTION 'Zu viele Gaeste fuer diese Zimmerkombination';
 	END IF;
 	
@@ -676,6 +677,5 @@ SELECT ZimmerFreiAnDate(1, 'EZMM', current_date, current_date+1);
 SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
 
 
-
---TODO: vollst. Beispielanfragen für Funktionen und Trigger
+--TODO: ab hier Beispielanfragen für Funktionen und Trigger
 
