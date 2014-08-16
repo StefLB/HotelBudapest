@@ -21,6 +21,7 @@ INHALTSANGABE:
 						Kreditkarte bigint, Besonderheiten varChar, Angebotsdaten Angebot)
 1.9. ZimmerDreckig()
 1.10. Rechnungsposten(Hotelnummer int, Zimmernummer int)
+1.11 gourmetGast (Hotel int)
 
 
 2.KONSISTENZTRIGGER
@@ -371,29 +372,34 @@ WITH 	Rechnungskunde AS(
 END		 
 $$ LANGUAGE plpgsql;
 
--- gourmetGast
--- Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 3 Sterne haben,
--- dazu das exklusivste (Teuerste) Gericht. 
+/*
+1.11 gourmetGast (Hotel int)
+Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 1 Stern haben,
+dazu das exklusivste (Teuerste) Gericht. 
+*/
 CREATE OR REPLACE FUNCTION gourmetGast(Hotel int) RETURNS TABLE(Restaurantname varChar, Location varChar, Sterne int, ExklusivMenu varChar,Preis money)
 AS $$
 BEGIN
 	RETURN QUERY
 	WITH 	gourmetRestaurants AS (
-	SELECT	Abteilung.gehoertZuHotel, Abteilung.AID, Name
+	SELECT	Abteilung.gehoertZuHotel, Abteilung.AID, Name, Abteilung.Location, Restaurant.Sterne
 	FROM 	Restaurant 
 		JOIN Abteilung ON Restaurant.gehoertZuHotel = Abteilung.gehoertZuHotel 
 		AND Restaurant.AID = Abteilung.AID
 	WHERE 	Abteilung.gehoertZuHotel = Hotel AND Restaurant.Sterne >= 1),
+	--Auswahl der GourmetRestaurants
 	gourmetSpeiseID AS (
-	SELECT  Name AS Restaurant, Location, Sterne, SpeiseID
+	SELECT  Name AS Restaurant, gourmetRestaurants.Location, SpeiseID,gourmetRestaurants.sterne
 	FROM 	wirdServiertIn
 		JOIN gourmetRestaurants ON wirdServiertIn.gehoertZuHotel = gourmetRestaurants.gehoertZuHotel
-		AND wirdServiertIn.AID = gourmetRestaurants.AID )	
-	SELECT 	Restaurant, gourmetSpeiseID.Location, gourmetSpeiseID.Sterne,SpeisenUndGetraenke.Name,
-		max(SpeisenUndGetraenke.Preis)	
+		AND wirdServiertIn.AID = gourmetRestaurants.AID )
+	--Auswahl der GourmetSpeisen
+	SELECT 	DISTINCT on (restaurant) Restaurant, gourmetSpeiseID.Location,gourmetspeiseid.Sterne,SpeisenUndGetraenke.Name,max(SpeisenUndGetraenke.Preis)	
 	FROM 	gourmetSpeiseID 
 		JOIN SpeisenUndGetraenke ON gourmetSpeiseID.SpeiseID = SpeisenUndGetraenke.SpeiseID 
-	GROUP BY Restaurant, gourmetSpeiseID.Location, gourmetSpeiseID.Sterne,SpeisenUndGetraenke.Name, SpeisenUndGetraenke.Preis;
+	GROUP BY Restaurant, gourmetSpeiseID.Location, gourmetSpeiseID.Sterne,SpeisenUndGetraenke.Name, SpeisenUndGetraenke.Preis
+	ORDER by restaurant, max DESC;
+	--Auswahl des teuersten Gerichtes
 END 
 $$ LANGUAGE plpgsql;
 

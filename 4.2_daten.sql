@@ -306,6 +306,7 @@ insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,7, 'MO-SO 07/17', 'Halle 3', 'Platz 3');
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(4,8, 'MO-SO 07/17', 'Halle 4', 'Platz 4');
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(6,7,'24/7','Garage 1', 'Fahrrad 1');
+insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values (3,6,'MO-SO 07/23', 'Werlin','The Diamond' );
 
 
 
@@ -322,7 +323,8 @@ INSERT INTO restauration VALUES
 	(3,2), 
 	(2,2), 
 	(4,2), 
-	(6,2);
+	(6,2),
+	(3,6);
 
 --Restaurant
 
@@ -331,7 +333,9 @@ INSERT INTO restaurant values
 	(3,1,'italienisch',3),
 	(2,1, 'urbanisch',1),
 	(4,1, 'rustikal',1),
-	(6,1, 'vegetarisch',1);
+	(6,1, 'vegetarisch',1),
+	(3,6, 'urbanisch',2);
+
 
 --Hotelbar
 
@@ -522,7 +526,11 @@ INSERT INTO wirdserviertin VALUES
 	(4,1,13),
 	(6,1,6),
 	(1,2,4),
-	(3,2,12);
+	(3,2,12),
+	(3,6,13),
+	(3,6,2),
+	(3,6,8);
+
 	
 
 
