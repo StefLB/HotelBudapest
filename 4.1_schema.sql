@@ -102,6 +102,8 @@ CREATE TYPE Angebot AS (
 	Hotel int,
 	Zimmerkategorie Zimmerkategorie,
 	AnzahlZimmer int,
+	Anreise date,
+	Abreise date,
 	Gesamtpreis money
 
 );
