@@ -113,6 +113,9 @@ insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Arth
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname,VIP) values ( now(),'Stefanie','Lehmann',true);
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname,VIP) values ( now(),'Elisabeth','Pich',true);
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Mister','Lover-Lover');
+-- Fuer eine Reservierung benoetigen wir eine gueltige KundenID. Da wir zu diesem Zeitpunkt den Kunden 
+-- noch nicht kennen, brauche wir einen temporaeren Kunden, den wir spaeter ersetzen koennen. 
+INSERT INTO Kunden(KundenID,Vorname,Nachname) VALUES (DEFAULT,'','') RETURNING KundenID INTO lastID;
 
 
 
