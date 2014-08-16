@@ -20,8 +20,9 @@ INHALTSANGABE:
 1.8. annahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
 						Kreditkarte bigint, Besonderheiten varChar, Angebotsdaten Angebot)
 1.9. ZimmerDreckig()
-1.10. Rechnungsposten(Hotelnummer int, Zimmernummer int)
+1.10 Rechnungsposten(Hotelnummer int, Zimmernummer int)
 1.11 gourmetGast (Hotel int)
+1.12 freieSportplaetze(Hotel int)
 
 
 2.KONSISTENZTRIGGER
@@ -404,23 +405,29 @@ END
 $$ LANGUAGE plpgsql;
 
 
-
+/*1.12 freieSportplaetze(Hotel int)
 -- freieSportplaetze 
 -- Ein Gast moechte sehen, welche Sportplaetze am jetzigen Tag noch frei zum vermieten sind
+*/
 CREATE OR REPLACE FUNCTION freieSportplaetze(Hotel int) RETURNS TABLE(Sportplatz varChar, Location varChar, Oeffnungszeiten Oeffnungszeit)
 AS $$
 BEGIN
 	RETURN 	QUERY
-	WITH 	sportplatzIDs AS (
-	SELECT 	gehoertZuHotel, AID
-	FROM 	mieten 
-	WHERE	bis > now() AND von >= (current_date + 1  || ' 00:00:00')::timestamp )
+	WITH  sportplatzIDs AS (
+ 	SELECT  gehoertZuHotel,AID
+ 	FROM  Sporteinrichtungen
+ 	EXCEPT
+ 	SELECT  gehoertZuHotel, AID
+ 	FROM  mieten 
+	WHERE bis > now() AND von <= (current_date + 1  || ' 00:00:00')::timestamp )
+	--alle Sporteinrichtungen IDs , die nicht an mieten teilnehmen
 
 	SELECT 	Name, Abteilung.Location, Abteilung.Oeffnungszeiten
 	FROM 	Abteilung 
 		JOIN sportplatzIDs ON sportplatzIDs.gehoertZuHotel = Abteilung.gehoertZuHotel 
 		AND sportplatzIDs.AID = Abteilung.AID 
-	WHERE 	sportplatzIDs.gehoertZuHotel = Abteilung.gehoertZuHotel AND sportplatzIDs.AID = Abteilung.AID;
+	WHERE 	sportplatzIDs.gehoertZuHotel = Hotel AND sportplatzIDs.AID = Abteilung.AID;
+	--verfuegbare Sporteinrichtungen im Hotel
 END 
 $$ LANGUAGE plpgsql;
 
@@ -822,6 +829,10 @@ FROM Rechnungsposten(4,15);
 -- 1.11. gourmetGast (Hotel int)
 SELECT*
 from gourmetgast(3);
+
+--1.12 freieSportplaetze(Hotel int)
+SELECT*
+from freiesportplaetze(6);
 
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
