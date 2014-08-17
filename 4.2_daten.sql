@@ -403,7 +403,15 @@ INSERT INTO tennisplaetze VALUES
 --Fahrräder
 
 INSERT INTO fahrraeder VALUES
-	(6,7, 16, 'BMX');
+	(6,7, 16, 'BMX'),
+	(6,8, 16, 'CityFlitzer'),
+	(6,9, 16, 'Mountain3000'),
+	(6,10, 16,'Fixi'),
+	(6,11, 16,'Xtreme');
+
+
+
+
 
 --mieten
 
