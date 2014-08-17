@@ -23,7 +23,8 @@ INHALTSANGABE:
 	1.10 Rechnungsposten(Hotelnummer int, Zimmernummer int)
 	1.11 gourmetGast (Hotel int)
 	1.12 freieSportplaetze(Hotel int)
-
+	1.13 setArrivals()
+	1.14 getnaechsteFreieKarte()
 
 2. KONSISTENZTRIGGER
 	2.1. ReservierungDeleteTrigger
@@ -109,8 +110,9 @@ BEGIN
 	WHERE 	gehoertZuHotel = Hotel 
 		-- muss frei sein von - bis
 		AND ((von >= Anreise AND von <= Abreise) OR (bis >= Anreise AND bis <= Abreise))
-		-- nur vorgemerkte, ankommende oder belegte Zimmer abziehen
-		AND (Gaestestatus = 'RESERVED' OR Gaestestatus = 'ARRIVAL' OR Gaestestatus = 'IN-HOUSE')))
+		-- nur reservierte, ankommende, belegte, oder vorgemerkte Zimmer abziehen
+		AND (Gaestestatus = 'RESERVED' OR Gaestestatus = 'ARRIVAL' OR Gaestestatus = 'IN-HOUSE' 
+		OR Gaestestatus = 'AWAITING-CONFIRMATION')))
 
 	SELECT 	freieZimmer.Zimmernummer
 	FROM 	freieZimmer
@@ -438,16 +440,32 @@ BEGIN
 END 
 $$ LANGUAGE plpgsql;
 
+/*
+1.13. setArrivals
+Returns: void
+Benoetigt fuer: jeden Morgen werden alle anreisende Reservierungen als solche markiert 
+*/
+CREATE OR REPLACE FUNCTION setArrivals() RETURNS VOID
+AS $$
+BEGIN
+	UPDATE 	Reservierungen
+	SET	Gaestestatus = 'ARRIVAL'
+	WHERE	Anreise = current_date;
 
+END
+$$ LANGUAGE plpgsql;
 
--- getNaechsteFreieKarte
--- gibt naechste freie zimmerkarte zurueck
+/*
+1.14. getNaechsteFreieKarte
+Returns: naechste freie zimmerkarte 
+Benoetigt fuer: 
+*/
 CREATE OR REPLACE FUNCTION getNaechsteFreieKarte() RETURNS int
 AS $$
 	DECLARE neuKartenID int;
 BEGIN
 	SELECT 	KartenID INTO neuKartenID
-	FROM 	FreieKarten
+	FROM 	FreieKartenView
 	FETCH FIRST 1 ROWS ONLY;
 
 	RETURN neuKartenID;
@@ -616,54 +634,80 @@ ON Reservierungen
 
 
 
--- EinChecken
--- Falls beim Einchecken von einem Gast, in Reservierungen
--- mehr als ein Zimmer auf den Kunden eingetragen sind, muss aus Sicherheitsgruenden
--- pro zusaestzliches Zimmer eine Verantwortliche Person eingetragen werden. 
-CREATE OR REPLACE FUNCTION checkInNeuKunde(Reservierungsnummer int) 
+/*
+2.6. EinCheckenTrigger
+Info: Falls beim Einchecken von einem Gast, in Reservierungen mehr als ein Zimmer auf den Kunden eingetragen sind, 
+muss aus Sicherheitsgruenden, pro zusaestzliches Zimmer eine Verantwortliche Person eingetragen werden. 
+Anmerkung: Hier werden zwei Funktionen benoetigt. Die eventuelle Aufnahme eines Neukunden und das eigentliche Einchecken.  
+*/
+CREATE OR REPLACE FUNCTION checkInNeuKunde(Reservierungsnummerparam int) 
 RETURNS VOID
 AS $$
+	DECLARE Vorname varChar; Nachname varChar; Adresse varChar; Telefonnummer int; 
+		Kreditkarte bigint; Besonderheit varChar; id int; 
 BEGIN
-	-- Consolen Ein und Ausgabe Funktion fuer die Aufnahme der Kundendaten
+	-- Sollte natuerlich eine Consolen Ein und Ausgabe Funktion fuer die Aufnahme der Kundendaten sein. 
+	-- Wir simulieren diese Situation hier mit Variablen. 
+	Vorname = 'Karl';
+	Nachname = 'Klummpp';
+--	Adresse = 'Kronstad';
+	Telefonnummer = 5551234;
+--	Kreditkarte = ;
+	Besonderheit = 'vegan';
+
+	INSERT INTO Kunden VALUES (DEFAULT, Vorname, Nachname, DEFAULT, Telefonnummer, DEFAULT, Besonderheit, DEFAULT, DEFAULT)
+	-- Wir merken uns die ID
+	RETURNING KID INTO id;
+	-- Um sie in die Reservierung einzufuegen	
+	UPDATE 	Reservierungen 
+	SET 	reserviertvonKunde = id
+	WHERE 	Reservierungsnummerparam = Reservierungsnummer;
+
+	--raise info 'id %',id;
+	--raise info 'resnummrparam  %',Reservierungsnummerparam;
+
+
+	RETURN;	
+
+
+	
 END
 $$ LANGUAGE plpgsql;
-
-
   
 CREATE OR REPLACE FUNCTION einChecken() RETURNS TRIGGER 
 AS $$
 	DECLARE AnzahlZimmer int; Reservierungsnummervar int; 
 BEGIN
-
+	-- Zaehle wieviele Zimmer der Kunde fuer den heutigen Tag reserviert hat
 	SELECT 	count(*) INTO AnzahlZimmer
 	FROM 	Reservierungen 
-	WHERE 	Reservierungen.KID = NEW.KID AND Status = 'ARRIVAL';
+	WHERE 	Reservierungen.reserviertVonKunde = NEW.reserviertVonKunde AND Gaestestatus = 'IN-HOUSE';
+	-- Zusaetzliche Zimmer muessen mit einem neuen Kunden versehen werde
 
 	IF (AnzahlZimmer > 1) THEN 
-		-- beginn ab offset 1, d.h. erste 
-		-- reservierung bleibt unveraendert
-		FOR i in 1..AnzahlZimmer LOOP
+		-- fuer jedes zusaetzlich zimmer also ab 2
+		FOR i in 2..AnzahlZimmer LOOP
 			SELECT 	Reservierungsnummer INTO Reservierungsnummervar
 			FROM 	Reservierungen 
-			WHERE 	Reservierungen.KID = NEW.KID AND Status = 'ARRIVAL'
+			WHERE 	Reservierungen.reserviertVonKunde = NEW.reserviertVonKunde AND Gaestestatus = 'IN-HOUSE'
 			ORDER BY Reservierungsnummer
-			OFFSET 	i
+			-- erste Reservierung bleibt wie sie ist
+			OFFSET 	i-1
 			FETCH FIRST 1 ROWS ONLY; 
 			-- Nehme neue Kundendaten auf fuer Reservierung, dazu muessen
 			-- alle Kundendaten an der Rezeption aufgenommen werden	
-			SELECT checkInNeuKunde(Reservierungsnummervar);
+			PERFORM checkInNeuKunde(Reservierungsnummervar);
 		END LOOP;
 	END IF;
-
+	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER einCheckenTrigger BEFORE UPDATE OF Gaestestatus
+CREATE TRIGGER einCheckenTrigger AFTER UPDATE OF Gaestestatus
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
 	EXECUTE PROCEDURE einChecken();
-
 
 
 -- Kartenvergabe
@@ -673,20 +717,18 @@ AS $$
 	DECLARE neuKartenID int;
 BEGIN
 	FOR i IN 1..2 LOOP 
-
-		SELECT *
-		FROM freieKarten;
-
+		PERFORM	*
+		FROM 	freieKartenView;
 		-- keine freie Karten mehr im umlauf
-		IF(!FOUND) THEN 
+		IF(NOT FOUND) THEN 
 			-- erstelle eine neue Karte
 			INSERT INTO Zimmerkarte VALUES (DEFAULT,DEFAULT);
 		END IF;
-
+		-- hole naechste freie karte
 		neuKartenID = getNaechsteFreieKarte();
-
-		INSERT INTO erhalten VALUES (NEW.KID, neuKartenID,NEW.Reservierungsnummer);
+		INSERT INTO erhalten VALUES (NEW.reserviertVonkunde, neuKartenID,NEW.Reservierungsnummer);
 	END LOOP;
+	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
@@ -751,7 +793,7 @@ BEGIN
 	FROM Bezahlen
 	WHERE NEW.Reservierungsnummer = Bezahlen.Reservierungsnummer;
 
-	IF(!FOUND) THEN
+	IF(NOT FOUND) THEN
 		RAISE EXCEPTION 'Gast muss noch bezahlen';
 
 	ELSE 
@@ -806,7 +848,7 @@ BEGIN
 	WHERE 	NEW.KartenId = erhalten.KartenId AND NEW.Zimmernummer = berechtigtesZimmer.Zimmer
 		AND NEW.gehoertZuHotel = berechtigtesZimmer;
 
-	IF (!FOUND) THEN
+	IF (NOT FOUND) THEN
 		RAISE NOTICE 'Kein Zutritt!'; 
 		RAISE EXCEPTION 'Hey, du Spanner!';
 	END IF;	
@@ -836,9 +878,9 @@ BEGIN
 	FROM 	Reservierungen 
 	WHERE 	Reservierungen.reservierungsnummer = NEW.reservierungsnummer;
 
-	select outoforder INTO zimmerstatus
-	from zimmer
-	WHERE zimmernummer=zimmernr and gehoertzuhotel=hotelnr;
+	SELECT 	outoforder INTO zimmerstatus
+	FROM 	zimmer
+	WHERE 	zimmernummer=zimmernr and gehoertzuhotel=hotelnr;
 
 	
 	
@@ -903,12 +945,13 @@ SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1)
 SELECT AnnahmeAngebot(102, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
 
 -- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
-					--Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
--- Es muss nochmal eine Anfrage gemacht werden
-SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
-SELECT annahmeAngebotNeuKunde('Gunner'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
+				--Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
+-- Es muss nochmal eine Anfrage gemacht werden. 
+SELECT Zimmeranfrage(1, 'EZMM',current_date+15, current_date+20,'BRFST', 'nix',1, 1);
+SELECT annahmeAngebotNeuKunde('Gunnar'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
 					234357868909, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+1,190.00)::Angebot );
 -- 1.9.ZimmerDreckig() 
+-- Hiernach sollten alle belegten Zimmer dreckig sein. 
 -- Anmerkung: Hier wird auf eine View in 6_LogischeDatenun.sql zurueckgegegriffen.
 SELECT ZimmerDreckig();
 
@@ -920,15 +963,19 @@ FROM Rechnungsposten(4,15);
 SELECT*
 from gourmetgast(3);
 
---1.12 freieSportplaetze(Hotel int)
+--1.12. freieSportplaetze(Hotel int)
 SELECT*
 from freiesportplaetze(6);
+
+--1.13. setArrivals()
+SELECT setArrivals();
 
 /*
 BEISPIELANFRAGEN FUER KONSISTENZTRIGGER
 
 2.1. ReservierungDeleteTrigger
 Info: Offensichtlich muss bei einem Delete auch in Reservierungen auch die Spezifikation Ablehnungen geloescht werden.
+Wir loeschen die eben getaetigte Ablehnung.
 */
 DELETE FROM Reservierungen 
 WHERE Reservierungsnummer = 19;
@@ -939,7 +986,7 @@ WHERE Reservierungsnummer = 19;
 Info: Gleiches gilt fuer alle Spezifikationen von Speisen
 */
 DELETE FROM speisenundgetraenke
-WHERE SpeiseID = 9
+WHERE SpeiseID = 9;
 
 /*
 2.3.AbteilungDeleteTrigger
@@ -947,7 +994,7 @@ Info: Wir loeschen einfach mal Fahrrad 5
 */
 
 DELETE FROM Abteilung
-WHERE gehoertZuHotel = 6 AND AID = 11
+WHERE gehoertZuHotel = 6 AND AID = 11;
 
 /*
 2.4.UeberbuchungCheckTrigger
@@ -970,6 +1017,41 @@ UPDATE 	Reservierungen
 SET 	Gaestestatus = 'RESERVED'
 WHERE 	Gaestestatus = 'AWAITING-CONFIRMATION';
 
+
+/*
+2.6.EinCheckenTrigger
+Info: Gunnar Grumpen reserviert zwei Zimmer. Eins fuer sich und eins fuer sein Kumpel Kar.
+Beim Einchecken, muss dieser Trigger erkennen, dass das zweite Zimmer einen eigenen 
+Kundeneintrag braucht. Gunnars Kumpel Karl muss sich als Kunde eintragen lassen. 
+*/
+SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',2, 2);
+-- Gunnar nimmt das Angebot an
+SELECT AnnahmeAngebot(105, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
+-- Beide werden heute anreisen
+SELECT setArrivals();
+-- und kommen schliesslich an
+UPDATE 	Reservierungen
+SET 	Gaestestatus = 'IN-HOUSE' 
+WHERE 	reserviertVonKunde = 105;
+-- Hiernach sind beide Reservierungen auf den jeweiligen Namen.
+
+/*
+2.7.EinCheckenTrigger
+Info: Gunnar Grumpen reserviert zwei Zimmer. Eins fuer sich und eins fuer sein Kumpel Kar.
+Beim Einchecken, muss dieser Trigger erkennen, dass das zweite Zimmer einen eigenen 
+Kundeneintrag braucht. Gunnars Kumpel Karl muss sich als Kunde eintragen lassen. 
+*/
+
+
+
+
+select * from reservierungen
+delete from erhalten where reservierungsnummer > 24;
+delete from reservierungen where reservierungsnummer > 24;
+delete from kunden where kid > 105;
+select * from kunden
+select * from erhalten
+drop trigger EinCheckenTrigger on reservierungen
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
 
