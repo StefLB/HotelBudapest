@@ -650,30 +650,23 @@ BEGIN
 	-- Wir simulieren diese Situation hier mit Variablen. 
 	Vorname = 'Karl';
 	Nachname = 'Klummpp';
---	Adresse = 'Kronstad';
+	Adresse = 'Kronstad';
 	Telefonnummer = 5551234;
---	Kreditkarte = ;
+	Kreditkarte = 123456789012;
 	Besonderheit = 'vegan';
 
-	INSERT INTO Kunden VALUES (DEFAULT, Vorname, Nachname, DEFAULT, Telefonnummer, DEFAULT, Besonderheit, DEFAULT, DEFAULT)
+	INSERT INTO Kunden VALUES (DEFAULT, Vorname, Nachname, Adresse, Telefonnummer, Kreditkarte, Besonderheit, DEFAULT, DEFAULT)
 	-- Wir merken uns die ID
 	RETURNING KID INTO id;
 	-- Um sie in die Reservierung einzufuegen	
 	UPDATE 	Reservierungen 
 	SET 	reserviertvonKunde = id
 	WHERE 	Reservierungsnummerparam = Reservierungsnummer;
-
-	--raise info 'id %',id;
-	--raise info 'resnummrparam  %',Reservierungsnummerparam;
-
-
-	RETURN;	
-
-
-	
+	RETURN;		
 END
 $$ LANGUAGE plpgsql;
-  
+
+-- die Eincheckfunktion 
 CREATE OR REPLACE FUNCTION einChecken() RETURNS TRIGGER 
 AS $$
 	DECLARE AnzahlZimmer int; Reservierungsnummervar int; 
@@ -698,7 +691,7 @@ BEGIN
 			-- alle Kundendaten an der Rezeption aufgenommen werden	
 			PERFORM checkInNeuKunde(Reservierungsnummervar);
 		END LOOP;
-	END IF;
+	END IF;	
 	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -709,12 +702,14 @@ ON Reservierungen
 	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
 	EXECUTE PROCEDURE einChecken();
 
-
--- Kartenvergabe
--- Jeder Kunde erhaelt 2 Karten fuer Zimmer
+/*
+2.8. Kartenvergabe
+Info: Jeder Kunde erhaelt 2 Karten fuer sein Zimmer beim Einchecken
+Benoetigt fuer: die 1:1:N Beziehung da jeder Kunde N Karten zu 1 Reservierung. 
+*/
 CREATE OR REPLACE FUNCTION kartenvergabe() RETURNS TRIGGER 
 AS $$
-	DECLARE neuKartenID int;
+	DECLARE neuKartenID int; KID int;
 BEGIN
 	FOR i IN 1..2 LOOP 
 		PERFORM	*
@@ -726,8 +721,13 @@ BEGIN
 		END IF;
 		-- hole naechste freie karte
 		neuKartenID = getNaechsteFreieKarte();
-		INSERT INTO erhalten VALUES (NEW.reserviertVonkunde, neuKartenID,NEW.Reservierungsnummer);
-	END LOOP;
+		-- hole kundenId manuell, da sie vielleicht im vorigen trigger geaendert wurde
+		SELECT 	reserviertVonKunde INTO KID
+		FROM 	Reservierungen
+		WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;	
+		
+		INSERT INTO erhalten VALUES (KID, neuKartenID,NEW.Reservierungsnummer);
+	END LOOP;		
 	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -738,7 +738,6 @@ ON Reservierungen
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'IN-HOUSE')
 	EXECUTE PROCEDURE kartenvergabe();
-
 
 
 -- Kartenverlust
@@ -1036,22 +1035,19 @@ WHERE 	reserviertVonKunde = 105;
 -- Hiernach sind beide Reservierungen auf den jeweiligen Namen.
 
 /*
-2.7.EinCheckenTrigger
-Info: Gunnar Grumpen reserviert zwei Zimmer. Eins fuer sich und eins fuer sein Kumpel Kar.
-Beim Einchecken, muss dieser Trigger erkennen, dass das zweite Zimmer einen eigenen 
-Kundeneintrag braucht. Gunnars Kumpel Karl muss sich als Kunde eintragen lassen. 
+2.7.kartenVergabeTrigger
+Info: Die eben eingecheckten Kunden haben ihre Karten schon erhalten, da dieser Trigger durch dasselbe Event ausgeloest wird.  
+Siehe dazu:
 */
+SELECT 	*
+FROM 	erhalten
+ORDER BY KundenId DESC
+FETCH FIRST 4 ROWS ONLY;
 
 
-
-
-select * from reservierungen
-delete from erhalten where reservierungsnummer > 24;
-delete from reservierungen where reservierungsnummer > 24;
-delete from kunden where kid > 105;
-select * from kunden
-select * from erhalten
-drop trigger EinCheckenTrigger on reservierungen
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
+
+
+
 
