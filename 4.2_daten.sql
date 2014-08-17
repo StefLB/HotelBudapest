@@ -362,7 +362,7 @@ INSERT INTO schwimmbad VALUES
 --BENUTZEN--
 
 INSERT INTO benutzen VALUES
-	(8,4,2, now(),now()+'1 day'),
+	(3,3, 55, now()+ interval '1 hours',now()+ interval'3 hours'),
 	(4,3,44,'2014-05-08 19:00:00', '2014-05-08 20:00:00'),
 	(4,3,44,'2014-05-09 19:00:00', '2014-05-09 20:00:00');
 
@@ -443,7 +443,7 @@ values(DEFAULT, 150.00,NULL, 'ROOM', 'DZMM', '2014-08-15', '2014-08-20', 'RESERV
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(DEFAULT, 180.00,NULL, 'BRFST', 'EZOM', '2014-08-30', '2014-09-15', 'RESERVED', 'KA', 1, now(), 3, 5, 2 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-values(DEFAULT, 210.00,NULL, 'HBL', 'SUIT', '2014-12-01', '2014-12-03', 'CHECKED-OUT', 'KA', 2, now(), 4, 13, 3 );
+values(DEFAULT, 210.00,NULL, 'HBL', 'SUIT', '2014-03-01', '2014-04-03', 'CHECKED-OUT', 'KA', 2, now(), 4, 13, 3 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 values(DEFAULT, 240.00,NULL, 'HBD', 'SUIT', current_date, '2014-12-31', 'IN-HOUSE', 'KA', 3, now(), 55, 10, 3 );
 	insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
@@ -598,7 +598,7 @@ INSERT INTO Trinken VALUES
 INSERT INTO konsumieren VALUES
 	(4,1 ,43,9, now()),
 	(3,2 ,4, 3 ,'2014-03-03 08:00:00'),
-	(1,2,87,4 ,'2014-07-04 08:00:00'),
+	(1,2,87,4 ,'2014-07-03 08:00:00'),
 	(2,1,66,9, '2014-08-05 09:00:00'), 
 	(2,2,66,3, '2014-08-06 08:00:00'), 
 	(2,2,66,4, '2014-08-06 08:05:00'), 
