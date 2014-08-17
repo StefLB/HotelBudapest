@@ -28,6 +28,10 @@ INHALTSANGABE:
 2. KONSISTENZTRIGGER
 	2.1. ReservierungDeleteTrigger
 	2.2. SpeiseUndGetraenkeDeleteTrigger
+	2.3. AbteilungDeleteTrigger
+	2.4. UeberbuchungCheckTrigger
+
+
 
 
 3. BEISPIELANFRAGEN
@@ -476,7 +480,7 @@ ON Reservierungen
 2.2. SpeiseUndGetraenkeDeleteTrigger
 Info: Beim Loeschen einer Speise oder eines Getraenks muessen in Essen oder Trinken alle korrespondierenden Eintraege geloescht werden. 
 */
-CREATE OR REPLACE FUNCTION SpeiseUndGetraenkeDelete() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION SpeisenUndGetraenkeDelete() RETURNS TRIGGER 
 AS $$
 BEGIN
 	--Essen
@@ -491,9 +495,9 @@ END
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER SpeiseUndGetraenkeDeleteTrigger AFTER DELETE 
-ON SpeiseUndGetraenke 
+ON SpeisenUndGetraenke 
 	FOR EACH ROW
-	EXECUTE PROCEDURE SpeiseUndGetraenkeDelete();
+	EXECUTE PROCEDURE SpeisenUndGetraenkeDelete();
 
 /*
 2.3.AbteilungDeleteTrigger
@@ -506,27 +510,38 @@ BEGIN
 	--Restaurant
 	DELETE FROM Restaurant 
 	WHERE 	OLD.gehoertZuHotel = Restaurant.gehoertZuHotel
-		AND OLD.AID = Restaurant.AID
+		AND OLD.AID = Restaurant.AID;
 	--HotelBar
 	DELETE FROM HotelBar 
 	WHERE 	OLD.gehoertZuHotel = HotelBar.gehoertZuHotel
-		AND OLD.AID = HotelBar.AID
+		AND OLD.AID = HotelBar.AID;
 	--Schwimmbad
 	DELETE FROM Schwimmbad 
 	WHERE 	OLD.gehoertZuHotel = Schwimmbad.gehoertZuHotel
-		AND OLD.AID = Schwimmbad.AID
+		AND OLD.AID = Schwimmbad.AID;
 	--Minigolf
-	DELETE FROM Minigolf 
+	DELETE FROM Minigolf
 	WHERE 	OLD.gehoertZuHotel = Minigolf.gehoertZuHotel
-		AND OLD.AID = Minigolf.AID
+		AND OLD.AID = Minigolf.AID;
 	--Golf
+	DELETE FROM Golf
+	WHERE 	OLD.gehoertZuHotel = Golf.gehoertZuHotel
+		AND OLD.AID = Golf.AID;
+	--Fahrraeder
+	DELETE FROM Fahrraeder
+	WHERE 	OLD.gehoertZuHotel = Fahrraeder.gehoertZuHotel
+		AND OLD.AID = Fahrraeder.AID;
+	--Tennisplaetze
+	DELETE FROM Tennisplaetze
+	WHERE 	OLD.gehoertZuHotel = Tennisplaetze.gehoertZuHotel
+		AND OLD.AID = Tennisplaetze.AID;
 
 
 END
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER AbteilungDeleteTrigger AFTER DELETE 
-ON Abteilungen 
+ON Abteilung 
 	FOR EACH ROW
 	EXECUTE PROCEDURE AbteilungDelete();
 
@@ -534,9 +549,10 @@ ON Abteilungen
 
 
 /*
-2. .UeberbuchungCheckTrigger
+2.4.UeberbuchungCheckTrigger
 Info: Beim Update einer Reservierung muss sicher gestellt werden, dass nicht zwei Kunden zur gleichen Zeit ein und dasselbe
 reserviert haben. 
+Benoetigt fuer: Die 1:1 Beziehung bei Reservierung und Zimmer
 */
 CREATE OR REPLACE FUNCTION UeberbuchungCheck() RETURNS TRIGGER 
 AS $$
@@ -849,10 +865,12 @@ ON Reservierungen
 
 
 
--- 3.BEISPIELANFRAGEN 
--- Wobei die Nummern den Funktionen entsprechen
+/*
+3.BEISPIELANFRAGEN 
+Wobei die Nummern den Funktionen oder Views entsprechen
 
--- 1.1. getPreisTabelle(Hotel int) 
+1.1. getPreisTabelle(Hotel int)
+*/ 
 SELECT getPreisTabelle(2);
 
 -- 1.2. berechneSaison(Anreise date,Abreise date)
@@ -895,6 +913,23 @@ from gourmetgast(3);
 --1.12 freieSportplaetze(Hotel int)
 SELECT*
 from freiesportplaetze(6);
+
+/*
+BEISPIELANFRAGEN FUER KONSISTENZTRIGGER
+
+2.1. ReservierungDeleteTrigger
+Info: Offensichtlich muss bei einem Delete auch in Reservierungen auch die Spezifikation Ablehnungen geloescht werden.
+*/
+DELETE FROM Reservierungen 
+WHERE Reservierungsnummer = 18;
+
+/*
+2.2. SpeiseUndGetraenkeDeleteTrigger
+Info: Gleiches gilt fuer alle Spezifikationen von Speisen
+*/
+DELETE FROM speisenundgetraenke
+WHERE SpeiseID = 9
+
 
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
