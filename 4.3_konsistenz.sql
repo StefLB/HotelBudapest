@@ -8,32 +8,34 @@ Anmerkung: Fuer einige der Funktionen oder Trigger werden auf Views zurueckgegeg
 das Einlesen der Views in 6_LogischeDatenun.sql wichtig. 
 
 INHALTSANGABE:
-1.FUNKTIONEN
-1.1. getPreisTabelle(Hotel int) 
-1.2. berechneSaison(Anreise date,Abreise date)
-1.3. ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date)
-1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
-		Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
-1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
-1.6. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
-1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
-1.8. annahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
-						Kreditkarte bigint, Besonderheiten varChar, Angebotsdaten Angebot)
-1.9. ZimmerDreckig()
-1.10 Rechnungsposten(Hotelnummer int, Zimmernummer int)
-1.11 gourmetGast (Hotel int)
-1.12 freieSportplaetze(Hotel int)
+1. FUNKTIONEN
+	1.1. getPreisTabelle(Hotel int) 
+	1.2. berechneSaison(Anreise date,Abreise date)
+	1.3. ZimmerFreiAnDate(Hotel int, Zimmerkat Zimmerkategorie, von date, bis date)
+	1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
+			Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
+	1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
+	1.6. AblehnungAngebot( Angebotsdaten Angebot, Grund varChar)
+	1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
+	1.8. annahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
+							Kreditkarte bigint, Besonderheiten varChar, Angebotsdaten Angebot)
+	1.9. ZimmerDreckig()
+	1.10 Rechnungsposten(Hotelnummer int, Zimmernummer int)
+	1.11 gourmetGast (Hotel int)
+	1.12 freieSportplaetze(Hotel int)
 
 
-2.KONSISTENZTRIGGER
+2. KONSISTENZTRIGGER
+	2.1. ReservierungDeleteTrigger
+	2.2. SpeiseUndGetraenkeDeleteTrigger
+
 
 3. BEISPIELANFRAGEN
 
-*/
 
--- FUNKTIONEN 
 
-/* 
+1.FUNKTIONEN 
+
 1.1. getPreisTabelle(Hotel int) 
 Returns: die Preise des Hotels aus der Preistabelle zurueck
 Benoetigt fuer: die Preisberechnungen bei zimmeranfrage funktion 
@@ -449,9 +451,9 @@ $$ LANGUAGE plpgsql;
 
 
 
--- 2.KONSISTENZTRIGGER
+/*
+2.KONSISTENZTRIGGER
 
-/* 
 2.1.ReservierungDeleteTrigger
 Info: Beim Loeschen einer Reservierungen muessen in Ablehnungen alle korrespondierenden Eintraege geloescht werden. 
 */
@@ -469,6 +471,66 @@ CREATE TRIGGER ReservierungDeleteTrigger AFTER DELETE
 ON Reservierungen 
 	FOR EACH ROW
 	EXECUTE PROCEDURE reservierungDelete();
+
+/*
+2.2. SpeiseUndGetraenkeDeleteTrigger
+Info: Beim Loeschen einer Speise oder eines Getraenks muessen in Essen oder Trinken alle korrespondierenden Eintraege geloescht werden. 
+*/
+CREATE OR REPLACE FUNCTION SpeiseUndGetraenkeDelete() RETURNS TRIGGER 
+AS $$
+BEGIN
+	--Essen
+	DELETE FROM Essen 
+	WHERE OLD.SpeiseId = Essen.SpeiseID;
+	--Trinken
+	DELETE FROM Trinken
+	WHERE OLD.SpeiseId = Essen.SpeiseID;
+	RETURN NEW;
+
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER SpeiseUndGetraenkeDeleteTrigger AFTER DELETE 
+ON SpeiseUndGetraenke 
+	FOR EACH ROW
+	EXECUTE PROCEDURE SpeiseUndGetraenkeDelete();
+
+/*
+2.3.AbteilungDeleteTrigger
+Info: Beim Loeschen einer Abteilung muessen in Restaurant, HotelBar, Schwimmbad, oder einer der Sporteinrichtungen alle korrespondierenden
+Eintraege geloescht werden. 
+*/
+CREATE OR REPLACE FUNCTION AbteilungDelete() RETURNS TRIGGER 
+AS $$
+BEGIN
+	--Restaurant
+	DELETE FROM Restaurant 
+	WHERE 	OLD.gehoertZuHotel = Restaurant.gehoertZuHotel
+		AND OLD.AID = Restaurant.AID
+	--HotelBar
+	DELETE FROM HotelBar 
+	WHERE 	OLD.gehoertZuHotel = HotelBar.gehoertZuHotel
+		AND OLD.AID = HotelBar.AID
+	--Schwimmbad
+	DELETE FROM Schwimmbad 
+	WHERE 	OLD.gehoertZuHotel = Schwimmbad.gehoertZuHotel
+		AND OLD.AID = Schwimmbad.AID
+	--Minigolf
+	DELETE FROM Minigolf 
+	WHERE 	OLD.gehoertZuHotel = Minigolf.gehoertZuHotel
+		AND OLD.AID = Minigolf.AID
+	--Golf
+
+
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER AbteilungDeleteTrigger AFTER DELETE 
+ON Abteilungen 
+	FOR EACH ROW
+	EXECUTE PROCEDURE AbteilungDelete();
+
+
 
 
 /*
