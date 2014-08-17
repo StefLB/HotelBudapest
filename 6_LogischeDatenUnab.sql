@@ -9,19 +9,21 @@ INHALTSANGABE
 	1.2. bewohnteZimmerView
 	1.3. ReinigungspersonalView
 	1.4. HotelManagerView
-	1.5. UnbezahlteReservierungView
-	1.6. AnreisendeView
-	1.7. freieKartenView
+	1.5. NichtBezahltKundenView
+	1.6. UnbezahlteReservierungView
+	1.7. AnreisendeView
+	1.8. freieKartenView
 
 2.RULES
 	2.1. freieZimmerView
 	2.2. bewohnteZimmerView
 	2.3. ReinigungspersonalView
-	2.4.HotelManagerView
-	2.5.UnbezahlteReservierungView
+	2.4. HotelManagerView
+	2.5. NichtBezahltKundenView
+	2.6. UnbezahlteReservierungView
 	2.6. AnreisendeView
 	2.7. freieKartenView
-	2.8.kartenGueltigInsert
+	2.8. kartenGueltigInsert
 
 
 1.VIEWS
@@ -87,189 +89,161 @@ CREATE OR REPLACE VIEW ReinigungspersonalView AS
 Zeigt an: Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die beliebteste Zimmerkategorie
 */ 
 CREATE OR REPLACE VIEW HotelmanagerView AS
-SELECT hotelid, (umsatzrooms+konsumumsatz+mietumsatz+benutzenumsatz) as gesamtumsatz,umsatzrooms,barumsatz,konsumumsatz,
-	mietumsatz,benutzenumsatz,
-	ezom,ezmm,dzom,dzmm,trom,trmm,suit
-	--Auswahl aller gewuenschten Posten
-FROM
-	(SELECT Umsatznaechte.gehoertzuhotel as hotelid,COALESCE (naechteumsatz, '0,00€') as umsatzrooms, 
-		COALESCE (umsatzbar, '0,00€') as Barumsatz, COALESCE(konsumumsatz, '0,00 €') as konsumumsatz , 
-		COALESCE(mietumsatz, '0,00 €') as mietumsatz , COALESCE (benutzenumsatz, '0,00 €') as benutzenumsatz ,
+	SELECT hotelid, (umsatzrooms+konsumumsatz+mietumsatz+benutzenumsatz) as gesamtumsatz,umsatzrooms,barumsatz,konsumumsatz,
+		mietumsatz,benutzenumsatz,
 		ezom,ezmm,dzom,dzmm,trom,trmm,suit
-	--Fuellen der leeren Spalten mit 0,00 € beim Selektieren
+		--Auswahl aller gewuenschten Posten
 	FROM
-	(WITH Naechteumsatz as(
-		WITH UmsatzZimmerCheckedOut as(
-		SELECT gehoertzuhotel,((abreise-anreise)*zimmerpreis) as gesamtbetrag
-		FROM reservierungen LEFT OUTER JOIN (Select hotelid from hotel) AS Hotels
-		ON gehoertzuhotel=hotelid
-		WHERE gaestestatus = 'CHECKED-OUT'
-		ORDER BY gehoertzuHotel),
-		--Berechnung Naechteumsatz aller Checked-Out Zimmer
-		UmsatzZimmerInhouse as(
-		SELECT gehoertzuhotel,((current_date-anreise)*zimmerpreis) as gesamtbetrag
-		FROM reservierungen LEFT OUTER JOIN (Select hotelid from hotel) AS Hotels
-		on gehoertzuhotel=hotelid
-		WHERE  gaestestatus = 'IN-HOUSE'
-		ORDER BY gehoertzuHotel)
-		--Berechnung Naechteumsatz aller In-House Zimmer
-		SELECT *
-		from Umsatzzimmercheckedout union  SELECT* from UmsatzZimmerInhouse)
-	SELECT gehoertzuhotel,sum(gesamtbetrag) as Naechteumsatz
-	from Naechteumsatz
-	GROUP by gehoertzuhotel
-	--Aufsummierung aller Naechteumsaetze
-	) as Umsatznaechte
-	LEFT OUTER JOIN
-	(WITH Kunden as (
-		SELECT gehoertzuhotel, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
+		(SELECT Umsatznaechte.gehoertzuhotel as hotelid,COALESCE (naechteumsatz, '0,00€') as umsatzrooms, 
+			COALESCE (umsatzbar, '0,00€') as Barumsatz, COALESCE(konsumumsatz, '0,00 €') as konsumumsatz , 
+			COALESCE(mietumsatz, '0,00 €') as mietumsatz , COALESCE (benutzenumsatz, '0,00 €') as benutzenumsatz ,
+			ezom,ezmm,dzom,dzmm,trom,trmm,suit
+		--Fuellen der leeren Spalten mit 0,00 € beim Selektieren
+		FROM
+		(WITH Naechteumsatz as(
+			WITH UmsatzZimmerCheckedOut as(
+			SELECT gehoertzuhotel,((abreise-anreise)*zimmerpreis) as gesamtbetrag
+			FROM reservierungen LEFT OUTER JOIN (Select hotelid from hotel) AS Hotels
+			ON gehoertzuhotel=hotelid
+			WHERE gaestestatus = 'CHECKED-OUT'
+			ORDER BY gehoertzuHotel),
+			--Berechnung Naechteumsatz aller Checked-Out Zimmer
+			UmsatzZimmerInhouse as(
+			SELECT gehoertzuhotel,((current_date-anreise)*zimmerpreis) as gesamtbetrag
+			FROM reservierungen LEFT OUTER JOIN (Select hotelid from hotel) AS Hotels
+			on gehoertzuhotel=hotelid
+			WHERE  gaestestatus = 'IN-HOUSE'
+			ORDER BY gehoertzuHotel)
+			--Berechnung Naechteumsatz aller In-House Zimmer
+			SELECT *
+			from Umsatzzimmercheckedout union  SELECT* from UmsatzZimmerInhouse)
+		SELECT gehoertzuhotel,sum(gesamtbetrag) as Naechteumsatz
+		from Naechteumsatz
+		GROUP by gehoertzuhotel
+		--Aufsummierung aller Naechteumsaetze
+		) as Umsatznaechte
+		LEFT OUTER JOIN
+		(WITH Kunden as (
+			SELECT gehoertzuhotel, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
+			FROM reservierungen
+			WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE' OR gaestestatus='ARRIVAL'
+			ORDER BY gehoertzuHotel)
+			--Auswahl der Kunden
+		SELECT konsumieren.imhotel as gehoertzuhotel, sum(preis) as Konsumumsatz
+		from konsumieren JOIN Kunden
+		ON Kunden.reserviertvonkunde = konsumieren.kid AND konsumieren.zeitpunkt >= Anreise AND konsumieren.zeitpunkt<=abreise
+		JOIN speisenundgetraenke
+		ON speisenundgetraenke.speiseid = konsumieren.Speiseid
+		GROUP BY konsumieren.imhotel) as Umsatzkonsum
+		--Berechnung der Konsumumsaetze
+		on Umsatznaechte.gehoertzuhotel = Umsatzkonsum.gehoertzuhotel
+		LEFT OUTER JOIN
+		(WITH Kunden as (
+			SELECT gehoertzuhotel, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
+			FROM reservierungen
+			WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE' OR gaestestatus='ARRIVAL'
+			ORDER BY gehoertzuHotel)
+			--Auswahl der teilnehmenden Kunden
+		SELECT mieten.gehoertzuhotel, sum(preis) as Mietumsatz
+		from mieten JOIN Kunden
+		ON Kunden.reserviertvonkunde = mieten.kid AND mieten.von >= Anreise AND bis<=abreise
+		JOIN sporteinrichtungen
+		ON sporteinrichtungen.aid = mieten.aid
+		GROUP BY mieten.gehoertzuhotel) as Umsatzmieten
+		--Berechnung Mietumsaetze
+		ON Umsatznaechte.gehoertzuhotel=Umsatzmieten.gehoertzuhotel 
+		LEFT OUTER JOIN
+		(WITH Kunden as (
+			SELECT gehoertzuhotel, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
+			FROM reservierungen
+			WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE' OR gaestestatus='ARRIVAL'
+			ORDER BY gehoertzuHotel)
+		SELECT benutzen.gehoertzuhotel, sum(preis) as Benutzenumsatz
+		FROM benutzen 
+		JOIN Kunden
+		ON Kunden.reserviertvonkunde = benutzen.kid AND benutzen.von >= Anreise AND benutzen.bis<=abreise
+		JOIN schwimmbad
+		ON schwimmbad.aid = benutzen.aid
+		GROUP BY benutzen.gehoertzuhotel) as Umsatzbenutzen
+		--Berechnung der Beutzenumsaetze
+		on Umsatznaechte.gehoertzuhotel=Umsatzbenutzen.gehoertzuhotel 
+		LEFT  OUTER JOIN
+		(SELECT gehoertzuhotel, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
 		FROM reservierungen
 		WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE' OR gaestestatus='ARRIVAL'
-		ORDER BY gehoertzuHotel)
-		--Auswahl der Kunden
-	SELECT konsumieren.imhotel as gehoertzuhotel, sum(preis) as Konsumumsatz
-	from konsumieren JOIN Kunden
-	ON Kunden.reserviertvonkunde = konsumieren.kid AND konsumieren.zeitpunkt >= Anreise AND konsumieren.zeitpunkt<=abreise
-	JOIN speisenundgetraenke
-	ON speisenundgetraenke.speiseid = konsumieren.Speiseid
-	GROUP BY konsumieren.imhotel) as Umsatzkonsum
-	--Berechnung der Konsumumsaetze
-	on Umsatznaechte.gehoertzuhotel = Umsatzkonsum.gehoertzuhotel
-	LEFT OUTER JOIN
-	(WITH Kunden as (
-		SELECT gehoertzuhotel, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
-		FROM reservierungen
-		WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE' OR gaestestatus='ARRIVAL'
-		ORDER BY gehoertzuHotel)
-		--Auswahl der teilnehmenden Kunden
-	SELECT mieten.gehoertzuhotel, sum(preis) as Mietumsatz
-	from mieten JOIN Kunden
-	ON Kunden.reserviertvonkunde = mieten.kid AND mieten.von >= Anreise AND bis<=abreise
-	JOIN sporteinrichtungen
-	ON sporteinrichtungen.aid = mieten.aid
-	GROUP BY mieten.gehoertzuhotel) as Umsatzmieten
-	--Berechnung Mietumsaetze
-	ON Umsatznaechte.gehoertzuhotel=Umsatzmieten.gehoertzuhotel 
-	LEFT OUTER JOIN
-	(WITH Kunden as (
-		SELECT gehoertzuhotel, reserviertvonkunde, anreise, abreise, reservierungsnummer, gaestestatus
-		FROM reservierungen
-		WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE' OR gaestestatus='ARRIVAL'
-		ORDER BY gehoertzuHotel)
-	SELECT benutzen.gehoertzuhotel, sum(preis) as Benutzenumsatz
-	FROM benutzen 
-	JOIN Kunden
-	ON Kunden.reserviertvonkunde = benutzen.kid AND benutzen.von >= Anreise AND benutzen.bis<=abreise
-	JOIN schwimmbad
-	ON schwimmbad.aid = benutzen.aid
-	GROUP BY benutzen.gehoertzuhotel) as Umsatzbenutzen
-	--Berechnung der Beutzenumsaetze
-	on Umsatznaechte.gehoertzuhotel=Umsatzbenutzen.gehoertzuhotel 
-	LEFT  OUTER JOIN
-	(SELECT gehoertzuhotel, count(CASE WHEN zimmerkategorie='EZOM' THEN 1 ELSE NULL END) as ezom, count(CASE WHEN zimmerkategorie='EZMM' THEN 1 ELSE NULL END) as ezmm, count(CASE WHEN zimmerkategorie='DZOM' THEN 1 ELSE NULL END) as dzom, count(CASE WHEN zimmerkategorie='DZMM' THEN 1 ELSE NULL END) as dzmm, count(CASE WHEN zimmerkategorie='TROM' THEN 1 ELSE NULL END) as trom, count(CASE WHEN zimmerkategorie='TRMM' THEN 1 ELSE NULL END) as trmm, count(CASE WHEN zimmerkategorie='SUIT' THEN 1 ELSE NULL END) as suit
+		GROUP BY gehoertzuhotel
+		ORDER BY gehoertzuhotel) as TotalZimmer 
+		--alle Kategorieszimmerreservierungen checked-out und in-house und arrival, aufgezaehlt
+		ON Umsatznaechte.gehoertzuhotel=Totalzimmer.gehoertzuhotel 
+		LEFT OUTER JOIN
+		(SELECT imhotel, sum(preis) UmsatzBar
+		FROM (konsumieren join hotelbar ON imhotel=hotelbar.gehoertzuhotel and verspeistin = hotelbar.aid) as Hotelbars
+		JOIN speisenundgetraenke
+		ON Hotelbars.speiseid = speisenundgetraenke.speiseid
+		GROUP BY imhotel) as Barumsatz
+		--Berechnung Barumsaetze
+		on Umsatznaechte.gehoertzuhotel=Barumsatz.imhotel
+		ORDER BY hotelid ASC) as alles;
+
+/*
+1.5 NichtBezahltKundenView
+Zeigt an: Reservierungen mit den dazugehörigen Kundenummern,Anreise,Abreise und Hotel, die noch nicht bezahlt haben
+Verwendet fuer UnbezhalteReservierungView
+*/
+CREATE or REPLACE VIEW NichtBezahltKunden AS
+WITH Nichtbezahlt as
+	(SELECT reservierungsnummer,reserviertvonkunde as kunde
 	FROM reservierungen
-	WHERE gaestestatus = 'CHECKED-OUT' OR gaestestatus = 'IN-HOUSE' OR gaestestatus='ARRIVAL'
-	GROUP BY gehoertzuhotel
-	ORDER BY gehoertzuhotel) as TotalZimmer 
-	--alle Kategorieszimmerreservierungen checked-out und in-house und arrival, aufgezaehlt
-	ON Umsatznaechte.gehoertzuhotel=Totalzimmer.gehoertzuhotel 
-	LEFT OUTER JOIN
-	(SELECT imhotel, sum(preis) UmsatzBar
-	FROM (konsumieren join hotelbar ON imhotel=hotelbar.gehoertzuhotel and verspeistin = hotelbar.aid) as Hotelbars
-	JOIN speisenundgetraenke
-	ON Hotelbars.speiseid = speisenundgetraenke.speiseid
-	GROUP BY imhotel) as Barumsatz
-	--Berechnung Barumsaetze
-	on Umsatznaechte.gehoertzuhotel=Barumsatz.imhotel
-	ORDER BY hotelid ASC) as alles;
+	WHERE gaestestatus='IN-HOUSE'
+	EXCEPT
+	SELECT reservierungsnummer,kid
+	from bezahlen)	
+SELECT reservierungen.reservierungsnummer as resa,kunde, anreise, abreise, reservierungen.gehoertzuhotel
+FROM Nichtbezahlt join reservierungen ON Nichtbezahlt.kunde = reservierungen.reserviertvonkunde;
 
 
 /*
-1.5. UnbezahlteReservierungView
+1.6. UnbezahlteReservierungView
 Zeigt an: Kundennummer und Gesamtrechnungspreis von allen eingecheckten Kunden die ihre Rechnungen noch nicht bezahlt haben
 */
 CREATE OR REPLACE VIEW UnbezahlteReservierungView AS
-	SELECT 	resa,kunde, anreise,abreise, Konsumsumme, Benutzensumme, mietensumme, zimmerpreis, 
-		(Konsumsumme+Benutzensumme+mietensumme+zimmerpreis) as OffeneREchnungssumme
+	SELECT hotelid, reservierungsnummer, reserviertvonkunde as kunde, 
+		(konsumiert+gemietet+benutzt+naechteumsatz) as Gesamtoffen,  konsumiert,gemietet,benutzt,naechteumsatz
 	FROM
-		(SELECT resa,kunde, anreise2 as anreise,abreise2 as abreise, COALESCE(sum(preis), '0,00 €') as Konsumsumme, COALESCE(sum(benutzensumme), '0,00 €') as Benutzensumme, COALESCE(sum(mietensumme), '0,00 €') as mietensumme, zimmerpreis
-		FROM
-		((((SELECT reservierungen.reservierungsnummer as resa,kunde, anreise, abreise
-			FROM
-				(SELECT reservierungsnummer,reserviertvonkunde as kunde
-				FROM reservierungen
-				WHERE gaestestatus='IN-HOUSE'
-				EXCEPT
-				SELECT reservierungsnummer,kid
-				from bezahlen) as NichtbezahlteReservierungen
-				JOIN
-				reservierungen
-				on NichtBezahlteReservierungen.reservierungsnummer = reservierungen.reservierungsnummer) NichtBezahlt
-		LEFT OUTER JOIN
-		konsumieren
-		JOIN
-		speisenundgetraenke ON konsumieren.speiseid = speisenundgetraenke.speiseid
-		on Nichtbezahlt.kunde=konsumieren.kid AND zeitpunkt >= anreise AND zeitpunkt <=Abreise) as konsum  -- extras speisen und getraenke
+		(SELECT NichtBezahltKunden.resa as resa, NichtBezahltKunden.kunde as kunde, COALESCE(sum(preis),'0,00€') as Konsumiert
+		FROM NichtBezahltKunden 
+		LEFT OUTER JOIN konsumieren ON konsumieren.kid=NichtBezahltKunden.kunde and zeitpunkt>=anreise and zeitpunkt <=abreise
+		LEFT OUTER JOIN speisenundgetraenke ON speisenundgetraenke.speiseid=konsumieren.speiseid
+		GROUP BY NichtBezahltKunden.resa, NichtBezahltKunden.kunde, NichtBezahltKunden.gehoertzuhotel) as Konsum
+		--Berechnung der konsumierten Gueter
 
-		LEFT OUTER JOIN
+	LEFT OUTER JOIN
+		(SELECT NichtBezahltKunden.resa, NichtBezahltKunden.kunde, COALESCE(sum(preis),'0,00€') as gemietet
+		FROM NichtBezahltKunden 
+		LEFT OUTER JOIN mieten ON mieten.kid=NichtBezahltKunden.kunde and von>=anreise and bis <=abreise
+		LEFT OUTER JOIN sporteinrichtungen ON sporteinrichtungen.aid=mieten.aid and sporteinrichtungen.gehoertzuhotel = mieten.gehoertzuhotel
+		GROUP BY NichtBezahltKunden.resa, NichtBezahltKunden.kunde, NichtBezahltKunden.gehoertzuhotel) as Gemietet
+		--Berechnung der gemieteten Gueter
+	ON Konsum.resa = Gemietet.resa
 
-		(SELECT resanr,kunde2, preis as benutzensumme
-			FROM
-				((SELECT reservierungsnummer as resanr,reserviertvonkunde as kunde2
-				FROM reservierungen
-				WHERE gaestestatus='IN-HOUSE'
-				EXCEPT
-				SELECT reservierungsnummer,kid
-				from bezahlen) as NichtbezahlteREservierungen
-			JOIN
-			reservierungen
-			on NichtBezahlteReservierungen.resanr = reservierungen.reservierungsnummer ) as NichtBezahlt
-			LEFT OUTER join
-			benutzen
-			join 
-			schwimmbad on benutzen.aid = schwimmbad.aid
-			on Nichtbezahlt.kunde2 = benutzen.kid and von >= Anreise and bis <=Abreise) as Benutzensumme --BenutzenSumme
-			ON Benutzensumme.resanr = konsum.resa) as STEP1
+	LEFT OUTER JOIN
+		(SELECT NichtBezahltKunden.resa, NichtBezahltKunden.kunde, COALESCE(sum(preis),'0,00€') as benutzt
+		from NichtBezahltKunden 
+		LEFT OUTER JOIN benutzen ON benutzen.kid=NichtBezahltKunden.kunde and von>=anreise and bis <=abreise
+		LEFT OUTER JOIN schwimmbad ON schwimmbad.aid=benutzen.aid and schwimmbad.gehoertzuhotel = benutzen.gehoertzuhotel
+		GROUP BY NichtBezahltKunden.resa, NichtBezahltKunden.kunde, NichtBezahltKunden.gehoertzuhotel) as Benutztes
+		--Berechnung der benutzten Gueter
+	ON Konsum.resa = benutztes.resa
 
-
-			LEFT OUTER JOIN
-
-			(SELECT resanr,kunde3,preis as mietensumme
-			FROM
-			(((SELECT reservierungsnummer as resanr,reserviertvonkunde as kunde3
-				FROM reservierungen
-				WHERE gaestestatus='IN-HOUSE'
-				EXCEPT
-				SELECT reservierungsnummer,kid
-				from bezahlen) as NichtbezahlteReservierungen
-				JOIN
-				reservierungen
-				on NichtBezahlteReservierungen.resanr = reservierungen.reservierungsnummer ) NichtBezahlt
-				join
-				mieten
-				join 
-				sporteinrichtungen on sporteinrichtungen.aid= mieten.aid 
-				on Nichtbezahlt.kunde3 = mieten.kid and von >= Anreise and bis <=Abreise) as gemietet) as Summemiete --mieten SUMME
-				on step1.resanr = Summemiete.resanr) as STEP2
-
-				LEFT OUTER JOIN
-
-				(SELECT NichtbezahlteReservierungen.reservierungsnummer as resa2, kid,anreise as anreise2,abreise as abreise2, ((current_date-anreise)*zimmerpreis)as Zimmerpreis
-				FROM
-					(SELECT reservierungsnummer,reserviertvonkunde as kid
-					FROM reservierungen
-					WHERE gaestestatus='IN-HOUSE'
-					EXCEPT
-					SELECT reservierungsnummer,kid
-					from bezahlen) as NichtbezahlteReservierungen
-				JOIN
-				reservierungen
-				on NichtBezahlteReservierungen.reservierungsnummer = reservierungen.reservierungsnummer) as zimmersumme --Zimmerpeis Summe
-			ON Step2.resa=zimmersumme.resa2
-			GROUP BY resa, kunde, anreise2,abreise2, zimmerpreis) as AlleSummen;
+	LEFT OUTER JOIN
+		(SELECT reservierungen.gehoertzuhotel as hotelid,reservierungsnummer, reserviertvonkunde, COALESCE(((current_date-reservierungen.anreise)*zimmerpreis), '0,00€') as naechteumsatz
+		FROM reservierungen JOIN NichtBezahltKunden on NichtBezahltKunden.resa = reservierungen.reservierungsnummer) as Naechteumsatz
+		--Berechnung der bisher erbrachten Naechteumsatz
+	ON Konsum.resa=Naechteumsatz.reservierungsnummer
+	ORDER BY reservierungsnummer ASC
 
 /*
-1.6. AnreisendeView
+1.7. AnreisendeView
 Zeigt an:  Kundenname und Zimmer aller anreisenden Gaeste des Tages an und ob der Kunde VIP ist, sortiert nach Hotel und Kunden Nachname
 */
 CREATE OR REPLACE VIEW AnreisendeView AS
@@ -283,7 +257,7 @@ WITH Anreisende AS (
 		JOIN Kunden ON Anreisende.reserviertvonkunde = Kunden.KID;
 
 /*
-1.7. freieKartenView
+1.8. freieKartenView
 Zeigt an: die verfügbaren Karten
 Benoetigt fuer: die Zimmerkartenvergabe
 */ 
@@ -366,7 +340,21 @@ TO HotelManagerView
 DO NOTHING;
 
 /*
-2.5.UnbezahlteReservierungView
+2.5. NichtBezahltKundenView
+Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
+*/
+CREATE OR REPLACE RULE NichtBezahltKundenUpdate AS ON UPDATE 
+TO NichtBezahltKundenView
+DO NOTHING;
+CREATE OR REPLACE RULE NichtBezahltKundenInsert AS ON INSERT 
+TO NichtBezahltKundenView
+DO NOTHING;
+CREATE OR REPLACE RULE NichtBezahltKundenDelete AS ON DELETE 
+TO NichtBezahltKundenView
+DO NOTHING;
+
+/*
+2.6.UnbezahlteReservierungView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
 */
 CREATE OR REPLACE RULE UnbezahlteReservierungUpdate AS ON UPDATE 
