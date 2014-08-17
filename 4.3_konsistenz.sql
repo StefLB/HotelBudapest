@@ -549,22 +549,22 @@ ON Abteilung
 
 /*
 2.4.UeberbuchungCheckTrigger
-Info: Beim Update einer Reservierung muss sicher gestellt werden, dass nicht zwei Kunden zur gleichen Zeit ein und dasselbe
-reserviert haben. 
+Info: Beim Update oder Insert einer 'RESERVED' Reservierung muss sicher gestellt werden, dass nicht zwei Kunden zur 
+gleichen Zeit ein und dasselbe reserviert haben. 
 Benoetigt fuer: Die 1:1 Beziehung bei Zimmer wird zugewiesen Reservierungen 
 */
 CREATE OR REPLACE FUNCTION UeberbuchungCheck() RETURNS TRIGGER 
 AS $$
-	DECLARE count int;
 BEGIN
-	SELECT 	count(*) INTO count
+
+	PERFORM	*
 	FROM 	Reservierungen
 	WHERE 	NEW.gehoertZuHotel = Reservierungen.gehoertZuHotel
 		AND NEW.Zimmer = Reservierungen.Zimmer
 		AND NEW.Anreise = Reservierungen.Anreise
 		AND Gaestestatus = 'RESERVED';
-	
-	IF(count > 1) THEN
+
+	IF(FOUND) THEN
 		RAISE EXCEPTION 'Doppelbuchung!';
 	END IF;
 
@@ -572,7 +572,13 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER UeberbuchungCheckTrigger BEFORE UPDATE OF Gaestestatus
+CREATE TRIGGER UeberbuchungCheckUpdateTrigger BEFORE UPDATE OF Gaestestatus
+ON Reservierungen 
+	FOR EACH ROW
+	WHEN (NEW.Gaestestatus = 'RESERVED')
+	EXECUTE PROCEDURE UeberbuchungCheck();
+
+CREATE TRIGGER UeberbuchungCheckInsertTrigger BEFORE INSERT 
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'RESERVED')
@@ -944,6 +950,18 @@ WHERE gehoertZuHotel = 6 AND AID = 11
 2.4.UeberbuchungCheckTrigger
 Info: Wir versuchen ein Zimmer zu ueberbuchen, und sehen dass es fehlschlaegt
 */
+INSERT INTO Reservierungen VALUES 	(1,30,'100.00', DEFAULT,'BRFST', 'EZMM', '2015-08-01', '2015-08-02', 
+					DEFAULT,102, 'RESERVED', 'nix', 1, now());
+-- Zweite Reservierung sollte fehlschlagen
+INSERT INTO Reservierungen VALUES 	(1,30,'100.00', DEFAULT,'BRFST', 'EZMM', '2015-08-01', '2015-08-02', 
+					DEFAULT,102, 'RESERVED', 'nix', 1, now());
 
---TODO: ab hier Beispielanfragen für Funktionen und Trigger
+					
+/*
+2.5.
+
+*/
+
+
+TODO: ab hier Beispielanfragen für Funktionen und Trigger
 
