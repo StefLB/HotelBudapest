@@ -488,7 +488,7 @@ BEGIN
 	WHERE OLD.SpeiseId = Essen.SpeiseID;
 	--Trinken
 	DELETE FROM Trinken
-	WHERE OLD.SpeiseId = Essen.SpeiseID;
+	WHERE OLD.SpeiseId = Trinken.SpeiseID;
 	RETURN NEW;
 
 END
@@ -535,8 +535,7 @@ BEGIN
 	DELETE FROM Tennisplaetze
 	WHERE 	OLD.gehoertZuHotel = Tennisplaetze.gehoertZuHotel
 		AND OLD.AID = Tennisplaetze.AID;
-
-
+	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
@@ -552,7 +551,7 @@ ON Abteilung
 2.4.UeberbuchungCheckTrigger
 Info: Beim Update einer Reservierung muss sicher gestellt werden, dass nicht zwei Kunden zur gleichen Zeit ein und dasselbe
 reserviert haben. 
-Benoetigt fuer: Die 1:1 Beziehung bei Reservierung und Zimmer
+Benoetigt fuer: Die 1:1 Beziehung bei Zimmer wird zugewiesen Reservierungen 
 */
 CREATE OR REPLACE FUNCTION UeberbuchungCheck() RETURNS TRIGGER 
 AS $$
@@ -890,11 +889,13 @@ SELECT getNextVorgemerktZimmer((1,'EZMM',1,current_date, current_date+1,190.00):
 SELECT AblehnungAngebot((1,'EZMM',1,current_date, current_date+1,190.00)::Angebot, 'Too Expensive');
 
 -- 1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
+-- Es muss nochmal eine Anfrage gemacht werden
+SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
 SELECT AnnahmeAngebot(102, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
 
 -- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
 					--Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
--- es muss nochmal eine Anfrage gemacht werden
+-- Es muss nochmal eine Anfrage gemacht werden
 SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
 SELECT annahmeAngebotNeuKunde('Gunner'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
 					234357868909, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+1,190.00)::Angebot );
@@ -921,7 +922,8 @@ BEISPIELANFRAGEN FUER KONSISTENZTRIGGER
 Info: Offensichtlich muss bei einem Delete auch in Reservierungen auch die Spezifikation Ablehnungen geloescht werden.
 */
 DELETE FROM Reservierungen 
-WHERE Reservierungsnummer = 18;
+WHERE Reservierungsnummer = 19;
+
 
 /*
 2.2. SpeiseUndGetraenkeDeleteTrigger
@@ -930,7 +932,18 @@ Info: Gleiches gilt fuer alle Spezifikationen von Speisen
 DELETE FROM speisenundgetraenke
 WHERE SpeiseID = 9
 
+/*
+2.3.AbteilungDeleteTrigger
+Info: Wir loeschen einfach mal Fahrrad 5
+*/
 
+DELETE FROM Abteilung
+WHERE gehoertZuHotel = 6 AND AID = 11
+
+/*
+2.4.UeberbuchungCheckTrigger
+Info: Wir versuchen ein Zimmer zu ueberbuchen, und sehen dass es fehlschlaegt
+*/
 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
 
