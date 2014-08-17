@@ -167,7 +167,7 @@ CREATE TABLE Zimmer (
 	CHECK (Zimmernummer > 0),
 	CHECK (maxPersonen > 0),
 
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE, -- loeschen eines Hotels soll alle Zimmer loeschen
 	PRIMARY KEY (gehoertZuHotel,Zimmernummer)
 
 );
@@ -180,8 +180,9 @@ CREATE TABLE Abteilung(
 	Oeffnungszeiten OEFFNUNGSZEIT NOT NULL,
 	
 	UNIQUE (Name, Location), -- damit der Gast die Abteilung eindeutig finden kann
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE, -- loeschen eines Hotels soll alle Abteilungen loeschen
 	PRIMARY KEY(gehoertZuHotel, AID)
+
 );
 
 CREATE TABLE Sporteinrichtungen (
@@ -189,7 +190,7 @@ CREATE TABLE Sporteinrichtungen (
 	AID int NOT NULL,
 	Preis money NOT NULL,
 
-	FOREIGN Key(gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN Key(gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE, 
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -199,7 +200,7 @@ CREATE TABLE Fahrraeder (
 	Gaenge int NOT NULL,
 	Modell varchar,
 
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -208,7 +209,7 @@ CREATE TABLE Tennisplaetze (
 	AID int NOT NULL,
 	Platzart PLATZART,
 
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -219,7 +220,7 @@ CREATE TABLE Golf (
 
 	CHECK (Schwierigkeitsgrad > 0),
 	
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -230,7 +231,7 @@ CREATE TABLE Minigolf (
 
 	CHECK (Schwierigkeitsgrad > 0),
 
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY(AID, gehoertZuHotel)
 );
 
@@ -245,8 +246,8 @@ CREATE TABLE mieten (
 	CHECK ((bis - von) <= '1 day' ), -- Es gilt eine maximale Mietdauer fuer Sportplaetze 
 	CHECK (bis > von ),
 	
-	FOREIGN KEY (gehoertZuHotel, AID) REFERENCES Sporteinrichtungen(gehoertZuHotel,AID),
-	FOREIGN KEY (KID) REFERENCES Kunden,
+	FOREIGN KEY (gehoertZuHotel, AID) REFERENCES Sporteinrichtungen(gehoertZuHotel,AID) ON DELETE RESTRICT, -- Keine Tupel loeschen...
+	FOREIGN KEY (KID) REFERENCES Kunden ON DELETE RESTRICT, -- ...die fuer Statistiken wichtig sind.
 	PRIMARY KEY (von, gehoertZuHotel,AID)
 );
 
@@ -259,12 +260,12 @@ CREATE TABLE Schwimmbad (
 
 	CHECK (LaengeBecken > 0),
 
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY (gehoertZuHotel,AID)
 );
 
 CREATE TABLE Ausruestung (
-	gehoertZuHotel int REFERENCES Hotel,
+	gehoertZuHotel int REFERENCES Hotel ON DELETE CASCADE,
 	gehoertZuSporteinrichtung int NOT NULL,
 	Ausruestungsnummer int NOT NULL,
 	Ausruestungstyp AUSRUESTUNGSTYP NOT NULL,
@@ -284,8 +285,8 @@ CREATE TABLE leihen (
 	CHECK ((bis - von) <= '1 day' ), 	-- Es gilt eine maximale Leihdauer fuer Sportgeraete 
 	CHECK (bis > von ),
 
-	FOREIGN KEY (KID) REFERENCES Kunden,
-	FOREIGN KEY (gehoertZuHotel, gehoertZuSporteinrichtung, Ausruestungsnummer,Ausruestungstyp) REFERENCES Ausruestung,
+	FOREIGN KEY (KID) REFERENCES Kunden ON DELETE RESTRICT,
+	FOREIGN KEY (gehoertZuHotel, gehoertZuSporteinrichtung, Ausruestungsnummer,Ausruestungstyp) REFERENCES Ausruestung ON DELETE RESTRICT,
 	PRIMARY KEY (gehoertZuHotel, gehoertZuSporteinrichtung, Ausruestungsnummer,Ausruestungstyp, von)
 );
 
@@ -299,7 +300,7 @@ CREATE TABLE benutzen (
 	CHECK (bis > von ),
 
 	UNIQUE (KID, bis),
-	FOREIGN KEY (KID) REFERENCES Kunden,
+	FOREIGN KEY (KID) REFERENCES Kunden ON DELETE RESTRICT,
 	PRIMARY KEY (KID,von)
 );
 
@@ -307,7 +308,7 @@ CREATE TABLE Restauration  (
 	gehoertZuHotel int NOT NULL,
 	AID int NOT NULL,
 	
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY (gehoertZuHotel, AID)
 );
 
@@ -315,7 +316,7 @@ CREATE TABLE Hotelbar  (
 	gehoertZuHotel int NOT NULL,
 	AID int NOT NULL,
 
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY (gehoertZuHotel, AID)
 );
 
@@ -327,7 +328,7 @@ CREATE TABLE Restaurant  (
 
 	CHECK (Sterne > 0),
 	
-	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel,
+	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE,
 	PRIMARY KEY (gehoertZuHotel, AID)
 );
 
@@ -362,8 +363,9 @@ CREATE TABLE wirdServiertIn(
 	AID int NOT NULL,
 	SpeiseID int NOT NULL ,
 
-	FOREIGN KEY(SpeiseID) REFERENCES SpeisenUndGetraenke,
-	FOREIGN KEY(gehoertZuHotel,AID) REFERENCES Restauration
+	FOREIGN KEY(SpeiseID) REFERENCES SpeisenUndGetraenke ON DELETE CASCADE,
+	FOREIGN KEY(gehoertZuHotel,AID) REFERENCES Restauration ON DELETE CASCADE,
+	PRIMARY KEY (gehoertZuHotel,AID,SpeiseID)
 );
 
 
@@ -375,8 +377,8 @@ CREATE TABLE konsumieren(
 	SpeiseID int NOT NULL, 
 	Zeitpunkt timestamp NOT NULL DEFAULT now(),
 
-	FOREIGN KEY (imHotel, verspeistIn) REFERENCES Restauration,
-	FOREIGN KEY (KID) REFERENCES Kunden,
+	FOREIGN KEY (imHotel, verspeistIn) REFERENCES Restauration ON DELETE RESTRICT,
+	FOREIGN KEY (KID) REFERENCES Kunden ON DELETE RESTRICT,
 	PRIMARY KEY (KID, Zeitpunkt)
 	
 );
@@ -402,11 +404,12 @@ CREATE TABLE Reservierungen(
 	CHECK (Anreise < Abreise ),
 	--CHECK (Anreise >= current_date), aukommentiert, da sonst keine daten in der vergangenheit eingefuegt werden koennen
 	
-	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden,
-	FOREIGN KEY (gehoertzuhotel, Zimmer) REFERENCES Zimmer,
+	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden ON DELETE RESTRICT,
+	FOREIGN KEY (gehoertzuhotel, Zimmer) REFERENCES Zimmer ON DELETE RESTRICT,
 	UNIQUE (Reservierungsnummer),
 	UNIQUE (Stornierungsnummer),
 	PRIMARY KEY  (Reservierungsnummer)
+
 );
 
 CREATE TABLE Ablehnungen(
@@ -422,8 +425,8 @@ CREATE TABLE bezahlen (
 	KID int NOT NULL,
 	Zeitpunkt timestamp,
 
-	FOREIGN KEY (Reservierungsnummer) REFERENCES Reservierungen,
-	FOREIGN KEY (KID) REFERENCES Kunden,
+	FOREIGN KEY (Reservierungsnummer) REFERENCES Reservierungen ON DELETE RESTRICT,
+	FOREIGN KEY (KID) REFERENCES Kunden ON DELETE RESTRICT,
 	PRIMARY KEY (Reservierungsnummer)
 );
 
@@ -442,8 +445,8 @@ CREATE TABLE oeffnet (
 	Zeitpunkt timestamp NOT NULL,
 	
 	UNIQUE (gehoertZuHotel,Zimmernummer, Zeitpunkt), -- angenommen jedes Zimmer hat nur eine Tuer
-	FOREIGN KEY (gehoertZuHotel,Zimmernummer) REFERENCES Zimmer(gehoertZuHotel,Zimmernummer),
-	FOREIGN KEY (KartenID) REFERENCES Zimmerkarte,
+	FOREIGN KEY (gehoertZuHotel,Zimmernummer) REFERENCES Zimmer(gehoertZuHotel,Zimmernummer) ON DELETE RESTRICT,-- Ein Log...
+	FOREIGN KEY (KartenID) REFERENCES Zimmerkarte ON DELETE RESTRICT,  -- ... muss unberuehrt bleiben
 	PRIMARY KEY (KartenID, Zeitpunkt)
 );
 
@@ -452,8 +455,8 @@ CREATE TABLE erhalten (
 	KartenID int,
 	Reservierungsnummer int,
 
-	FOREIGN KEY (Reservierungsnummer) REFERENCES Reservierungen,
-	FOREIGN KEY (KundenID) REFERENCES Kunden,	
+	FOREIGN KEY (Reservierungsnummer) REFERENCES Reservierungen ON DELETE NO ACTION, -- Erhalten beinhaltet nur anwesende Reservierungen...
+	FOREIGN KEY (KundenID) REFERENCES Kunden ON DELETE NO ACTION,-- ...und Kunden, die nicht geloescht werden. 
 	FOREIGN KEY (KartenID) REFERENCES Zimmerkarte,
 	PRIMARY KEY (KartenID)
 );
