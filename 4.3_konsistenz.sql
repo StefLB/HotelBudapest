@@ -30,6 +30,7 @@ INHALTSANGABE:
 	2.2. SpeiseUndGetraenkeDeleteTrigger
 	2.3. AbteilungDeleteTrigger
 	2.4. UeberbuchungCheckTrigger
+	2.5. ReserviertVonKundeCheckTrigger
 
 
 
@@ -586,9 +587,11 @@ ON Reservierungen
 
 
 /* 
-2.. ReserviertVonKundeCheckTrigger
+2.5. ReserviertVonKundeCheckTrigger
 Info: Da wir bei der Zimmeranfrage erlauben, dass eine Reservierung temporaer mit einem namenlosen Kunden gespeichert wird, muessen 
 wir sicher stellen, dass spaetestens nach dem Update des Angebots auf Reserved, eine echter Kunde eingetragen ist. 
+Benoetigt fuer: Die (1,1) MinMax Vorgabe, das jede Reservierung von mindestens einem Kunden gebucht wird. Maximal 1 Kunde wird 
+durch den Primary Key bei Reservierung sichergestellt, da jede Reservierung nur einmal vorkommen kann. 
 */ 
 CREATE OR REPLACE FUNCTION reserviertVonKundeCheck() RETURNS TRIGGER 
 AS $$
@@ -599,7 +602,7 @@ BEGIN
 	WHERE NEW.reserviertVonKunde = Kunden.KID;
 
 	IF(vornamevar LIKE '' OR nachnamevar LIKE '') THEN
-		RAISE EXCEPTION 'Kunde hat keine Namen';
+		RAISE EXCEPTION 'Kunde hat keine Daten';
 	END IF;
 	RETURN NEW;
 END
@@ -958,10 +961,15 @@ INSERT INTO Reservierungen VALUES 	(1,30,'100.00', DEFAULT,'BRFST', 'EZMM', '201
 
 					
 /*
-2.5.
-
+2.5. ReserviertVonKundeCheckTrigger
+Info: Jede Reservierung muss von einem gueltigen Kunden reserviert werden. Wir versuchen eine temporaere Anfrage auf Reserviert zu updaten, 
+ohne die Angabe eines gueltigen Kunden. Das sollte fehlschlagen.
 */
+SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
+UPDATE 	Reservierungen 
+SET 	Gaestestatus = 'RESERVED'
+WHERE 	Gaestestatus = 'AWAITING-CONFIRMATION';
 
 
-TODO: ab hier Beispielanfragen für Funktionen und Trigger
+--TODO: ab hier Beispielanfragen für Funktionen und Trigger
 
