@@ -23,12 +23,9 @@ INHALTSANGABE
 	2.7. freieKartenView
 	2.8.kartenGueltigInsert
 
-*/
 
+1.VIEWS
 
--- 1.VIEWS
-
-/*
 1.1. freieZimmerAktuellView
 Zeigt an: Hotels, die noch aktuell freie Zimmer haben, mit Kategorie und Anzahlzimmer in Kategorie
 Benoetigt fuer: Statistiken bzgl. Auslastung oder kurzfristige Umbuchungen
