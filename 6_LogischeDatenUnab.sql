@@ -75,7 +75,7 @@ Benoetigt fuer: Das Reinigunspersonal bekommt diese angezeigt, sortiert nach Hot
 Anmerkung: auch ausgecheckte Zimmer koennen noch vom Vortrag dreckig sein, daher nicht bewohnteZimmerView verwendet 
 */
 CREATE OR REPLACE VIEW ReinigungspersonalView AS
-	SELECT  Zimmer.gehoertZuHotel, Zimmernummer, CASE WHEN ((current_date - Anreise > 14)
+	SELECT  Zimmer.gehoertZuHotel, Zimmernummer, Zimmer.dreckig, CASE WHEN ((current_date - Anreise > 14)
 		OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
 	FROM 	Reservierungen 
 	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
