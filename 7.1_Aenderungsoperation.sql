@@ -13,6 +13,8 @@ INHALTSANGABE
 1.7. AnreisendeView
 1.8. freieKartenView
 
+2 Transaktionen
+
 
 1. AENDERUNGSOPERATIONEN
 
@@ -170,11 +172,25 @@ Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar
 	DELETE FROM AnreisendeView WHERE gehoertzuhotel=4 and reservierungsnummer=5;
 
 
+/*
+1.8. freieKartenView
+Info: Da wir bei einem Insert oder Delete nicht wissen ob eine Karte ausgeteilt oder beschaedigt ist, 
+koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kein Sinn. 
+*/
 
+	INSERT INTO freiekartenview (kartenid) 
+	VALUES(DEFAULT);
+	INSERT INTO freiekartenview (kartenid) 
+	VALUES(DEFAULT);
 
+	UPDATE freiekartenview
+	SET kartenid=5
+	WHERE kartenid=6;
+	UPDATE freiekartenview
+	SET kartenid=19
+	WHERE kartenid=8;
 
+	DELETE FROM freiekartenview WHERE kartenid=12;
+	DELETE FROM freiekartenview WHERE kartenid=13;
 
-
-
-
-
+2 Transaktionen
