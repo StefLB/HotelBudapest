@@ -393,7 +393,7 @@ CREATE OR REPLACE RULE AnreisendeDelete AS ON DELETE
 TO AnreisendeView
 DO INSTEAD
 	UPDATE 	Reservierungen
-	SET 	Stornierungsnummer = nextval('IDSequenz')
+	SET 	Stornierungsnummer = nextval('IDSequenz'), gaestestatus='CANCELED'
 	WHERE 	OLD.gehoertZuhotel = Reservierungen. gehoertZuhotel
 		AND OLD.Zimmer = Reservierungen.Zimmer and OLD.reservierungsnummer = Reservierungen.reservierungsnummer;
 
