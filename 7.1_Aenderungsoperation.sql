@@ -102,6 +102,57 @@ Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht
 	DELETE FROM HotelManagerView WHERE hotelid=2;
 	DELETE FROM HotelManagerView WHERE hotelid=3;
 
+/*
+1.5. NichtBezahltKundenView
+Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
+RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE, sowie Transaktion sind möglich.  
+*/
+
+	INSERT INTO NichtbezahltKundenview (resa, kunde) 
+	VALUES(100,88);
+	INSERT INTO NichtbezahltKundenview (resa, kunde) 
+	VALUES(101,77);
+
+	UPDATE NichtbezahltKundenview
+	SET anreise='2014-01-05' 
+	WHERE gehoertzuhotel=2;
+	UPDATE NichtbezahltKundenview
+	SET anreise='2014-06-05' 
+	WHERE gehoertzuhotel=6;
+
+	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=2;
+	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=6;
+
+
+/*
+1.6.UnbezahlteReservierungView
+Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
+RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE, sowie Transaktion sind möglich.   
+*/
+
+	INSERT INTO UnbezahlteReservierungView (hotelid, reservierungsnummer) 
+	VALUES(7,77);
+	INSERT INTO UnbezahlteReservierungView (hotelid, reservierungsnummer) 
+	VALUES(8,88);
+
+	UPDATE UnbezahlteReservierungView
+	SET konsumiert='50,00 €' 
+	WHERE reservierungsnummer=8;
+	UPDATE UnbezahlteReservierungView
+	SET gemietet='18,00 €' 
+	WHERE reservierungsnummer=12;
+
+	DELETE FROM UnbezahlteReservierungView WHERE hotelid=2;
+	DELETE FROM UnbezahlteReservierungView WHERE hotelid=6;
+
+/*
+1.7. AnreisendeView
+Info: Ein Delete wuerde einer Stornierung gleichkommen. Ein Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
+Ein Update machte weniger Sinn, da eine Zimmerumbuchung mehr Information erfordert und der Name des Kunden in der Kunden Tabelle 
+geaendert wird.
+RULES entsprechend implementiert. Kein INSERT,DELETE, sowie Transaktion sind möglich.
+Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar sind.
+*/
 
 
 
