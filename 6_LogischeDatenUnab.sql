@@ -276,7 +276,7 @@ CREATE OR REPLACE VIEW FreieKartenView AS
 	  EXCEPT ALL
 	  -- ausser Karten schon im Umlauf
 	  SELECT  KartenID
-	  FROM  erhalten;
+	  FROM  erhalten ORDER BY kartenid;
 
 
 -- 2. RULES
@@ -415,7 +415,7 @@ DO NOTHING;
 /*
 2.9.kartenGueltigInsert
 Info: Bei der Ausgabe einer Zimmerkarte, darf diese nicht gesperrt sein.
-Offentsichtlich kann nur eine wiedergefundene karte aushaendigt werden
+Offentsichtlich kann nur eine wiedergefundene karte ausgehaendigt werden
 */
 CREATE OR REPLACE RULE kartenGueltigInsert AS ON INSERT
 TO erhalten 
