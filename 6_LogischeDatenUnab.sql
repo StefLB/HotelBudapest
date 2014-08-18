@@ -248,7 +248,7 @@ CREATE OR REPLACE VIEW UnbezahlteReservierungView AS
 		FROM reservierungen JOIN NichtBezahltKunden on NichtBezahltKunden.resa = reservierungen.reservierungsnummer) as Naechteumsatz
 		--Berechnung der bisher erbrachten Naechteumsatz
 	ON Konsum.resa=Naechteumsatz.reservierungsnummer
-	ORDER BY reservierungsnummer ASC
+	ORDER BY reservierungsnummer ASC;
 
 /*
 1.7. AnreisendeView
