@@ -21,9 +21,9 @@ INHALTSANGABE
 	2.4. HotelManagerView
 	2.5. NichtBezahltKundenView
 	2.6. UnbezahlteReservierungView
-	2.6. AnreisendeView
-	2.7. freieKartenView
-	2.8. kartenGueltigInsert
+	2.7. AnreisendeView
+	2.8. freieKartenView
+	2.9. kartenGueltigInsert
 
 
 1.VIEWS
@@ -256,11 +256,11 @@ Zeigt an:  Kundenname und Zimmer aller anreisenden Gaeste des Tages an und ob de
 */
 CREATE OR REPLACE VIEW AnreisendeView AS
 WITH Anreisende AS (
-	SELECT gehoertZuHotel, Zimmer, reserviertvonkunde
+	SELECT gehoertZuHotel, Zimmer, reserviertvonkunde, reservierungsnummer
 	FROM Reservierungen
 	WHERE Gaestestatus = 'ARRIVAL' )
 
-	SELECT 	gehoertZuHotel, Zimmer, Nachname, VIP 
+	SELECT 	gehoertZuHotel, Zimmer, reservierungsnummer, Nachname, VIP 
 	FROM 	Anreisende 
 		JOIN Kunden ON Anreisende.reserviertvonkunde = Kunden.KID;
 
@@ -377,7 +377,7 @@ DO NOTHING;
 
 
 /*
-2.6. AnreisendeView
+2.7. AnreisendeView
 Info: Ein Delete wuerde einer Stornierung gleichkommen. Ein Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
 Ein Update machte weniger Sinn, da eine Zimmer umbuchung mehr Information erfordert und der Name des Kunden in der Kunden Tabelle 
 geaendert wird.
@@ -395,10 +395,10 @@ DO INSTEAD
 	UPDATE 	Reservierungen
 	SET 	Stornierungsnummer = nextval('IDSequenz')
 	WHERE 	OLD.gehoertZuhotel = Reservierungen. gehoertZuhotel
-		AND OLD.Zimmer = Reservierungen.Zimmer;
+		AND OLD.Zimmer = Reservierungen.Zimmer and OLD.reservierungsnummer = Reservierungen.reservierungsnummer;
 
 /*
-2.7. freieKartenView
+2.8. freieKartenView
 Info: Da wir bei einem Insert oder Delete nicht wissen ob eine Karte ausgeteilt oder beschaedigt ist, 
 koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kein Sinn. 
 */
@@ -413,7 +413,7 @@ TO freieKartenView
 DO NOTHING;
 
 /*
-2.8.kartenGueltigInsert
+2.9.kartenGueltigInsert
 Info: Bei der Ausgabe einer Zimmerkarte, darf diese nicht gesperrt sein.
 Offentsichtlich kann nur eine wiedergefundene karte aushaendigt werden
 */
