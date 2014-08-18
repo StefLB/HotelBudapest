@@ -30,3 +30,20 @@ Hotels betrachten, aufgesplittet.
 	on Goldfish.hotelid = hotel.hotelid
 
 
+/*2. Frau 'Putzfee' druckt ihre Liste aus */
+
+WITH KundenInHouse AS (SELECT *
+	FROM
+	reservierungen
+	WHERE gaestestatus='IN-HOUSE')
+	SELECT ReinigungspersonalView.gehoertzuhotel, ReinigungspersonalView.zimmernummer, grossputz, reserviertvonkunde, vorname, nachname
+	FROM ReinigungspersonalView
+	LEFT OUTER JOIN
+	KundenInHouse
+	ON Reinigungspersonalview.gehoertzuhotel = KundenInHouse.gehoertzuhotel and Reinigungspersonalview.zimmernummer = KundenInHouse.zimmer
+	LEFT OUTER JOIN
+	kunden
+	ON reserviertvonkunde = kunden.KID
+
+/*3 Herr 'Gourmant' möchte es wissen.
+
