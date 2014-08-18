@@ -42,7 +42,7 @@ Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
 1.2. bewohnteZimmerView
 Info: Ein Delete oder Insert macht bei dieser View wenig Sinn. Ein Update muss gewaehrleistet werden
 da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView.
-Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
+Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen. 
 Update kann verwendet werden, um Zimmer auf gereinigt umzuschalten (dreckig=false).
 */
 
@@ -60,6 +60,29 @@ Update kann verwendet werden, um Zimmer auf gereinigt umzuschalten (dreckig=fals
 
 	DELETE FROM bewohnteZimmerView WHERE gehoertzuhotel=2;
 	DELETE FROM bewohnteZimmerView WHERE gehoertzuhotel=5;
+
+/*
+1.3. ReinigungspersonalView
+Zeigt an: alle Zimmer, die dreckig sind. Es wird angezeigt, ob ein Grossputz von Noeten ist.
+Info: Obwohl ein Insert oder Delete hier nicht sinnvoll ist, macht ein Update von dreckig von true auf false Sinn, etwa
+wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat. 
+*/
+	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,dreckig,grossputz) 
+	VALUES (1,3,false,true);
+	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,dreckig,grossputz) 
+	VALUES (6,4,true,false);
+
+	UPDATE ReinigungspersonalView
+	SET zimmernummer=14 
+	WHERE zimmernummer=14 and gehoertzuhotel=2;
+	UPDATE ReinigungspersonalView
+	SET zimmernummer=10 
+	WHERE zimmernummer=10 and gehoertzuhotel=3;
+
+	DELETE FROM ReinigungspersonalView WHERE gehoertzuhotel=2;
+	DELETE FROM ReinigungspersonalView WHERE gehoertzuhotel=3;
+
+
 
 
 

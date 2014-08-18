@@ -70,12 +70,12 @@ CREATE OR REPLACE VIEW bewohnteZimmerView AS
 
 /*
 1.3. ReinigungspersonalView
-Zeigt an: alle Zimmer die durch die dreckig sind.
+Zeigt an: alle Zimmer, die dreckig sind, sowie ob ein Grossputz von Noeten ist.
 Benoetigt fuer: Das Reinigunspersonal bekommt diese angezeigt, sortiert nach Hotel und Zimmernummer
 Anmerkung: auch ausgecheckte Zimmer koennen noch vom Vortrag dreckig sein, daher nicht bewohnteZimmerView verwendet 
 */
 CREATE OR REPLACE VIEW ReinigungspersonalView AS
-	SELECT  Zimmer.gehoertZuHotel, Zimmernummer, Zimmer.dreckig, CASE WHEN ((current_date - Anreise > 14)
+	SELECT  Zimmer.gehoertZuHotel, Zimmer.Zimmernummer, CASE WHEN ((current_date - Anreise > 14)
 		OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
 	FROM 	Reservierungen 
 	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
