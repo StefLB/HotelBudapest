@@ -154,6 +154,21 @@ RULES entsprechend implementiert. Kein INSERT,DELETE, sowie Transaktion sind mö
 Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar sind.
 */
 
+	INSERT INTO AnreisendeView (gehoertzuhotel, zimmer) 
+	VALUES(4,10);
+	INSERT INTO AnreisendeView (gehoertzuhotel, zimmer) 
+	VALUES(5,12);
+
+	UPDATE AnreisendeView
+	SET nachname='Lehmann'
+	WHERE gehoertzuhotel=1 and zimmer=10;
+	UPDATE AnreisendeView
+	SET nachname='Schmidt'
+	WHERE gehoertzuhotel=1 and zimmer=10;
+
+	DELETE FROM AnreisendeView WHERE gehoertzuhotel=1 and reservierungsnummer=1;
+	DELETE FROM AnreisendeView WHERE gehoertzuhotel=4 and reservierungsnummer=5;
+
 
 
 
