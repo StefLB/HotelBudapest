@@ -82,6 +82,27 @@ wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat.
 	DELETE FROM ReinigungspersonalView WHERE gehoertzuhotel=2;
 	DELETE FROM ReinigungspersonalView WHERE gehoertzuhotel=3;
 
+/*
+1.4.HotelManagerView
+Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
+Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht, ist kein INSERT,UPDATE,DELETE, sowie Transaktion möglich.
+*/
+
+	INSERT INTO HotelManagerView (gehoertzuhotel,gesamtumsatz) 
+	VALUES (7,'500,00 €');
+	INSERT INTO HotelManagerView (gehoertzuhotel,gesamtumsatz) VALUES (8,'30.000,00 €');
+
+	UPDATE HotelManagerView
+	SET gesamtumsatz='5.000,00€' 
+	WHERE hotelid=1;
+	UPDATE HotelManagerView
+	SET barumsatz='500,00€' 
+	WHERE hotelid=6;
+
+	DELETE FROM HotelManagerView WHERE hotelid=2;
+	DELETE FROM HotelManagerView WHERE hotelid=3;
+
+
 
 
 

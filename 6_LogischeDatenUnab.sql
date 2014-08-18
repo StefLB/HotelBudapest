@@ -196,9 +196,9 @@ CREATE OR REPLACE VIEW HotelmanagerView AS
 /*
 1.5 NichtBezahltKundenView
 Zeigt an: Reservierungen mit den dazugehörigen Kundenummern,Anreise,Abreise und Hotel, die noch nicht bezahlt haben
-Verwendet fuer UnbezhalteReservierungView
+Verwendet fuer UnbezahlteReservierungView
 */
-CREATE or REPLACE VIEW NichtBezahltKunden AS
+CREATE or REPLACE VIEW NichtBezahltKundenView AS
 WITH Nichtbezahlt as
 	(SELECT reservierungsnummer,reserviertvonkunde as kunde
 	FROM reservierungen
@@ -218,34 +218,34 @@ CREATE OR REPLACE VIEW UnbezahlteReservierungView AS
 	SELECT hotelid, reservierungsnummer, reserviertvonkunde as kunde, 
 		(konsumiert+gemietet+benutzt+naechteumsatz) as Gesamtoffen,  konsumiert,gemietet,benutzt,naechteumsatz
 	FROM
-		(SELECT NichtBezahltKunden.resa as resa, NichtBezahltKunden.kunde as kunde, COALESCE(sum(preis),'0,00€') as Konsumiert
-		FROM NichtBezahltKunden 
-		LEFT OUTER JOIN konsumieren ON konsumieren.kid=NichtBezahltKunden.kunde and zeitpunkt>=anreise and zeitpunkt <=abreise
+		(SELECT NichtbezahltKundenView.resa as resa, NichtbezahltKundenView.kunde as kunde, COALESCE(sum(preis),'0,00€') as Konsumiert
+		FROM NichtbezahltKundenView 
+		LEFT OUTER JOIN konsumieren ON konsumieren.kid=NichtbezahltKundenView.kunde and zeitpunkt>=anreise and zeitpunkt <=abreise
 		LEFT OUTER JOIN speisenundgetraenke ON speisenundgetraenke.speiseid=konsumieren.speiseid
-		GROUP BY NichtBezahltKunden.resa, NichtBezahltKunden.kunde, NichtBezahltKunden.gehoertzuhotel) as Konsum
+		GROUP BY NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, NichtbezahltKundenView.gehoertzuhotel) as Konsum
 		--Berechnung der konsumierten Gueter
 
 	LEFT OUTER JOIN
-		(SELECT NichtBezahltKunden.resa, NichtBezahltKunden.kunde, COALESCE(sum(preis),'0,00€') as gemietet
-		FROM NichtBezahltKunden 
-		LEFT OUTER JOIN mieten ON mieten.kid=NichtBezahltKunden.kunde and von>=anreise and bis <=abreise
+		(SELECT NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, COALESCE(sum(preis),'0,00€') as gemietet
+		FROM NichtbezahltKundenView 
+		LEFT OUTER JOIN mieten ON mieten.kid=NichtbezahltKundenView.kunde and von>=anreise and bis <=abreise
 		LEFT OUTER JOIN sporteinrichtungen ON sporteinrichtungen.aid=mieten.aid and sporteinrichtungen.gehoertzuhotel = mieten.gehoertzuhotel
-		GROUP BY NichtBezahltKunden.resa, NichtBezahltKunden.kunde, NichtBezahltKunden.gehoertzuhotel) as Gemietet
+		GROUP BY NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, NichtbezahltKundenView.gehoertzuhotel) as Gemietet
 		--Berechnung der gemieteten Gueter
 	ON Konsum.resa = Gemietet.resa
 
 	LEFT OUTER JOIN
-		(SELECT NichtBezahltKunden.resa, NichtBezahltKunden.kunde, COALESCE(sum(preis),'0,00€') as benutzt
-		from NichtBezahltKunden 
-		LEFT OUTER JOIN benutzen ON benutzen.kid=NichtBezahltKunden.kunde and von>=anreise and bis <=abreise
+		(SELECT NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, COALESCE(sum(preis),'0,00€') as benutzt
+		from NichtbezahltKundenView 
+		LEFT OUTER JOIN benutzen ON benutzen.kid=NichtbezahltKundenView.kunde and von>=anreise and bis <=abreise
 		LEFT OUTER JOIN schwimmbad ON schwimmbad.aid=benutzen.aid and schwimmbad.gehoertzuhotel = benutzen.gehoertzuhotel
-		GROUP BY NichtBezahltKunden.resa, NichtBezahltKunden.kunde, NichtBezahltKunden.gehoertzuhotel) as Benutztes
+		GROUP BY NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, NichtbezahltKundenView.gehoertzuhotel) as Benutztes
 		--Berechnung der benutzten Gueter
 	ON Konsum.resa = benutztes.resa
 
 	LEFT OUTER JOIN
 		(SELECT reservierungen.gehoertzuhotel as hotelid,reservierungsnummer, reserviertvonkunde, COALESCE(((current_date-reservierungen.anreise)*zimmerpreis), '0,00€') as naechteumsatz
-		FROM reservierungen JOIN NichtBezahltKunden on NichtBezahltKunden.resa = reservierungen.reservierungsnummer) as Naechteumsatz
+		FROM reservierungen JOIN NichtbezahltKundenView on NichtbezahltKundenView.resa = reservierungen.reservierungsnummer) as Naechteumsatz
 		--Berechnung der bisher erbrachten Naechteumsatz
 	ON Konsum.resa=Naechteumsatz.reservierungsnummer
 	ORDER BY reservierungsnummer ASC;
@@ -352,13 +352,13 @@ DO NOTHING;
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
 */
 CREATE OR REPLACE RULE NichtBezahltKundenUpdate AS ON UPDATE 
-TO NichtBezahltKunden
+TO NichtBezahltKundenView
 DO NOTHING;
 CREATE OR REPLACE RULE NichtBezahltKundenInsert AS ON INSERT 
-TO NichtBezahltKunden
+TO NichtBezahltKundenView
 DO NOTHING;
 CREATE OR REPLACE RULE NichtBezahltKundenDelete AS ON DELETE 
-TO NichtBezahltKunden
+TO NichtBezahltKundenView
 DO NOTHING;
 
 /*
