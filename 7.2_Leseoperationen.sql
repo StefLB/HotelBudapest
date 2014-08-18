@@ -7,7 +7,13 @@ INHALTSANGABE
 1. Der Manager Herr 'Goldfish', der gleichzeitig zwei Hotels betreut, moechte vom 'Witz-Garlton', sowie vom 'The Octopus' den bis zum heutigen Tage angenommen Gesamtumsatz des 
 Hotels betrachten, aufgesplittet.
 
-2. Die leitende Hausdame, Frau '
+2. Die leitende Hausdame, Frau 'Putzfee' moechte ihre Listen fuer die Reinigungskraefte ausdrucken.
+Da sie moechte, dass ihre werten Kollegen wissen, wie die Gaeste heissen, moechte sie die Namen zu den 
+bewohnten Zimmer vermerkt haben.
+
+3. Der exzentrische Restaurantleiter Herr 'Gourmant' moechte sich anschauen, wieviel heute schon in seinem
+Restaurant verzeht wurde und welcher Gast am meisten verzehrt hat.
+
 
 
 */
