@@ -58,7 +58,8 @@ CREATE OR REPLACE VIEW freieZimmerAktuellView AS
 /*
 1.2. bewohnteZimmerView
 Zeigt an: alle Zimmer in der ein Gast zur Zeit anwesend ist. 
-Benoetigt fuer: die Funktion Zimmerdreckig() die in der Nacht alle bewohnten Zimmer auf dreckig umstellt. 
+Benoetigt fuer: die Funktion Zimmerdreckig() die in der Nacht alle bewohnten Zimmer auf dreckig umstellt, sowie
+ReinigungspersonalView 
 */
 CREATE OR REPLACE VIEW bewohnteZimmerView AS
 	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, Anreise, Abreise, dreckig
@@ -72,16 +73,24 @@ CREATE OR REPLACE VIEW bewohnteZimmerView AS
 1.3. ReinigungspersonalView
 Zeigt an: alle Zimmer, die dreckig sind, sowie ob ein Grossputz von Noeten ist.
 Benoetigt fuer: Das Reinigunspersonal bekommt diese angezeigt, sortiert nach Hotel und Zimmernummer
-Anmerkung: auch ausgecheckte Zimmer koennen noch vom Vortrag dreckig sein, daher nicht bewohnteZimmerView verwendet 
 */
 CREATE OR REPLACE VIEW ReinigungspersonalView AS
-	SELECT  Zimmer.gehoertZuHotel, Zimmer.Zimmernummer, CASE WHEN ((current_date - Anreise > 14)
+
+	SELECT AlledreckigenZimmer.gehoertzuhotel, Alledreckigenzimmer.zimmernummer, COALESCE(grossputz, 'false') as grossputz
+	FROM
+	(SELECT  Zimmer.gehoertZuHotel, Zimmer.Zimmernummer
+	FROM 	Zimmer
+	WHERE 	Zimmer.dreckig=true) as AlleDreckigenZimmer
+	-- Wahl aller dreckigen Zimmer
+
+	LEFT OUTER JOIN
+
+	(SELECT gehoertzuhotel,zimmernummer, CASE WHEN ((current_date - Anreise > 14)
 		OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
-	FROM 	Reservierungen 
-	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
-		AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel)
-	WHERE 	Zimmer.dreckig 
-	ORDER BY gehoertZuHotel ASC, ZimmerNummer ASC;
+	from bewohntezimmerview) as DerGrossputz
+	ON AlledreckigenZimmer.gehoertzuhotel = DerGrossputz.gehoertzuhotel  and Alledreckigenzimmer.zimmernummer = dergrossputz.zimmernummer
+	-- Wahl der Zimmer, die Grossputz benoetigen
+	ORDER BY Alledreckigenzimmer.gehoertZuHotel ASC, alledreckigenzimmer.ZimmerNummer ASC;
 
 
 /*
