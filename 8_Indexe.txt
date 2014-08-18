@@ -1,7 +1,7 @@
 /*INDEXE
 
 Hier sind einige Indexe vermerkt, die bei grossem Datenvolumen sehr hilfreich sind.
-Die grössten Daten sind:
+Die groessten Daten sind:
 	1. Reservierungen
 	2. Kunden
 	3. Speisen und Getraenke
