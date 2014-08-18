@@ -352,13 +352,13 @@ DO NOTHING;
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
 */
 CREATE OR REPLACE RULE NichtBezahltKundenUpdate AS ON UPDATE 
-TO NichtBezahltKundenView
+TO NichtBezahltKunden
 DO NOTHING;
 CREATE OR REPLACE RULE NichtBezahltKundenInsert AS ON INSERT 
-TO NichtBezahltKundenView
+TO NichtBezahltKunden
 DO NOTHING;
 CREATE OR REPLACE RULE NichtBezahltKundenDelete AS ON DELETE 
-TO NichtBezahltKundenView
+TO NichtBezahltKunden
 DO NOTHING;
 
 /*
