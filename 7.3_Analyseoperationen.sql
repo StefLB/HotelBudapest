@@ -7,7 +7,7 @@
 Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
 	3. Wieviele Gaeste pro Hotel gibt es, die mehr als 4000 EUR noch nicht bezahlte Rechnungen haben?	
 	4.
-
+ Die Zimmerbelegung aller Häuser in Prozent
 	5.
 
 */
@@ -35,5 +35,23 @@ Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
 	GROUP BY hotelid, gesamtoffen
 	HAVING gesamtoffen > '4.000,00 €';
 
-/*4. 
+/*4. Zimerbelegung */
+
+	WITH Gesamtezimmer as (SELECT gehoertzuhotel, count (zimmerkategorie) as Gesamtzimmeranzahl
+	from zimmer
+	GROUP BY gehoertzuhotel
+	ORDER BY gehoertzuhotel), BelegteZimmer as
+	(SELECT gehoertzuhotel, count (zimmernummer) as belegtezimmeranzahl
+	from bewohntezimmerview
+	GROUP BY gehoertzuhotel
+	ORDER BY gehoertzuhotel)
+
+	SELECT gesamtezimmer.gehoertzuhotel, gesamtzimmeranzahl, COALESCE(belegtezimmeranzahl,0) as belegtezimmeranzahl, (belegtezimmeranzahl*100/gesamtzimmeranzahl) as zimmerbelegung 
+	FROM Gesamtezimmer
+	LEFT OUTER JOIN
+	BelegteZimmer
+	on gesamtezimmer.gehoertzuhotel = BelegteZimmer.gehoertzuhotel;
+
+/*5. */
+
 
