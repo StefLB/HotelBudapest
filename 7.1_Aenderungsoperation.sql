@@ -87,7 +87,7 @@ wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat.
 /*
 1.4.HotelManagerView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
-Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht, ist kein INSERT,UPDATE,DELETE, sowie Transaktion möglich.
+Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht, ist kein INSERT,UPDATE,DELETE möglich.
 */
 
 	INSERT INTO HotelManagerView (gehoertzuhotel,gesamtumsatz) 
@@ -107,7 +107,7 @@ Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht
 /*
 1.5. NichtBezahltKundenView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
-RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE, sowie Transaktion sind möglich.  
+RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE. 
 */
 
 	INSERT INTO NichtbezahltKundenview (resa, kunde) 
@@ -129,7 +129,7 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE, sowie Transaktion s
 /*
 1.6.UnbezahlteReservierungView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
-RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE, sowie Transaktion sind möglich.   
+RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
 */
 
 	INSERT INTO UnbezahlteReservierungView (hotelid, reservierungsnummer) 
@@ -152,7 +152,7 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE, sowie Transaktion s
 Info: Ein Delete wuerde einer Stornierung gleichkommen. Ein Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
 Ein Update machte weniger Sinn, da eine Zimmerumbuchung mehr Information erfordert und der Name des Kunden in der Kunden Tabelle 
 geaendert wird.
-RULES entsprechend implementiert. Kein INSERT,DELETE, sowie Transaktion sind möglich.
+RULES entsprechend implementiert. Kein INSERT,DELETE.
 Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar sind.
 */
 
