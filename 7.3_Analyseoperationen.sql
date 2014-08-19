@@ -20,7 +20,7 @@ Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
 	GROUP BY gesamtumsatz
 	HAVING gesamtumsatz > '10.000,00 €';
 
-/*2. Auswahl Gaeste, die merh als 100 Tage uebernachten werden*/
+/*2. Auswahl Gaeste, die mehr als 100 Tage uebernachten werden*/
 
 	
 	SELECT gehoertzuhotel, zimmernummer, anreise, abreise, dreckig, max(abreise-anreise)
