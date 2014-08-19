@@ -35,6 +35,8 @@ INHALTSANGABE:
 	2.6. EinCheckenTrigger
 	2.7. kartenVergabeTrigger
 	2.8. kartenverlustTrigger
+	2.9. checkOutTrigger
+	2.10 VipTrigger
 
 
 
@@ -213,7 +215,7 @@ $$ LANGUAGE plpgsql;
 
 /*
 1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
-Returns: Reservierungsnummer eines vorgemerkten Zimmers
+Returns: Reservierungsnummer eines vorgemerkten Zimmers, das durch die reservierung eindeutig referenziert wird.
 Info: Der Kunde hat eine Angebot angekommen und bekommt nun die vorgemerkten Zimmer
 Benoetigt fuer: die Zimmervergabe bei der Ablehung oder Annahme einer Anfrage
 */
@@ -222,6 +224,7 @@ RETURNS int
 AS $$
 	DECLARE vorgemerkt int;
 BEGIN
+
 	vorgemerkt = 0;
 	-- Hole eine der vorgemerkten Reservierungen = Zimmer
 	SELECT 	Reservierungsnummer INTO vorgemerkt
@@ -239,7 +242,7 @@ BEGIN
 	-- Auch bei gleichzeitigen Anfragen geht die gesamtzahl auf 
 	OFFSET 	0
 	FETCH FIRST 1 ROWS ONLY;
-	
+
 	RETURN vorgemerkt;
 END
 $$LANGUAGE plpgsql;
@@ -281,11 +284,13 @@ CREATE OR REPLACE FUNCTION AnnahmeAngebot(KundenID int, Angebotsdaten Angebot) R
 AS $$
 	DECLARE vorgemerkt int;
 BEGIN
+
 	/*Hier werden die bei der Anfrage vorgemerkte Zimmer dem Kunden zugeteilt.
 	  Eventuell hat der Kunde mehrere Zimmer reserviert. Die getNextVorgemerkteZimmer
 	  Funktion holt solange moeglichst zusammenhaengende vorgemerkte Zimmer, wie der 
 	  Kund sie in seiner Zimmeranzahl angegeben hat. */
-	FOR i IN 1..Angebotsdaten.AnzahlZimmer LOOP		
+	FOR i IN 1..Angebotsdaten.AnzahlZimmer LOOP
+			
 		UPDATE 	Reservierungen
 		-- der temporaere Kunde wird ersetzt
 		SET 	reserviertVonKunde = KundenId, GaesteStatus = 'RESERVED'
@@ -588,7 +593,6 @@ BEGIN
 	IF(FOUND) THEN
 		RAISE EXCEPTION 'Doppelbuchung!';
 	END IF;
-
 	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
@@ -624,7 +628,8 @@ BEGIN
 	IF(vornamevar LIKE '' OR nachnamevar LIKE '') THEN
 		RAISE EXCEPTION 'Kunde hat keine Daten';
 	END IF;
-	RETURN NEW;
+
+	RETURN OLD;
 END
 $$ LANGUAGE plpgsql;
 
@@ -694,7 +699,7 @@ BEGIN
 			PERFORM checkInNeuKunde(Reservierungsnummervar);
 		END LOOP;
 	END IF;	
-	RETURN NEW;
+	RETURN OLD;
 END
 $$ LANGUAGE plpgsql;
 
@@ -735,7 +740,7 @@ BEGIN
 		
 		INSERT INTO erhalten VALUES (KID, neuKartenID,NEW.Reservierungsnummer);
 	END LOOP;		
-	RETURN NEW;
+	RETURN OLD;
 END
 $$ LANGUAGE plpgsql;
 
@@ -790,6 +795,8 @@ AS $$
 BEGIN
 	DELETE FROM erhalten
 	WHERE NEW.Reservierungsnummer = erhalten.Reservierungsnummer;
+
+	RETURN OLD;
 END
 $$ LANGUAGE plpgsql;
 
@@ -806,25 +813,32 @@ BEGIN
 	ELSE 
 		PERFORM checkOut();
 	END IF;
+
+	RETURN OLD;
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER checkOutTrigger BEFORE UPDATE OF Gaestestatus ON Reservierungen
+CREATE TRIGGER checkOutTrigger BEFORE UPDATE OF Gaestestatus 
+ON Reservierungen
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'CHECKED-OUT')
 	EXECUTE PROCEDURE schonBezahlt();
-
-
--- VIPTrigger
--- Bei der 100 Uebernachtung bekommt der Gast VIP Status
+ 
+/*
+2.11. VIPTrigger
+Info: Bei der 100 Uebernachtung bekommt der Gast VIP Status
+*/
 CREATE OR REPLACE FUNCTION checkVIP() RETURNS TRIGGER 
 AS $$
 	DECLARE sum int;
 BEGIN
 	SELECT 	sum(Abreise-Anreise) INTO sum
 	FROM 	Reservierungen
-	WHERE 	NEW.reserviertVonKunde = Reservierungen.reserviertVonKunde;
-
+	WHERE 	NEW.reserviertVonKunde = Reservierungen.reserviertVonKunde
+	-- Cancels wollen wir natuerlich nicht beruecksichtigen 
+	-- Check-out impliziert bezahlt, durch den CheckoutTrigger
+		AND GaesteStatus = 'CHECKED-OUT';
+		
 	IF (sum > 99 ) THEN
 		UPDATE 	Kunden 
 		SET 	VIP = TRUE
@@ -835,9 +849,14 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER VIPTrigger AFTER INSERT ON Reservierungen
+CREATE TRIGGER VIPTrigger AFTER UPDATE OF Gaestestatus
+ON Reservierungen
 	FOR EACH ROW
+	WHEN (NEW.Gaestestatus = 'RESERVED')
 	EXECUTE PROCEDURE checkVIP();
+
+
+--drop trigger VIPTrigger on Reservierungen;
 
 
 -- TuerOeffner
@@ -941,6 +960,7 @@ SELECT ZimmerFreiAnDate(1, 'EZMM', current_date, current_date+1);
 SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
 
 -- 1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
+-- Anmerkung: Diese Funktion gibt eine Reservierungsnummer zurueck die auf ein Zimmer zeigt
 SELECT getNextVorgemerktZimmer((1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
 
 -- 1.6. AblehnungAngebot( Angebot Angebot, Grund varChar)
@@ -984,7 +1004,7 @@ Info: Offensichtlich muss bei einem Delete auch in Reservierungen auch die Spezi
 Wir loeschen die eben getaetigte Ablehnung.
 */
 DELETE FROM Reservierungen 
-WHERE Reservierungsnummer = 19;
+WHERE Reservierungsnummer = 20;
 
 
 /*
@@ -1069,10 +1089,17 @@ SET 	Gaestestatus = 'CHECKED-OUT'
 WHERE	reserviertVonKunde = 105;
 
 /*
-2.10. 
+2.10. VipTrigger
+Info: Gunnar Grumpens reiche Tante Professor Paula Pfaff hat bereits 100 mal im Hotel uebernachtet. 
+Nun bucht sie eine weitere Uebernachtung und wird zum VIP.  
+*/
+SELECT 	Zimmeranfrage(1, 'EZMM',current_date+30, current_date+40,'BRFST', 'nix',1, 1);
+SELECT 	AnnahmeAngebot(100,(1,'EZMM',1,'2014-09-18','2014-09-28','1.900,00')::Angebot);
+SELECT 	*
+FROM 	Kunden
+WHERE Vorname LIKE 'Professor Paula';
 
  
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
-
 
 
