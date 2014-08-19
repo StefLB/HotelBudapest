@@ -32,7 +32,9 @@ INHALTSANGABE:
 	2.3. AbteilungDeleteTrigger
 	2.4. UeberbuchungCheckTrigger
 	2.5. ReserviertVonKundeCheckTrigger
-
+	2.6. EinCheckenTrigger
+	2.7. kartenVergabeTrigger
+	2.8. kartenverlustTrigger
 
 
 
@@ -185,13 +187,13 @@ BEGIN
 		FETCH FIRST 1 ROWS ONLY;
 
 		-- Benutze den temporaeren Kunden um die Reservierungen anzulegen
-		SELECT KID INTO tempID
-		FROM Kunden
-		WHERE Vorname LIKE '' AND Nachname LIKE '';
+		SELECT 	KID INTO tempID
+		FROM 	Kunden
+		WHERE 	Vorname LIKE '' AND Nachname LIKE '';
 		
 		-- Lege temporaere Reservierungen an mit den gewuenschten Daten
 		INSERT INTO Reservierungen VALUES (Hotel,zimmervar, preisvar, DEFAULT, Verpflegung, Zimmerkategorie,
-					Anreise, Abreise, DEFAULT , tempID, 'AWAITING-CONFIRMATION', Wuensche, Personenanzahl, now());
+					Anreise, Abreise, DEFAULT , tempID, 'AWAITING-CONFIRMATION', Wuensche, Personenanzahl/AnzahlZimmer, now());
 
 		-- Addiere maxPersonen der vorgemerkten Zimmer 
 		countmaxPersonen = countmaxPersonen + maxPersonenvar;
@@ -703,15 +705,20 @@ ON Reservierungen
 	EXECUTE PROCEDURE einChecken();
 
 /*
-2.8. Kartenvergabe
-Info: Jeder Kunde erhaelt 2 Karten fuer sein Zimmer beim Einchecken
+2.7. KartenvergabeTrigger
+Info: Jeder Kunde erhaelt n Karten fuer sein Zimmer beim Einchecken, wobei n = Anzahl an Personen im Zimmer.
 Benoetigt fuer: die 1:1:N Beziehung da jeder Kunde N Karten zu 1 Reservierung. 
 */
 CREATE OR REPLACE FUNCTION kartenvergabe() RETURNS TRIGGER 
 AS $$
-	DECLARE neuKartenID int; KID int;
+	DECLARE neuKartenID int; KID int; n int;
 BEGIN
-	FOR i IN 1..2 LOOP 
+	--Wieviele Personen sind im Zimmer zu Gast
+	SELECT 	PersonenAnzahl INTO n
+	FROM 	Reservierungen 
+	WHERE 	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
+
+	FOR i IN 1..n LOOP 
 		PERFORM	*
 		FROM 	freieKartenView;
 		-- keine freie Karten mehr im umlauf
@@ -740,14 +747,15 @@ ON Reservierungen
 	EXECUTE PROCEDURE kartenvergabe();
 
 
--- Kartenverlust
--- Beim Verlust der Karte, wird diese gesperrt und aus erhalten geloescht.
--- Der Kunde bekommt eine neue
+/*
+2.8. KartenverlustTrigger
+Info: Beim Verlust der Karte, wird diese gesperrt und aus erhalten geloescht. Der Kunde bekommt eine neue Karte. 
+Benoetigt fuer: die Identifizierung von Zulaessigen Karten. Erhalten beschreibt zulaessige Tueroffnungen.
+*/
 CREATE OR REPLACE FUNCTION sperreUndErsetzeZimmerkarte() RETURNS TRIGGER 
 AS $$
 	DECLARE neuKartenID int;kundennummervar int; revnummervar int;
 BEGIN
-
 	-- finde zur verlorenen Karte KundenID und reservierungsnummer
 	SELECT 	KundenID , reservierungsnummer INTO kundennummervar,revnummervar
 	FROM 	erhalten
@@ -761,21 +769,22 @@ BEGIN
 	DELETE FROM erhalten
 	WHERE 	NEW.KartenID = erhalten.KartenID;
 
+	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER verloreneKarteTrigger AFTER UPDATE OF gesperrt
+CREATE TRIGGER kartenverlustTrigger AFTER UPDATE OF gesperrt
 ON Zimmerkarte 
 	FOR EACH ROW
 	WHEN (NEW.gesperrt = TRUE)
 	EXECUTE PROCEDURE sperreUndErsetzeZimmerkarte();
 
 
-
--- CheckOut 
--- Beim CHECK-OUT des Kunden, gibt dieser die Karte ab 
--- Alle Karten, die der Reservierung zugeteilt wurden werden 
--- aus erhalten geloescht und koennen nicht mehr die entsprechende Tuer oeffnen
+/*
+2.9. CheckOutTrigger 
+Info: Beim CHECK-OUT des Kunden, wir zuerst ueberprueft ob der Kunde schon bezahlt hat. Dann werden die Zugriffsrechte der Zimmerkarten
+aus erhalten geloescht. 
+*/
 CREATE OR REPLACE FUNCTION checkOut() RETURNS TRIGGER 
 AS $$
 BEGIN
@@ -788,13 +797,12 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION schonBezahlt() RETURNS TRIGGER 
 AS $$
 BEGIN
-	SELECT Reservierungsnummer
-	FROM Bezahlen
-	WHERE NEW.Reservierungsnummer = Bezahlen.Reservierungsnummer;
+	PERFORM Reservierungsnummer
+	FROM 	Bezahlen
+	WHERE 	NEW.Reservierungsnummer = Bezahlen.Reservierungsnummer;
 
 	IF(NOT FOUND) THEN
 		RAISE EXCEPTION 'Gast muss noch bezahlen';
-
 	ELSE 
 		PERFORM checkOut();
 	END IF;
@@ -939,13 +947,12 @@ SELECT getNextVorgemerktZimmer((1,'EZMM',1,current_date, current_date+1,190.00):
 SELECT AblehnungAngebot((1,'EZMM',1,current_date, current_date+1,190.00)::Angebot, 'Too Expensive');
 
 -- 1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
--- Es muss nochmal eine Anfrage gemacht werden
+-- Es muss nochmal eine Anfrage gemacht werden. Ein uns bekannter Kunde hat die Anfrage gestellt
 SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
 SELECT AnnahmeAngebot(102, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
 
--- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, 
-				--Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
--- Es muss nochmal eine Anfrage gemacht werden. 
+-- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
+-- Es muss nochmal eine Anfrage gemacht werden. Gunnar Grumpen ist ein neuer Kunde. 
 SELECT Zimmeranfrage(1, 'EZMM',current_date+15, current_date+20,'BRFST', 'nix',1, 1);
 SELECT annahmeAngebotNeuKunde('Gunnar'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
 					234357868909, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+1,190.00)::Angebot );
@@ -1025,9 +1032,9 @@ Kundeneintrag braucht. Gunnars Kumpel Karl muss sich als Kunde eintragen lassen.
 */
 SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',2, 2);
 -- Gunnar nimmt das Angebot an
-SELECT AnnahmeAngebot(105, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
+SELECT 	AnnahmeAngebot(105, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
 -- Beide werden heute anreisen
-SELECT setArrivals();
+SELECT 	setArrivals();
 -- und kommen schliesslich an
 UPDATE 	Reservierungen
 SET 	Gaestestatus = 'IN-HOUSE' 
@@ -1042,12 +1049,30 @@ Siehe dazu:
 SELECT 	*
 FROM 	erhalten
 ORDER BY KundenId DESC
-FETCH FIRST 4 ROWS ONLY;
+FETCH FIRST 2 ROWS ONLY;
 
 
+/*
+2.8. kartenverlustTrigger
+Info: Gunnar hat eine seihe Zimmerkarte verschlampt. Er bekommt gleich eine neue. 
+*/
+UPDATE 	Zimmerkarte
+SET 	gesperrt = true
+WHERE  	KartenId = 7 ;
 
+/*
+2.9. checkOutTrigger
+Info: Gunnar moechte auschecken. (Hat aber noch nicht bezahlt). Dass sollte ein Fehler werfen. 
+*/
+UPDATE 	Reservierungen
+SET 	Gaestestatus = 'CHECKED-OUT'
+WHERE	reserviertVonKunde = 105;
+
+/*
+2.10. 
+
+ 
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
-
 
 
 
