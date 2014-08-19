@@ -856,9 +856,6 @@ ON Reservierungen
 	EXECUTE PROCEDURE checkVIP();
 
 
---drop trigger VIPTrigger on Reservierungen;
-
-
 -- TuerOeffner
 -- Beim oeffnen einer Tuer wird die Zugangsberechtigung geprueft
 -- Nur zugelassene Tueren duerfen geoeffnet werden
