@@ -1,4 +1,4 @@
-/*INDEXE
+﻿/*INDEXE
 
 Hier sind einige Indexe vermerkt, die bei grossem Datenvolumen sehr hilfreich sind.
 Die groessten Daten sind:
@@ -22,7 +22,7 @@ Die groessten Daten sind:
 /* 2. Kunden */
 
 	CREATE INDEX index_kunden
-	ON kunden (kundenid);
+	ON kunden (kid);
 
 /* 3. Speisen und Getraenke*/
 
