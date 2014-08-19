@@ -10,7 +10,7 @@ Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
  Die Zimmerbelegung aller Häuser in Prozent
 	5.
 
-*/
+ Wie oft wurde die Zimmer bereits in der Vergangenheit gereinigt, die heute auf der Reinigungsliste stehen?*/
 
 
 /* 1. Gesamtumsatz */
@@ -35,7 +35,7 @@ Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
 	GROUP BY hotelid, gesamtoffen
 	HAVING gesamtoffen > '4.000,00 €';
 
-/*4. Zimerbelegung */
+/*4. Zimmerbelegung */
 
 	WITH Gesamtezimmer as (SELECT gehoertzuhotel, count (zimmerkategorie) as Gesamtzimmeranzahl
 	from zimmer
@@ -46,12 +46,21 @@ Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
 	GROUP BY gehoertzuhotel
 	ORDER BY gehoertzuhotel)
 
-	SELECT gesamtezimmer.gehoertzuhotel, gesamtzimmeranzahl, COALESCE(belegtezimmeranzahl,0) as belegtezimmeranzahl, (belegtezimmeranzahl*100/gesamtzimmeranzahl) as zimmerbelegung 
+	SELECT gesamtezimmer.gehoertzuhotel, gesamtzimmeranzahl, COALESCE(belegtezimmeranzahl,0) as belegtezimmeranzahl, COALESCE(belegtezimmeranzahl*100/gesamtzimmeranzahl, 0) as zimmerbelegung 
 	FROM Gesamtezimmer
 	LEFT OUTER JOIN
 	BelegteZimmer
 	on gesamtezimmer.gehoertzuhotel = BelegteZimmer.gehoertzuhotel;
 
-/*5. */
+/*5. Wie oft gereinigt? */
+
+	SELECT Reinigungspersonalview.gehoertzuhotel, zimmernummer, count(zimmer) as AnzahlGereinigt
+	from 
+	Reinigungspersonalview
+	join reservierungen
+	on Reinigungspersonalview.gehoertzuhotel = reservierungen.gehoertzuhotel and
+	Reinigungspersonalview.zimmernummer = reservierungen.zimmer
+	GROUP BY Reinigungspersonalview.gehoertzuhotel, zimmernummer
+	ORDER by gehoertzuhotel, zimmernummer ASC;
 
 
