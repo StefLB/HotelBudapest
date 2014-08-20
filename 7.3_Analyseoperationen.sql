@@ -5,7 +5,7 @@
 	1. Wir wollen die Hotels betrachten, die mehr als 10.000 EUR Umsatz erzielt haben.
 	2. 
 Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
-	3. Wieviele Gaeste pro Hotel gibt es, die mehr als 4000 EUR noch nicht bezahlte Rechnungen haben?	
+	3. Wieviele Gaeste pro Hotel gibt es, die mehr als 500 EUR noch nicht bezahlte Rechnungen haben?	
 	4.
  Die Zimmerbelegung aller Häuser in Prozent
 	5.
@@ -30,10 +30,14 @@ Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten.
 
 /*3. Anzahl der nichtbezahlten Gaeste */
 
-	SELECT hotelid, count(kunde)
+	WITH alleoffen as (SELECT hotelid, count(kunde)
 	FROM unbezahltereservierungview
 	GROUP BY hotelid, gesamtoffen
-	HAVING gesamtoffen > '4.000,00 €';
+	HAVING gesamtoffen > '500,00 €')
+	SELECT hotelid, count(hotelid) as nichtbezahltegaeste
+	FROM alleoffen
+	GROUP BY hotelid
+	ORDER BY hotelid ASC ;
 
 /*4. Zimmerbelegung */
 

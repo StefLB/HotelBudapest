@@ -1,0 +1,20 @@
+/* Map Reduce */
+
+/* Beispiel 3 - Wieviele Kunden in jedem Hotels noch nicht bezahlt haben/
+
+	MAP():
+
+	map( record (hotelid:int, reservierungsnummer:int, kunde:int, gesamtoffen:money, konsumiert:money, gemietet:money, benutzt: money, naechteumsatz:money)
+		{ if (gesamtoffen > '500,00 €')
+			emit (hotelid -> (reservierungsnummer, kunde));
+
+		}
+
+	REDUCE():
+	reduce (hotelid:key, value : set of (reservierungsnummer:int, kunde:int))
+		{ anzahlkunden: int = 0;
+			for each entry in value {
+			anzahlunden++;
+			} 
+		emit (hotelid -> (anzahlkunden);
+		} 
