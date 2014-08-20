@@ -6,6 +6,7 @@ zimmer
 Zimmerkarte
 schwimmbad
 wirdserviertin - jede funktionale Abhaengigkeit ist Superschluessel
+kunden
 
 
 3NF:
