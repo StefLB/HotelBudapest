@@ -119,7 +119,7 @@ WITH KundenInHouse AS (SELECT *
 
 /*7. Wieviele freie Karten haben wir noch?*/
 
-	SELECT*
+	SELECT counte(kartenid) as AnzahlKarten
 	from
 	freiekartenview;
 
@@ -133,7 +133,7 @@ WITH KundenInHouse AS (SELECT *
 	on kunde = kid
 	WHERE gehoertzuhotel=3 or gehoertzuhotel=4;
 
-/*9. Wie sehen die umsaetze der Kunden aus, die noch nicht bezahlt haben?*/
+/*9. Wie sehen die Umsaetze der Kunden aus, die noch nicht bezahlt haben?*/
 
 	SELECT hotelid,reservierungsnummer,kunde,vorname, nachname,gesamtoffen,konsumiert,gemietet,benutzt,naechteumsatz
 	from unbezahltereservierungview
