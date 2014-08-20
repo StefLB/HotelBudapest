@@ -2,10 +2,11 @@
 
 BCNF:
 restaurant
-mieten
-konsumieren
 zimmer
+Zimmerkarte
+schwimmbad
 
-3NF
-reservierungen
+
+3NF:
+mieten  -gehoert zu immer im Superschluessel
 
