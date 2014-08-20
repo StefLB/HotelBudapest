@@ -1,0 +1,11 @@
+/* 3NF - BCNF*/
+
+BCNF:
+restaurant
+mieten
+konsumieren
+zimmer
+
+3NF
+reservierungen
+
