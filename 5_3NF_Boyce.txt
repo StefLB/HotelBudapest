@@ -5,6 +5,7 @@ restaurant
 zimmer
 Zimmerkarte
 schwimmbad
+wirdserviertin - jede funktionale Abhaengigkeit ist Superschluessel
 
 
 3NF:
