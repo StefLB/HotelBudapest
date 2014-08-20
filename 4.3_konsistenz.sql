@@ -37,13 +37,14 @@ INHALTSANGABE:
 	2.8. kartenverlustTrigger
 	2.9. checkOutTrigger
 	2.10 VipTrigger
-
-
+	2.11. TuerOeffner
 
 3. BEISPIELANFRAGEN
+	Fuer jede Funktion und jeden Trigger
+*/
 
 
-
+/*
 1.FUNKTIONEN 
 
 1.1. getPreisTabelle(Hotel int) 
@@ -825,7 +826,7 @@ ON Reservierungen
 	EXECUTE PROCEDURE schonBezahlt();
  
 /*
-2.11. VIPTrigger
+2.10. VIPTrigger
 Info: Bei der 100 Uebernachtung bekommt der Gast VIP Status
 */
 CREATE OR REPLACE FUNCTION checkVIP() RETURNS TRIGGER 
@@ -855,27 +856,27 @@ ON Reservierungen
 	WHEN (NEW.Gaestestatus = 'RESERVED')
 	EXECUTE PROCEDURE checkVIP();
 
-
--- TuerOeffner
--- Beim oeffnen einer Tuer wird die Zugangsberechtigung geprueft
--- Nur zugelassene Tueren duerfen geoeffnet werden
+/*
+2.11. TuerOeffner
+Info: Beim oeffnen einer Tuer wird die Zugangsberechtigung geprueft. Nur zugelassene Tueren duerfen geoeffnet werden
+*/
 CREATE OR REPLACE FUNCTION checkZimmerkartenRechte() RETURNS TRIGGER 
 AS $$
+	DECLARE berechtigtHotel int; berechtigtZimmer int;
 BEGIN
-	WITH 	berechtigtesZimmer AS (
-	SELECT 	gehoertZuHotel, Zimmer
-	FROM 	Reservierungen
-	WHERE 	Reservierungen.Reservierungsnummer = NEW.Reservierungsnummer) 
-	SELECT  *
+	WITH 	KarteZuReservierung AS (
+	SELECT 	reservierungsnummer 
 	FROM 	erhalten
-	WHERE 	NEW.KartenId = erhalten.KartenId AND NEW.Zimmernummer = berechtigtesZimmer.Zimmer
-		AND NEW.gehoertZuHotel = berechtigtesZimmer;
+	WHERE 	KartenID = NEW.KartenID)
+	SELECT  gehoertZuHotel, Zimmer INTO berechtigtHotel, berechtigtZimmer
+	FROM 	Reservierungen 
+		JOIN KarteZuReservierung ON KarteZuReservierung.Reservierungsnummer = Reservierungen.Reservierungsnummer
+	WHERE 	gehoertZuHotel = NEW.gehoertZuHotel AND Zimmer = NEW.Zimmernummer;
 
+	-- Vergleiche erlaubter Zugriff mit aktueller Zugriff
 	IF (NOT FOUND) THEN
-		RAISE NOTICE 'Kein Zutritt!'; 
 		RAISE EXCEPTION 'Hey, du Spanner!';
 	END IF;	
-
 END
 $$ LANGUAGE plpgsql;
 
@@ -954,7 +955,7 @@ SELECT ZimmerFreiAnDate(1, 'EZMM', current_date, current_date+1);
 
 -- 1.4. Zimmeranfrage(Hotel int, Zimmerkategorie Zimmerkategorie, Anreise date, Abreise date, 
 					--Verpflegung Verpflegungsstufe, Wuensche varChar,PersonenAnzahl int, AnzahlZimmer int)
-SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
+SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',1, 1);
 
 -- 1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
 -- Anmerkung: Diese Funktion gibt eine Reservierungsnummer zurueck die auf ein Zimmer zeigt
@@ -963,16 +964,21 @@ SELECT getNextVorgemerktZimmer((1,'EZMM',1,current_date, current_date+1,190.00):
 -- 1.6. AblehnungAngebot( Angebot Angebot, Grund varChar)
 SELECT AblehnungAngebot((1,'EZMM',1,current_date, current_date+1,190.00)::Angebot, 'Too Expensive');
 
+
 -- 1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
 -- Es muss nochmal eine Anfrage gemacht werden. Ein uns bekannter Kunde hat die Anfrage gestellt
-SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
+SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',1, 1);
 SELECT AnnahmeAngebot(102, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
+
+
 
 -- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
 -- Es muss nochmal eine Anfrage gemacht werden. Gunnar Grumpen ist ein neuer Kunde. 
-SELECT Zimmeranfrage(1, 'EZMM',current_date+15, current_date+20,'BRFST', 'nix',1, 1);
+SELECT Zimmeranfrage(1, 'EZMM',current_date+15, current_date+20,'BRFST', 'KA',1, 1);
 SELECT annahmeAngebotNeuKunde('Gunnar'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
 					234357868909, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+1,190.00)::Angebot );
+
+					
 -- 1.9.ZimmerDreckig() 
 -- Hiernach sollten alle belegten Zimmer dreckig sein. 
 -- Anmerkung: Hier wird auf eine View in 6_LogischeDatenun.sql zurueckgegegriffen.
@@ -1015,7 +1021,6 @@ WHERE SpeiseID = 9;
 2.3.AbteilungDeleteTrigger
 Info: Wir loeschen einfach mal Fahrrad 5
 */
-
 DELETE FROM Abteilung
 WHERE gehoertZuHotel = 6 AND AID = 11;
 
@@ -1024,10 +1029,10 @@ WHERE gehoertZuHotel = 6 AND AID = 11;
 Info: Wir versuchen ein Zimmer zu ueberbuchen, und sehen dass es fehlschlaegt
 */
 INSERT INTO Reservierungen VALUES 	(1,30,'100.00', DEFAULT,'BRFST', 'EZMM', '2015-08-01', '2015-08-02', 
-					DEFAULT,102, 'RESERVED', 'nix', 1, now());
+					DEFAULT,102, 'RESERVED', 'KA', 1, now());
 -- Zweite Reservierung sollte fehlschlagen
 INSERT INTO Reservierungen VALUES 	(1,30,'100.00', DEFAULT,'BRFST', 'EZMM', '2015-08-01', '2015-08-02', 
-					DEFAULT,102, 'RESERVED', 'nix', 1, now());
+					DEFAULT,102, 'RESERVED', 'KA', 1, now());
 
 					
 /*
@@ -1047,7 +1052,7 @@ Info: Gunnar Grumpen reserviert zwei Zimmer. Eins fuer sich und eins fuer sein K
 Beim Einchecken, muss dieser Trigger erkennen, dass das zweite Zimmer einen eigenen 
 Kundeneintrag braucht. Gunnars Kumpel Karl muss sich als Kunde eintragen lassen. 
 */
-SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',2, 2);
+SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',2, 2);
 -- Gunnar nimmt das Angebot an
 SELECT 	AnnahmeAngebot(105, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
 -- Beide werden heute anreisen
@@ -1096,7 +1101,21 @@ SELECT 	*
 FROM 	Kunden
 WHERE Vorname LIKE 'Professor Paula';
 
- 
+/*
+2.11. TuerOeffner
+Info: Gunnar hat etwas getrunken und sich aus Versehen im Stockwerk geirrt. Seine Zimmerkarte sollte die falsche Tuer nicht oeffnen duerfen. 
+*/
+INSERT INTO oeffnet VALUES (1,19,9,now());
+
+
+/*
+2.12.
+*/
+select * from oeffnet
+select * from erhalten
+select * from kunden
+select * from reservierungen
+delete from reservierungen where reservierungsnummer > 19  
 --TODO: ab hier Beispielanfragen für Funktionen und Trigger
 
 
