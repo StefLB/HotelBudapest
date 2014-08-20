@@ -38,6 +38,8 @@ INHALTSANGABE:
 	2.9. checkOutTrigger
 	2.10 VipTrigger
 	2.11. TuerOeffner
+	2.12. checkoutoforderTrigger
+
 
 3. BEISPIELANFRAGEN
 	Fuer jede Funktion und jeden Trigger
@@ -260,13 +262,14 @@ AS $$
 	DECLARE vorgemerkt int;
 BEGIN
 	vorgemerkt = getNextVorgemerktZimmer(Angebotsdaten);
+		
 	-- Für die gesamtanzahl an vorgemerkten Zimmer
 	FOR i IN 1..Angebotsdaten.AnzahlZimmer LOOP		
 		-- Dieses wird jetzt als Turn-Down eingetragen werden
 		UPDATE 	Reservierungen
 		SET 	GaesteStatus = 'TURN-DOWN'
 		WHERE 	Reservierungen.Reservierungsnummer= vorgemerkt;
-
+		
 		INSERT INTO Ablehnungen VALUES (vorgemerkt, Grund);
 	END LOOP;
 	-- Anmerkung: bei Abgelehnten Anfragen, bleibt die temporaere KundenID eingetragen
@@ -480,6 +483,38 @@ BEGIN
 END 
 $$ LANGUAGE plpgsql;
 
+
+/*
+1.15. bereinigeAnfragen()
+Info: Nicht angenomme oder abgelehnte Anfragen muessen nach einer gewissen Zeit verfallen, damit die Zimmer wieder freigegeben sind. Bei unserem Bespiel einer 
+Web-Anfrage waere ein Time-Out nach einigen Minuten denkbar. Dann muesste man erneut die Anfrage stellen. Wir moechten sie dennoch in der Statistik behalten. 
+Daher loeschen wir sie nicht. 
+*/
+CREATE OR REPLACE FUNCTION bereinigeAnfragen() RETURNS VOID
+AS $$
+	DECLARE zuBereinigen int; gehoertZuHotelVar int; ZimmerVar int;
+		ZimmerkategorieVar Zimmerkategorie; ZimmerpreisVar money; anreiseVar date; 
+		abreiseVar date; ZimmerAnzahlVar int; TimeOutAngebot Angebot;
+BEGIN
+	SELECT  count(*) INTO zuBereinigen
+	FROM 	Reservierungen
+	WHERE 	GaesteStatus = 'AWAITING-CONFIRMATION';
+	
+	FOR i IN 0..zuBereinigen-1 LOOP 
+		SELECT 	gehoertZuHotel, Zimmerkategorie, Zimmerpreis,anreise,abreise
+			INTO gehoertZuHotelVar, ZimmerkategorieVar, ZimmerpreisVar,anreiseVar,abreiseVar		 
+		FROM 	Reservierungen
+		WHERE 	GaesteStatus = 'AWAITING-CONFIRMATION'
+		ORDER BY Reservierungsnummer ASC
+		FETCH 	FIRST 1 ROWS ONLY
+		OFFSET	0;
+
+		TimeOutAngebot = (gehoertZuHotelVar,ZimmerkategorieVar,1,anreiseVar, abreiseVar,ZimmerpreisVar)::Angebot;
+		PERFORM AblehnungAngebot( TimeOutAngebot, 'Time-Out'::varChar);
+	END LOOP;
+	RETURN;
+END 
+$$ LANGUAGE plpgsql;
 
 
 /*
@@ -885,10 +920,10 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 	EXECUTE PROCEDURE checkZimmerkartenRechte();
 
 
-
--- checkZimmerOutOfOrder
--- Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht 
--- vermietbar ist (OUT OF ORDER)
+/*
+2.12.checkoutoforderTrigger
+Info: Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht vermietbar ist (OUT OF ORDER)
+*/
 CREATE OR REPLACE FUNCTION checkoutoforder() RETURNS TRIGGER 
 AS $$
 	DECLARE zimmernr int; hotelnr int; zimmerstatus boolean; newzimmer int;
@@ -906,8 +941,6 @@ BEGIN
 	FROM 	zimmer
 	WHERE 	zimmernummer=zimmernr and gehoertzuhotel=hotelnr;
 
-	
-	
 	IF (zimmerstatus = 'false') THEN RETURN NEW; ELSE
 		SELECT zimmernummer INTO newzimmer
 		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.anreise, NEW.abreise)
@@ -931,11 +964,13 @@ END
 $$ LANGUAGE plpgsql;
 
 
-CREATE TRIGGER checkoutoforder AFTER UPDATE OF Gaestestatus
+CREATE TRIGGER checkoutoforderTrigger AFTER UPDATE OF Gaestestatus
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'ARRIVAL')
 	EXECUTE PROCEDURE checkoutoforder();
+
+/* ENDE DECLARATION*/
 
 
 
@@ -993,11 +1028,24 @@ SELECT*
 from gourmetgast(3);
 
 --1.12. freieSportplaetze(Hotel int)
-SELECT*
-from freiesportplaetze(6);
+SELECT	*
+from 	freiesportplaetze(6);
 
 --1.13. setArrivals()
-SELECT setArrivals();
+SELECT 	setArrivals();
+
+--1.14. getNaechsteFreieKarte()
+SELECT 	getNaechsteFreieKarte();
+
+
+--1.15. bereinigeAnfragen()
+-- Einige nicht beantwortete Anfragen sollen nach einiger Zeit verfallen.
+SELECT 	Zimmeranfrage(3, 'SUIT',current_date+15, current_date+20,'ALL', 'KA',1, 1);
+SELECT 	Zimmeranfrage(3, 'SUIT',current_date+20, current_date+25,'ALL', 'KA',1, 1);
+
+-- nach einiger Zeit
+SELECT	bereinigeAnfragen();
+
 
 /*
 BEISPIELANFRAGEN FUER KONSISTENZTRIGGER
@@ -1095,8 +1143,8 @@ WHERE	reserviertVonKunde = 105;
 Info: Gunnar Grumpens reiche Tante Professor Paula Pfaff hat bereits 100 mal im Hotel uebernachtet. 
 Nun bucht sie eine weitere Uebernachtung und wird zum VIP.  
 */
-SELECT 	Zimmeranfrage(1, 'EZMM',current_date+30, current_date+40,'BRFST', 'nix',1, 1);
-SELECT 	AnnahmeAngebot(100,(1,'EZMM',1,'2014-09-18','2014-09-28','1.900,00')::Angebot);
+SELECT 	Zimmeranfrage(1, 'EZMM',current_date+30, current_date+40,'BRFST', 'KA',1, 1);
+SELECT 	AnnahmeAngebot(100,(1,'EZMM',1,current_date+30,current_date+40,'1.900,00')::Angebot);
 SELECT 	*
 FROM 	Kunden
 WHERE Vorname LIKE 'Professor Paula';
@@ -1109,13 +1157,18 @@ INSERT INTO oeffnet VALUES (1,19,9,now());
 
 
 /*
-2.12.
+2.12. checkoutoforderTrigger
+Info: Professor Paulas guter Freund Hans Hohlstein fragt nach einem Zimmer an, und moechte noch heute anreisen. 
 */
-select * from oeffnet
-select * from erhalten
-select * from kunden
-select * from reservierungen
-delete from reservierungen where reservierungsnummer > 19  
---TODO: ab hier Beispielanfragen für Funktionen und Trigger
+SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+10,'BRFST', 'KA',1, 1);
+SELECT 	annahmeAngebotNeuKunde('Hans'::varChar,'Hohlstein'::varChar,'Hamburg'::varChar,5557633, 
+					1111222333444, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+10,1900.00)::Angebot );
+-- Leider ist bei der Party am Vorabend der Fernseher aus dem Fenster geschmissen worden.
+UPDATE 	Zimmer 
+SET 	outofOrder = true
+WHERE 	gehoertZuHotel = 1 AND Zimmernummer = 5;
+-- Hans reist aber heute noch an
+SELECT 	setArrivals();
+-- Er bekommt automatisch ein neues Zimmer zugeteilt.
 
-
+/*ENDE*/
