@@ -39,7 +39,7 @@ INHALTSANGABE:
 	2.10 VipTrigger
 	2.11. TuerOeffner
 	2.12. checkoutoforderTrigger
-	2.13. manuelleZimmerUmbuchungTrigger
+	2.13. ReservierungUpdateTrigger
 
 
 3. BEISPIELANFRAGEN
@@ -479,6 +479,10 @@ BEGIN
 	SELECT 	KartenID INTO neuKartenID
 	FROM 	FreieKartenView
 	FETCH FIRST 1 ROWS ONLY;
+	-- falls keine freien Karten, erzeuge neue
+	IF (neuKartenID IS NULL) THEN 
+		INSERT INTO Zimmerkarte VALUES (DEFAULT) RETURNING KartenID into neuKartenID;
+	END IF;
 
 	RETURN neuKartenID;
 END 
@@ -761,13 +765,6 @@ BEGIN
 	WHERE 	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
 
 	FOR i IN 1..n LOOP 
-		PERFORM	*
-		FROM 	freieKartenView;
-		-- keine freie Karten mehr im umlauf
-		IF(NOT FOUND) THEN 
-			-- erstelle eine neue Karte
-			INSERT INTO Zimmerkarte VALUES (DEFAULT,DEFAULT);
-		END IF;
 		-- hole naechste freie karte
 		neuKartenID = getNaechsteFreieKarte();
 		-- hole kundenId manuell, da sie vielleicht im vorigen trigger geaendert wurde
@@ -1214,7 +1211,7 @@ SELECT 	setArrivals();
 Info: Hans Hohlstein wurde bloederweise  in ein Zimmer verlegt, wo seine Wuenschelrute keine Wasserlinien findet. Er moechte ein Zimmer mit mehr Flow.
 */
 UPDATE 	Reservierungen
-SET	Zimmer = 40
-WHERE	Reservierungsnummer = 41;
+SET	Zimmer = 10
+WHERE	reserviertVonKunde =107 ;
 
 /*ENDE*/
