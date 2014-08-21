@@ -16,6 +16,8 @@ INHALTSANGABE
 
 2. TRANSAKTIONEN
 	2.1 Herr 'Hamilton', der heute im Hotel 'Budapest erwartet wird, ruft an und moechte seine An- und Abreise um einen Tag verschieben.
+	2.2 Es gibt einen Rohrbruch in Herrn 'Duncans' Suit Nummer 15, der Kunde muss in eine ander Suite umziehen.
+	    Da die Nummer 14 zur Verfügung steht, wird alles umgebucht und Herr Duncan erhaelt eine neue Karte.
 */
 
 /*
@@ -212,11 +214,11 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 		UPDATE anreisendeview
 		SET anreise = current_date + interval '1 day'
 		WHERE reservierungsnummer=1;
-
+		--Anreise verschoeben
 		UPDATE reservierungen
-		SET gaestestatus='ARRIVAL'
+		SET gaestestatus='RESERVED'
 		Where reservierungsnummer=1;
-
+		-gaestestatus auf RESERVED geaendert
 		UPDATE anreisendeview
 		SET abreise = '2014-10-21'
 		WHERE reservierungsnummer=1 and EXISTS (
@@ -224,6 +226,6 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 		from
 		ZimmerFreiAnDate(1, 'DZMM', '2014-10-20', '2014-10-21')
 		WHERE zimmernummer=10);
-
+		--Abreise umaendert, wenn Zimmer frei
 	COMMIT;
 
