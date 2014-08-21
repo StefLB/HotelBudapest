@@ -82,13 +82,22 @@ um eventuelle Risiken zu analysieren. */
 
 /*5. Wie oft gereinigt? */
 
-	SELECT Reinigungspersonalview.gehoertzuhotel, zimmernummer, count(zimmer) as AnzahlGereinigt
-	from 
-	Reinigungspersonalview
-	join reservierungen
-	on Reinigungspersonalview.gehoertzuhotel = reservierungen.gehoertzuhotel and
-	Reinigungspersonalview.zimmernummer = reservierungen.zimmer
+	SELECT 	Reinigungspersonalview.gehoertzuhotel, zimmernummer, count(zimmer) as AnzahlGereinigt
+	FROM 	Reinigungspersonalview
+		JOIN reservierungen ON Reinigungspersonalview.gehoertzuhotel = reservierungen.gehoertzuhotel 
+		AND Reinigungspersonalview.zimmernummer = reservierungen.zimmer
 	GROUP BY Reinigungspersonalview.gehoertzuhotel, zimmernummer
 	ORDER by gehoertzuhotel, zimmernummer ASC;
+
+/* 5.2. Die Wartungs und Reinigungsfirma SqueakyClean reist an: Falls mehr als 3 Zimmer im Hotel ein Grossputz benoetigen und gleichzeitig kapput sind (Rock Star Party),
+ist es nicht wirtschaftlich die Zimmerreinigung dafuer einzuteilen und danach vom Hausmeister reparieren zu lassen, 
+da dies zu viel Zeit kostet. Statt dessen wird Firma SqueakyClelan gerufen. */
+	SELECT 	Reinigungspersonalview.gehoertZuHotel, count(Reinigungspersonalview.Zimmernummer) AS AnzahlGrossputz	
+	FROM 	Reinigungspersonalview
+		JOIN Zimmer ON Reinigungspersonalview.gehoertZuHotel = Zimmer.gehoertZuHotel
+		AND Reinigungspersonalview.Zimmernummer = Zimmer.Zimmernummer
+	WHERE 	grossputz
+	GROUP BY Reinigungspersonalview.gehoertZuHotel
+	HAVING 	count(Reinigungspersonalview.Zimmernummer) > 3;
 
 
