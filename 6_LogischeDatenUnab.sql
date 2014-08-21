@@ -265,11 +265,11 @@ Zeigt an:  Kundenname und Zimmer aller anreisenden Gaeste des Tages an und ob de
 */
 CREATE OR REPLACE VIEW AnreisendeView AS
 WITH Anreisende AS (
-	SELECT gehoertZuHotel, Zimmer, reserviertvonkunde, reservierungsnummer
+	SELECT gehoertZuHotel, Zimmer, reserviertvonkunde, reservierungsnummer, anreise, abreise
 	FROM Reservierungen
 	WHERE Gaestestatus = 'ARRIVAL' )
 
-	SELECT 	gehoertZuHotel, Zimmer, reservierungsnummer, reserviertVonKunde, Nachname, VIP 
+	SELECT 	gehoertZuHotel, Zimmer, reservierungsnummer, reserviertVonKunde, Nachname, anreise,abreise, VIP 
 	FROM 	Anreisende 
 		JOIN Kunden ON Anreisende.reserviertvonkunde = Kunden.KID;
 
