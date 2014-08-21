@@ -250,3 +250,31 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 
 	COMMIT;
 
+/*2.3 Umschreiben des Kundens von 88 auf 12, Reservierungsnummer 18*/
+
+	BEGIN;
+		UPDATE bewohntezimmerview
+		SET reserviertvonkunde = 12
+		WHERE reserviertvonkunde =88 and reservierungsnummer=18
+		--Reservierung wird auf neuen Kunden umgeschrieben
+
+		UPDATE erhalten
+		SET kundenid=12
+		WHERE Reservierungsnummer=18
+		-- Karten werden umgeschrieben
+
+		UPDATE konsumieren
+		SET kid = 12
+		WHERE kid=88 and zeitpunkt >= (SELECT anreise from bewohntezimmerview where reserviertvonkunde=12) 
+		and zeitpunkt <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12) 
+		--konsumieren muss umgeschrieben werden
+
+		UPDATE mieten
+		SET kid = 12
+		WHERE kid=88 and von >= (SELECT anreise from bewohntezimmerview where reserviertvonkunde=12) 
+		and bis <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12) 
+		--mieten muss umgeschrieben werden
+
+		--benutzen muss nicht umgeschrieben werden, da Hotel 6 kein Schwimmbad hat
+	COMMIT;
+
