@@ -1230,4 +1230,11 @@ WHERE 	gehoertZuHotel = 1 AND Zimmernummer = 5;
 SELECT 	setArrivals();
 -- Er bekommt automatisch ein neues Zimmer zugeteilt.
 
+/* 
+2.13. manuelleUmbuchungTrigger
+TODO ELLI
+*/
+
+
+
 /*ENDE*/
