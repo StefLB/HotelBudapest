@@ -117,7 +117,7 @@ BEGIN
 	FROM 	Reservierungen 
 	WHERE 	gehoertZuHotel = Hotel 
 		-- muss frei sein von - bis
-		AND ((von >= Anreise AND von <= Abreise) OR (bis >= Anreise AND bis <= Abreise))
+		AND ((von >= Anreise AND von < Abreise) OR (bis >= Anreise AND bis < Abreise))
 		-- nur reservierte, ankommende, belegte, oder vorgemerkte Zimmer abziehen
 		AND (Gaestestatus = 'RESERVED' OR Gaestestatus = 'ARRIVAL' OR Gaestestatus = 'IN-HOUSE' 
 		OR Gaestestatus = 'AWAITING-CONFIRMATION')))
