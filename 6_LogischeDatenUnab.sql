@@ -317,6 +317,13 @@ DO INSTEAD
 	SET 	dreckig = true
 	WHERE 	Zimmer.Zimmernummer = NEW.Zimmernummer AND Zimmer.gehoertZuHotel = NEW.gehoertZuHotel; 
 
+CREATE OR REPLACE RULE bewohnteZimmerUpdateKunde AS ON UPDATE 
+TO bewohnteZimmerView 
+DO INSTEAD 
+	UPDATE 	reservierungen
+	SET 	reserviertvonkunde = NEW.reserviertvonkunde
+	WHERE 	reservierungsnummer = NEW.reservierungsnummer;
+
 CREATE OR REPLACE RULE bewohnteZimmerInsert AS ON INSERT 
 TO bewohnteZimmerView
 DO NOTHING;
