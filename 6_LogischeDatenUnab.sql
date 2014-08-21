@@ -62,7 +62,7 @@ Benoetigt fuer: die Funktion Zimmerdreckig() die in der Nacht alle bewohnten Zim
 ReinigungspersonalView. 
 */
 CREATE OR REPLACE VIEW bewohnteZimmerView AS
-	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, reserviertVonKunde, Anreise, Abreise, dreckig
+	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, reserviertVonKunde, reservierungsnummer, Anreise, Abreise, dreckig
 	FROM 	Reservierungen 
 	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
 		AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel) 
