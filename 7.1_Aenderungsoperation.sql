@@ -210,7 +210,7 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 
 	BEGIN;
 		UPDATE anreisendeview
-		SET anreise = '2014-08-21'
+		SET anreise = current_date + interval '1 day'
 		WHERE reservierungsnummer=1;
 
 		UPDATE reservierungen
@@ -224,4 +224,6 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 		from
 		ZimmerFreiAnDate(1, 'DZMM', '2014-10-20', '2014-10-21')
 		WHERE zimmernummer=10);
+
 	COMMIT;
+
