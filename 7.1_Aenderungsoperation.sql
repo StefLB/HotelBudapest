@@ -211,7 +211,7 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 2. Transaktionen 
 */
 
-/*2.1 Anreise um einen Tag verschieben */
+/*2.1 Anreise und Abreise um einen Tag verschieben */
 
 	BEGIN;
 		UPDATE anreisendeview
