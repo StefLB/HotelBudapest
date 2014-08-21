@@ -400,6 +400,20 @@ DO INSTEAD
 	SET 	VIP = true
 	WHERE	KID = NEW.reserviertVonKunde;
 
+CREATE OR REPLACE RULE AnreisendeUpdateAnreise AS ON UPDATE   
+TO AnreisendeView 
+DO INSTEAD
+	UPDATE 	reservierungen
+	SET 	anreise = New.anreise
+	WHERE	Old.reservierungsnummer = reservierungen.reservierungsnummer;
+
+CREATE OR REPLACE RULE AnreisendeUpdateAbreise AS ON UPDATE   
+TO AnreisendeView 
+DO INSTEAD
+	UPDATE 	reservierungen
+	SET 	abreise = New.abreise
+	WHERE	Old.reservierungsnummer = reservierungen.reservierungsnummer;
+
 CREATE OR REPLACE RULE AnreisendeUpdateZimmer AS ON UPDATE   
 TO AnreisendeView WHERE OLD.Zimmer !=  NEW.Zimmer
 DO INSTEAD
