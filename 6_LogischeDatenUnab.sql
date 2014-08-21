@@ -279,13 +279,14 @@ Zeigt an: die verfügbaren Karten
 Benoetigt fuer: die Zimmerkartenvergabe
 */ 
 CREATE OR REPLACE VIEW FreieKartenView AS
-	  SELECT  KartenID
-	  FROM  ZimmerKarte
-	  WHERE  gesperrt = FALSE
-	  EXCEPT ALL
-	  -- ausser Karten schon im Umlauf
-	  SELECT  KartenID
-	  FROM  erhalten ORDER BY kartenid;
+	SELECT	KartenID
+	FROM	ZimmerKarte
+	WHERE  	gesperrt = FALSE
+	EXCEPT ALL
+	-- ausser Karten schon im Umlauf
+	SELECT  KartenID
+	FROM  	erhalten 
+	ORDER BY kartenid;
 
 
 -- 2. RULES
