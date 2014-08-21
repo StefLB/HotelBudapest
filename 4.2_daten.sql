@@ -501,7 +501,7 @@ insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnumme
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 180.00,NULL, 'BRFST', 'TROM', '2014-08-16', '2014-09-20', 'IN-HOUSE', 'KA', 3, now(), 86, 24, 6 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 200.00,NULL, 'ROOM', 'SUIT', '2014-08-16', '2014-09-25', 'IN-HOUSE', 'KA', 2, now(), 89, 25, 6 );
+	values(DEFAULT, 200.00,NULL, 'ROOM', 'SUIT', '2014-08-16', current_date, 'IN-HOUSE', 'KA', 2, now(), 89, 25, 6 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 240.00,NULL, 'ROOM', 'SUIT', '2014-08-16', '2014-12-31', 'IN-HOUSE', 'KA', 3, now(), 54, 13, 3 );
 
@@ -514,22 +514,19 @@ INSERT INTO ablehnungen VALUES
 --Zimmerkarte
 
 INSERT INTO Zimmerkarte VALUES
-	(1, false),
-	(2, true),
-	(3, false),
-	(4, false),
-	(5, false),
-	(6, false),
-	(7, false),
-	(8, false),
-	(9, false),
-	(10, false),
-	(11, false),
-	(12, false),
-	(13, false),
-	(14, false),
-	(15, false),
-	(16, false);
+	(DEFAULT, false),
+	(DEFAULT, true),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false),
+	(DEFAULT, false);
+
 
 --oeffnet
 

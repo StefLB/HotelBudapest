@@ -21,6 +21,8 @@ INHALTSANGABE
 	2.3 Frau 'Cole' geht zur Rezeption und gibt Bescheid, dass das Zimmer, was sie eigentlich reserviert hat, auf den
 	    Namen ihrer Zimmergenossin laufen soll: Elisabeth Lawson, die auch bereits in der Vergangenheit die Zimmer übernommen hat.
 	    Der Rezeptionist aendert es um.	
+	2.4 Ein Kunde moechte fuer sein Zimmer mehr Karten erhalten, dafuer muessen im Gegenzug neue Karten dem System zugefuegt werden, da 
+	    keine freien KArten zur Verfügung stehen.
 */
 
 /*
@@ -277,4 +279,8 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 
 		--benutzen muss nicht umgeschrieben werden, da Hotel 6 kein Schwimmbad hat
 	COMMIT;
+
+/*2.4 Ausgabe und hinzufuegen von Karten*/
+
+	
 

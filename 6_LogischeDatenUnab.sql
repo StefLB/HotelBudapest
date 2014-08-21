@@ -441,18 +441,27 @@ DO INSTEAD
 
 /*
 2.8. freieKartenView
-Info: Da wir bei einem Insert oder Delete nicht wissen ob eine Karte ausgeteilt oder beschaedigt ist, 
-koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kein Sinn. 
+Insert: Physikalisch neue Karten koennen dem System zugefuegt werden, bevor sie an Kunden vergeben werden.
+Delete: Eine Karte ist tatsächlich physikalisch zerstört un kann nicht meh wieder verwendet werden.
+Ein Update des Karten ID macht kein Sinn. 
+Wir simulieren somit eine Registrierung von Blankokarten.
+
 */
 CREATE OR REPLACE RULE freieKartenUpdate AS ON UPDATE 
 TO freieKartenView
 DO NOTHING;
-CREATE OR REPLACE RULE freieKartenInsert AS ON INSERT 
+
+CREATE OR REPLACE RULE freieKartenInsert AS ON INSERT
 TO freieKartenView
-DO NOTHING;
-CREATE OR REPLACE RULE freieKartenDelete AS ON DELETE 
+DO INSTEAD
+	INSERT INTO zimmerkarte VALUES (DEFAULT,false);
+
+CREATE OR REPLACE RULE freieKartenDelete AS ON Delete
 TO freieKartenView
-DO NOTHING;
+DO INSTEAD
+	DELETE FROM zimmerkarte
+	WHERE OLD.kartenid = zimmerkarte.kartenid;
+
 
 /*
 2.9.kartenGueltigInsert
