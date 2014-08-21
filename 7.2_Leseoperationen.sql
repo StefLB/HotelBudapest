@@ -18,10 +18,10 @@ Etablissements verzehrt wurde.
 der Gaeste holen, die im Haus sind.
 
 5. "Welches Hotel habe ich heute nochmal gebucht?", fragt die viel reisende Frau 'Hamilton' in der zentralen Reservierung nach.
-Bevor die Reservierungsmitabrieterin die Daten nennt, gleicht sie nochmal die persönlichen Daten mit Frau 'Hamilton' ab.
+Bevor die Reservierungsmitabrieterin die Daten nennt, gleicht sie nochmal die persoenlichen Daten mit Frau 'Hamilton' ab.
 
 6. Das Flugzeug 'Boring Airline' musste seinen Flug aufgrund von schlechten WEtterbedingngen stornieren.
-Sie rufen in der zentralen Reservierung an, um zu schauen, in welchen Hotels 150 Fluggäste fuer eine Nacht untergebracht werden koennen.
+Sie rufen in der zentralen Reservierung an, um zu schauen, in welchen Hotels 150 Fluggaeste fuer eine Nacht untergebracht werden koennen.
 Dazu muss an ueberpruefen, welche Zimmer gerade zur Verfuegung stehen.
 
 7. Brauchen wir weitere Karten im System, fragt sich die der Rooms-Divison Manager und schaut in das System, wieviel noch verfügbar sind.
