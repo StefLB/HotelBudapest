@@ -269,7 +269,7 @@ WITH Anreisende AS (
 	FROM Reservierungen
 	WHERE Gaestestatus = 'ARRIVAL' )
 
-	SELECT 	gehoertZuHotel, Zimmer, reservierungsnummer, Nachname, VIP 
+	SELECT 	gehoertZuHotel, Zimmer, reservierungsnummer, reserviertVonKunde, Nachname, VIP 
 	FROM 	Anreisende 
 		JOIN Kunden ON Anreisende.reserviertvonkunde = Kunden.KID;
 
@@ -389,13 +389,24 @@ DO NOTHING;
 /*
 2.7. AnreisendeView
 Info: Ein Delete wuerde einer Stornierung gleichkommen. Ein Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
-Ein Update machte weniger Sinn, da eine Zimmer umbuchung mehr Information erfordert und der Name des Kunden in der Kunden Tabelle 
-geaendert wird.
+in Update koennte in Sinn machen. Beispielsweise weiss die Rezeptionsleitung, dass ein prominenter Gast anreist und moechte die VIP Austattung des 
+Zimmers gewaehrleisten, und moechte den Kunden vielleicht auch in ein anderes Zimmer umbuchen. 
 */
 
-CREATE OR REPLACE RULE AnreisendeUpdate AS ON UPDATE 
-TO AnreisendeView
-DO NOTHING;
+CREATE OR REPLACE RULE AnreisendeUpdateVip AS ON UPDATE   
+TO AnreisendeView WHERE OLD.VIP = true AND NEW.VIP = true
+DO INSTEAD
+	UPDATE 	Kunden
+	SET 	VIP = true
+	WHERE	KID = NEW.reserviertVonKunde;
+
+CREATE OR REPLACE RULE AnreisendeUpdateZimmer AS ON UPDATE   
+TO AnreisendeView WHERE OLD.Zimmer !=  NEW.Zimmer
+DO INSTEAD
+	UPDATE 	Reservierungen
+	SET 	Zimmer = NEW.Zimmer
+	WHERE	Zimmer = OLD.Zimmer;
+		
 CREATE OR REPLACE RULE AnreisendeInsert AS ON INSERT 
 TO AnreisendeView
 DO NOTHING;
