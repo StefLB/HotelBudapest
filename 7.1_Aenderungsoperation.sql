@@ -21,6 +21,8 @@ INHALTSANGABE
 	2.3 Frau 'Cole' geht zur Rezeption und gibt Bescheid, dass das Zimmer, was sie eigentlich reserviert hat, auf den
 	    Namen ihrer Zimmergenossin laufen soll: Elisabeth Lawson, die auch bereits in der Vergangenheit die Zimmer übernommen hat.
 	    Der Rezeptionist aendert es um.	
+	2.4 Ein Kunde moechte fuer sein Zimmer mehr Karten erhalten, dafuer muessen im Gegenzug neue Karten dem System zugefuegt werden, da 
+	    keine freien KArten zur Verfügung stehen.
 */
 
 /*
@@ -256,25 +258,45 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 		UPDATE bewohntezimmerview
 		SET reserviertvonkunde = 12
 		WHERE reserviertvonkunde =88 and reservierungsnummer=18
-		--Reservierung wird auf neuen Kunden umgeschrieben
+		--Reservierung wird auf neuen Kunden umgeschrieben;
 
 		UPDATE erhalten
 		SET kundenid=12
 		WHERE Reservierungsnummer=18
-		-- Karten werden umgeschrieben
+		-- Karten werden umgeschrieben;
 
 		UPDATE konsumieren
 		SET kid = 12
 		WHERE kid=88 and zeitpunkt >= (SELECT anreise from bewohntezimmerview where reserviertvonkunde=12) 
-		and zeitpunkt <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12) 
+		and zeitpunkt <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12);
 		--konsumieren muss umgeschrieben werden
 
 		UPDATE mieten
 		SET kid = 12
 		WHERE kid=88 and von >= (SELECT anreise from bewohntezimmerview where reserviertvonkunde=12) 
-		and bis <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12) 
+		and bis <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12) ;
 		--mieten muss umgeschrieben werden
 
 		--benutzen muss nicht umgeschrieben werden, da Hotel 6 kein Schwimmbad hat
 	COMMIT;
+
+/*2.4 Ausgabe und hinzufuegen von 3 Karten für Kunde 86 mit der REservierngsnummer 26*/
+
+	BEGIN;
+		INSERT INTO freiekartenView VALUES
+		(DEFAULT),
+		(DEFAULT),
+		(DEFAULT);
+
+		INSERT INTO erhalten (kundenid,kartenid,reservierungsnummer) VALUES
+		(86, (SELECT kartenid from freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
+
+		INSERT INTO erhalten (kundenid,kartenid,reservierungsnummer) VALUES
+		(86, (SELECT kartenid from freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
+
+		INSERT INTO erhalten (kundenid,kartenid,reservierungsnummer) VALUES
+		(86, (SELECT kartenid from freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
+
+	COMMIT;
+	
 
