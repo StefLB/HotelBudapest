@@ -229,3 +229,21 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 		--Abreise umaendert, wenn Zimmer frei
 	COMMIT;
 
+/*2.2 Herr Duncan muss umziehen*/
+
+	BEGIN;
+		UPDATE bewohntezimmerview
+		SET zimmernummer = 14
+		WHERE reserviertvonkunde = 44;
+		--Zimmernummer gewechselt
+
+		UPDATE zimmer
+		SET outoforder=true
+		WHERE zimmernummer = 15 and gehoertzuhotel = 4;
+		-- Zimmer Nr. 15 muss out of order gestellt werden
+
+		-- die Zimmerkarte muss nicht getauscht werden, da sie an der Reservierungsnummer gekoppelt ist, sie wird automatisch nicht mehr die 
+		-- die 15 oeffnen koennen, sondern nur die 14
+
+	COMMIT;
+
