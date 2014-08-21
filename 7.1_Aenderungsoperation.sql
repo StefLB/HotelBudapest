@@ -18,6 +18,9 @@ INHALTSANGABE
 	2.1 Herr 'Hamilton', der heute im Hotel 'Budapest erwartet wird, ruft an und moechte seine An- und Abreise um einen Tag verschieben.
 	2.2 Es gibt einen Rohrbruch in Herrn 'Duncans' Suit Nummer 15, der Kunde muss in eine ander Suite umziehen.
 	    Da die Nummer 14 zur Verfügung steht, wird alles umgebucht und Herr Duncan erhaelt eine neue Karte.
+	2.3 Frau 'Cole' geht zur Rezeption und gibt Bescheid, dass das Zimmer, was sie eigentlich reserviert hat, auf den
+	    Namen ihrer Zimmergenossin laufen soll: Elisabeth Lawson, die auch bereits in der Vergangenheit die Zimmer übernommen hat.
+	    Der Rezeptionist aendert es um.	
 */
 
 /*
