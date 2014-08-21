@@ -59,10 +59,10 @@ CREATE OR REPLACE VIEW freieZimmerAktuellView AS
 1.2. bewohnteZimmerView
 Zeigt an: alle Zimmer in der ein Gast zur Zeit anwesend ist. 
 Benoetigt fuer: die Funktion Zimmerdreckig() die in der Nacht alle bewohnten Zimmer auf dreckig umstellt, sowie
-ReinigungspersonalView 
+ReinigungspersonalView. 
 */
 CREATE OR REPLACE VIEW bewohnteZimmerView AS
-	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, Anreise, Abreise, dreckig
+	SELECT	Zimmer.gehoertZuHotel, Zimmernummer, reserviertVonKunde, Anreise, Abreise, dreckig
 	FROM 	Reservierungen 
 	JOIN 	Zimmer ON (Reservierungen.Zimmer= Zimmer.Zimmernummer 
 		AND  Reservierungen.gehoertZuHotel = Zimmer.gehoertZuHotel) 
@@ -71,7 +71,8 @@ CREATE OR REPLACE VIEW bewohnteZimmerView AS
 
 /*
 1.3. ReinigungspersonalView
-Zeigt an: alle Zimmer, die dreckig sind, sowie ob ein Grossputz von Noeten ist.
+Zeigt an: alle Zimmer, die dreckig sind, sowie ob ein Grossputz von Noeten ist. 
+ReserviertVonKunde wird dem Reinigungspersonal bewusst nicht angezeigt um Diskretion zu gewaehrleisten. 
 Benoetigt fuer: Das Reinigunspersonal bekommt diese angezeigt, sortiert nach Hotel und Zimmernummer
 */
 CREATE OR REPLACE VIEW ReinigungspersonalView AS
@@ -91,7 +92,6 @@ CREATE OR REPLACE VIEW ReinigungspersonalView AS
 	ON AlledreckigenZimmer.gehoertzuhotel = DerGrossputz.gehoertzuhotel  and Alledreckigenzimmer.zimmernummer = dergrossputz.zimmernummer
 	-- Wahl der Zimmer, die Grossputz benoetigen
 	ORDER BY Alledreckigenzimmer.gehoertZuHotel ASC, alledreckigenzimmer.ZimmerNummer ASC;
-
 
 /*
 1.4. HotelManagerView
@@ -306,8 +306,9 @@ DO NOTHING;
 
 /*
 2.2. bewohnteZimmerView
-Info: Ein Delete oder Insert macht bei dieser View wenig Sinn. Ein Update muss gewaehrleistet werden
-da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView. 
+Info: Ein Delete oder Insert macht bei dieser View wenig Sinn: Die View soll die Gaesteverteilung anzeigen, nicht reglementieren. 
+Dafuer braucht man mehr Informationen als die View zu Verfuegung stellt, und es sind Trigger hierfuer zustaendig. 
+Ein Update muss gewaehrleistet werden, da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView.
 */
 CREATE OR REPLACE RULE bewohnteZimmerUpdate AS ON UPDATE 
 TO bewohnteZimmerView 
