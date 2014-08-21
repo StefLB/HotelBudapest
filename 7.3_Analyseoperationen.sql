@@ -63,20 +63,22 @@ um eventuelle Risiken zu analysieren. */
 
 /*4. Zimmerbelegung */
 
-	WITH Gesamtezimmer as (SELECT gehoertzuhotel, count (zimmerkategorie) as Gesamtzimmeranzahl
-	from zimmer
+	WITH 	Gesamtezimmer as (
+	SELECT 	gehoertzuhotel, count (zimmerkategorie)::numeric as Gesamtzimmeranzahl
+	FROM 	zimmer
 	GROUP BY gehoertzuhotel
-	ORDER BY gehoertzuhotel), BelegteZimmer as
-	(SELECT gehoertzuhotel, count (zimmernummer) as belegtezimmeranzahl
-	from bewohntezimmerview
+	ORDER BY gehoertzuhotel), 
+	BelegteZimmer as (
+	SELECT 	gehoertzuhotel, count (zimmernummer)::numeric as belegtezimmeranzahl
+	FROM 	bewohntezimmerview
 	GROUP BY gehoertzuhotel
 	ORDER BY gehoertzuhotel)
 
-	SELECT gesamtezimmer.gehoertzuhotel, gesamtzimmeranzahl, COALESCE(belegtezimmeranzahl,0) as belegtezimmeranzahl, COALESCE(belegtezimmeranzahl*100/gesamtzimmeranzahl, 0) as zimmerbelegung 
-	FROM Gesamtezimmer
-	LEFT OUTER JOIN
-	BelegteZimmer
-	on gesamtezimmer.gehoertzuhotel = BelegteZimmer.gehoertzuhotel;
+	SELECT 	gesamtezimmer.gehoertzuhotel, gesamtzimmeranzahl, COALESCE(belegtezimmeranzahl,0) as belegtezimmeranzahl, 
+		COALESCE((belegtezimmeranzahl*100)/gesamtzimmeranzahl, 0)::numeric as zimmerbelegungProzent 
+	FROM 	Gesamtezimmer
+	LEFT OUTER JOIN BelegteZimmer ON gesamtezimmer.gehoertzuhotel = BelegteZimmer.gehoertzuhotel
+	ORDER BY zimmerbelegungProzent;
 
 /*5. Wie oft gereinigt? */
 
