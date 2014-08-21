@@ -129,8 +129,7 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
 	WHERE gehoertzuhotel=6;
 
 	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=2;
-	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=6;
-	
+	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=6;	
 
 /*
 1.6.UnbezahlteReservierungView
@@ -157,9 +156,8 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
 /*
 1.7. AnreisendeView
 Info: Ein Delete wuerde einer Stornierung gleichkommen. Ein Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
-Ein Update machte weniger Sinn, da eine Zimmerumbuchung mehr Information erfordert und der Name des Kunden in der Kunden Tabelle 
-geaendert wird.
-RULES entsprechend implementiert. Kein INSERT,DELETE.
+Ein Update koennte in Sinn machen. Beispielsweise weiss die Rezeptionsleitung, dass ein prominenter Gast anreist und moechte die VIP Austattung des 
+Zimmers gewaehrleisten, und moechte den Kunden vielleicht auch in ein anderes Zimmer umbuchen. 
 Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar sind.
 */
 
@@ -168,17 +166,19 @@ Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar
 	INSERT INTO AnreisendeView (gehoertzuhotel, zimmer) 
 	VALUES(5,12);
 
+	-- Gast ist prominent
 	UPDATE AnreisendeView
-	SET nachname='Lehmann'
+	SET Vip=true
 	WHERE gehoertzuhotel=1 and zimmer=10;
+	-- Gast soll manuell in besseres Zimmer umgebucht werden
 	UPDATE AnreisendeView
-	SET nachname='Schmidt'
-	WHERE gehoertzuhotel=1 and zimmer=10;
+	SET Zimmernummer= 40 
+	WHERE gehoertzuhotel=1 and zimmer=10 
 
 	DELETE FROM AnreisendeView WHERE gehoertzuhotel=1 and reservierungsnummer=1;
 	DELETE FROM AnreisendeView WHERE gehoertzuhotel=4 and reservierungsnummer=5;
 
-
+	
 /*
 1.8. freieKartenView
 Info: Da wir bei einem Insert oder Delete nicht wissen ob eine Karte ausgeteilt oder beschaedigt ist, 
@@ -199,6 +199,9 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 
 	DELETE FROM freiekartenview WHERE kartenid=12;
 	DELETE FROM freiekartenview WHERE kartenid=13;
+	
+/* ENDE AENDERUNGEN*/
 
-
-2 Transaktionen
+/* 
+2. Transaktionen 
+*/
