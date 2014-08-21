@@ -970,8 +970,67 @@ ON Reservierungen
 	WHEN (NEW.Gaestestatus = 'ARRIVAL')
 	EXECUTE PROCEDURE checkoutoforder();
 
-/* ENDE DECLARATION*/
+/* 
+2.13. manuelleZimmerUmbuchungTrigger
+Info: Es kann vorkommen, dass die Rezeption einen Gast manuell in ein anderes Zimmer verlegen moechte oder muss. 
+*/
+CREATE OR REPLACE FUNCTION manuelleZimmerUmbuchung() RETURNS TRIGGER 
+AS $$
+	DECLARE oldZimmer Zimmerkategorie; newZimmer Zimmerkategorie; 
+		gesamtpreis money; neuPreis money; minusPreis money; plusPreis money; 
+BEGIN
+	UPDATE 	Reservierungen
+	SET	Reservierungen.Zimmer = NEW.Zimmer
+	WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
 
+	-- Ist das neue Zimmer von einer anderen Kategorie?
+	SELECT 	Zimmerkategorie INTO oldZimmer
+	FROM 	Zimmer
+	WHERE 	NEW.gehoertZuHotel = Zimmer.gehoertzuHotel
+		AND OLD.Zimmernummer = Zimmer.Zimmernummer ;
+	SELECT 	Zimmerkategorie INTO newZimmer
+	FROM 	Zimmer
+	WHERE 	NEW.gehoertZuHotel = Zimmer.gehoertzuHotel
+		AND NEW.Zimmernummer = Zimmer.Zimmernummer;
+
+	--falls nicht preis neu berechnen
+	IF (newZimmer NOT LIKE oldZimmer) THEN
+		-- der zu veraendernde Preis
+		SELECT 	Zimmerpreis INTO gesamtPreis
+		FROM 	Reservierungen
+		WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
+		
+		-- alten Zimmerpreis 
+		SELECT	Preis*Anzahlnaechte INTO minusPreis
+		FROM 	getPreisTabelle(NEW.gehoertZuHotel)
+		WHERE	oldZimmer LIKE ltrim(Posten::text , '-0123456789');  	
+
+		-- neuen ZimmerPreis 
+		SELECT	Preis*Anzahlnaechte INTO plusPreis
+		FROM 	getPreisTabelle(NEW.gehoertZuHotel)
+		WHERE	newZimmer LIKE ltrim(Posten::text , '-0123456789');
+
+		-- Differenz zum Gesamtpreis addieren
+		neuPreis =  Gesamtpreis - minusPreis + plusPreis;
+
+		UPDATE	Reservierungen 
+		SET	Gesamtpreis = neuPreis
+		WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
+
+		-- benachrichtige Mitarbeiter, eventuelle moechte derjenige den Preis nachlassen
+		RAISE NOTICE 'Zimmerpreis ist um % teuerer geworden.',(plusPreis - minusPreis);
+	END IF;
+	RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER manuelleZimmerUmbuchungTrigger BEFORE UPDATE OF Zimmer
+ON Reservierungen 
+	FOR EACH ROW
+	EXECUTE PROCEDURE manuelleZimmerUmbuchung();
+
+
+/* ENDE DECLARATION*/
 
 
 /*
