@@ -15,7 +15,7 @@ INHALTSANGABE
 	1.8. freieKartenView
 
 2. TRANSAKTIONEN
-	2.1 Herr 'Hamilton' ruft an und moechte seine Anreise um einen Tag verschieben.
+	2.1 Herr 'Hamilton', der heute im Hotel 'Budapest erwartet wird, ruft an und moechte seine An- und Abreise um einen Tag verschieben.
 */
 
 /*
@@ -209,11 +209,19 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 /*2.1 Anreise um einen Tag verschieben */
 
 	BEGIN;
-	UPDATE anreisendeview
-	SET anreise = '2014-08-22'
-	WHERE reservierungsnummer=1;
+		UPDATE anreisendeview
+		SET anreise = '2014-08-21'
+		WHERE reservierungsnummer=1;
 
-	UPDATE reservierungen
-	SET gaestestatus='RESERVED'
-	Where reservierungsnummer=1;
+		UPDATE reservierungen
+		SET gaestestatus='ARRIVAL'
+		Where reservierungsnummer=1;
+
+		UPDATE anreisendeview
+		SET abreise = '2014-10-21'
+		WHERE reservierungsnummer=1 and EXISTS (
+		SELECT*
+		from
+		ZimmerFreiAnDate(1, 'DZMM', '2014-10-20', '2014-10-21')
+		WHERE zimmernummer=10);
 	COMMIT;
