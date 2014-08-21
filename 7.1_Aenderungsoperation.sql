@@ -178,7 +178,6 @@ Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar
 	DELETE FROM AnreisendeView WHERE gehoertzuhotel=1 and reservierungsnummer=1;
 	DELETE FROM AnreisendeView WHERE gehoertzuhotel=4 and reservierungsnummer=5;
 
-	
 /*
 1.8. freieKartenView
 Info: Da wir bei einem Insert oder Delete nicht wissen ob eine Karte ausgeteilt oder beschaedigt ist, 
