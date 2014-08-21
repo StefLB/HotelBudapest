@@ -972,68 +972,46 @@ ON Reservierungen
 	EXECUTE PROCEDURE checkoutoforder();
 
 /* 
-2.13. manuelleZimmerUmbuchungTrigger
-Info: Es kann vorkommen, dass die Rezeption einen Gast manuell in ein anderes Zimmer verlegen moechte oder muss. 
+2.13. preisAktualisierungsTrigger
+Info: Es kann vorkommen, dass die Rezeption einen Gast manuell in ein anderes Zimmer verlegen moechte,
+oder andere Attribute der Reservierungen geaendert werden muessen.
+Dann muss eventuell der Preis akutalisiert werden.
 */
-CREATE OR REPLACE FUNCTION ZimmerUmbuchung() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION preisAktualisierung() RETURNS TRIGGER 
 AS $$
-	DECLARE oldZimmer Zimmerkategorie; newZimmer Zimmerkategorie; 
-		gesamtpreis money; neuPreis money; minusPreis money; plusPreis money; 
+	DECLARE AngebotVar Angebot; toDelete int; ZimmerkategorieVar Zimmerkategorie;
 BEGIN
-	-- Ist das neue Zimmer von einer anderen Kategorie?
-	SELECT 	Zimmerkategorie INTO oldZimmer
-	FROM 	Zimmer
-	WHERE 	NEW.gehoertZuHotel = Zimmer.gehoertzuHotel
-		AND OLD.Zimmer = Zimmer.Zimmernummer ;
-	SELECT 	Zimmerkategorie INTO newZimmer
-	FROM 	Zimmer
-	WHERE 	NEW.gehoertZuHotel = Zimmer.gehoertzuHotel
-		AND NEW.Zimmer = Zimmer.Zimmernummer;
 
-	--falls nicht preis neu berechnen
-	IF (newZimmer NOT LIKE oldZimmer) THEN
-		-- der zu veraendernde Preis
-		SELECT 	Zimmerpreis INTO gesamtPreis
-		FROM 	Reservierungen
-		WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
-		
-		-- alten Zimmerpreis 
-		SELECT	Preis*Anzahlnaechte INTO minusPreis
-		FROM 	getPreisTabelle(NEW.gehoertZuHotel)
-		WHERE	oldZimmer LIKE ltrim(Posten::text , '-0123456789');  	
+	-- Mache eine Pseudo Anfrage mit den neuen Daten
+	SELECT 	Zimmerkategorie INTO ZimmerkategorieVar
+	FROM 	Zimmer 
+	WHERE 	gehoertZuHotel = NEW.gehoertZuHotel AND NEW.Zimmer = Zimmernummer;
+	SELECT	* INTO AngebotVar
+	FROM	Zimmeranfrage(NEW.gehoertZuHotel,ZimmerkategorieVar, NEW.Anreise, NEW.Abreise, 
+				NEW.Verpflegungsstufe, 'KA',1, 1);
 
-		-- neuen ZimmerPreis 
-		SELECT	Preis*Anzahlnaechte INTO plusPreis
-		FROM 	getPreisTabelle(NEW.gehoertZuHotel)
-		WHERE	newZimmer LIKE ltrim(Posten::text , '-0123456789');
+	-- Danach brauchen wir die Pseudo Anfrage nicht mehr
+	toDelete = getNextVorgemerktZimmer(AngebotVar);
+	DELETE	FROM Reservierungen
+	WHERE 	toDelete = Reservierungsnummer;
+	-- Falls der neue Zimmerpreis anders ist
+	IF (OLD.Zimmerpreis != AngebotVar.Gesamtpreis) THEN
 
-		-- Differenz zum Gesamtpreis addieren
-		neuPreis =  Gesamtpreis - minusPreis + plusPreis;
-
-		UPDATE	Reservierungen 
-		SET	Gesamtpreis = neuPreis
-		WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
-
-		-- benachrichtige Mitarbeiter, eventuelle moechte derjenige den Preis nachlassen
-		RAISE NOTICE 'Zimmerpreis ist um % teuerer geworden.',(plusPreis - minusPreis);
+		RAISE NOTICE 'Zimmerpreis hat sich um % geaendert.', (AngebotVar.Gesamtpreis - OLD.Zimmerpreis)  ;
+		UPDATE 	Reservierungen
+		SET	Zimmerpreis = AngebotVar.Gesamtpreis
+		WHERE 	NEW.Reservierungsnummer = Reservierungsnummer;
 	END IF;
-
-	-- Update das Zimmer
-	UPDATE 	Reservierungen
-	SET	Zimmer = NEW.Zimmer
-	WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
-	
 	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER ZimmerUmbuchungTrigger BEFORE UPDATE OF Zimmer
+CREATE TRIGGER ReservierungUpdateTrigger AFTER UPDATE OF Zimmer,Anreise,Abreise,Verpflegungsstufe
 ON Reservierungen 
 	FOR EACH ROW
-	EXECUTE PROCEDURE ZimmerUmbuchung();
+	EXECUTE PROCEDURE preisAktualisierung();
 
 /* ENDE DECLARATION*/
-
 
 /*
 3.BEISPIELANFRAGEN 
@@ -1055,24 +1033,22 @@ SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',1, 1);
 
 -- 1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
 -- Anmerkung: Diese Funktion gibt eine Reservierungsnummer zurueck die auf ein Zimmer zeigt
-SELECT getNextVorgemerktZimmer((1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
+SELECT getNextVorgemerktZimmer((1,'EZMM',1,current_date, current_date+1,120.00)::Angebot);
 
 -- 1.6. AblehnungAngebot( Angebot Angebot, Grund varChar)
-SELECT AblehnungAngebot((1,'EZMM',1,current_date, current_date+1,190.00)::Angebot, 'Too Expensive');
+SELECT AblehnungAngebot((1,'EZMM',1,current_date, current_date+1,120.00)::Angebot, 'Too Expensive');
 
 
 -- 1.7. AnnahmeAngebot(KundenID int, Angebotsdaten Angebot)
 -- Es muss nochmal eine Anfrage gemacht werden. Ein uns bekannter Kunde hat die Anfrage gestellt
-SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',1, 1);
-SELECT AnnahmeAngebot(102, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
+SELECT AnnahmeAngebot(102, (SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',1, 1))::Angebot);
 
 
 
 -- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
 -- Es muss nochmal eine Anfrage gemacht werden. Gunnar Grumpen ist ein neuer Kunde. 
-SELECT Zimmeranfrage(1, 'EZMM',current_date+15, current_date+20,'BRFST', 'KA',1, 1);
 SELECT annahmeAngebotNeuKunde('Gunnar'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
-					234357868909, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+1,190.00)::Angebot );
+				234357868909, 'vegan'::Besonderheit,(SELECT Zimmeranfrage(1, 'EZMM',current_date+15, current_date+20,'BRFST', 'KA',1, 1))::Angebot );
 
 					
 -- 1.9.ZimmerDreckig() 
@@ -1100,8 +1076,9 @@ SELECT 	getNaechsteFreieKarte();
 
 
 --1.15. bereinigeAnfragen()
--- Einige nicht beantwortete Anfragen sollen nach einiger Zeit verfallen.
+-- Einige nicht beantwortete Anfragen sollen nach einiger Zeit verfallen. Seperat ausfuehren.
 SELECT 	Zimmeranfrage(3, 'SUIT',current_date+15, current_date+20,'ALL', 'KA',1, 1);
+-- warten...und jetzt
 SELECT 	Zimmeranfrage(3, 'SUIT',current_date+20, current_date+25,'ALL', 'KA',1, 1);
 
 -- nach einiger Zeit
@@ -1149,7 +1126,7 @@ INSERT INTO Reservierungen VALUES 	(1,30,'100.00', DEFAULT,'BRFST', 'EZMM', '201
 Info: Jede Reservierung muss von einem gueltigen Kunden reserviert werden. Wir versuchen eine temporaere Anfrage auf Reserviert zu updaten, 
 ohne die Angabe eines gueltigen Kunden. Das sollte fehlschlagen.
 */
-SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'nix',1, 1);
+SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',1, 1);
 UPDATE 	Reservierungen 
 SET 	Gaestestatus = 'RESERVED'
 WHERE 	Gaestestatus = 'AWAITING-CONFIRMATION';
@@ -1161,15 +1138,16 @@ Info: Gunnar Grumpen reserviert zwei Zimmer. Eins fuer sich und eins fuer sein K
 Beim Einchecken, muss dieser Trigger erkennen, dass das zweite Zimmer einen eigenen 
 Kundeneintrag braucht. Gunnars Kumpel Karl muss sich als Kunde eintragen lassen. 
 */
-SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',2, 2);
+
 -- Gunnar nimmt das Angebot an
-SELECT 	AnnahmeAngebot(105, (1,'EZMM',1,current_date, current_date+1,190.00)::Angebot);
+SELECT 	AnnahmeAngebot(105, (SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',2, 2))::Angebot);
 -- Beide werden heute anreisen
 SELECT 	setArrivals();
 -- und kommen schliesslich an
 UPDATE 	Reservierungen
 SET 	Gaestestatus = 'IN-HOUSE' 
-WHERE 	reserviertVonKunde = 105;
+WHERE 	reserviertVonKunde = 105
+	AND Anreise = current_date;
 -- Hiernach sind beide Reservierungen auf den jeweiligen Namen.
 
 /*
@@ -1204,8 +1182,8 @@ WHERE	reserviertVonKunde = 105;
 Info: Gunnar Grumpens reiche Tante Professor Paula Pfaff hat bereits 100 mal im Hotel uebernachtet. 
 Nun bucht sie eine weitere Uebernachtung und wird zum VIP.  
 */
-SELECT 	Zimmeranfrage(1, 'EZMM',current_date+30, current_date+40,'BRFST', 'KA',1, 1);
-SELECT 	AnnahmeAngebot(100,(1,'EZMM',1,current_date+30,current_date+40,'1.900,00')::Angebot);
+
+SELECT 	AnnahmeAngebot(100,(SELECT Zimmeranfrage(1, 'EZMM',current_date+30, current_date+40,'BRFST', 'KA',1, 1)::Angebot));
 SELECT 	*
 FROM 	Kunden
 WHERE Vorname LIKE 'Professor Paula';
@@ -1221,9 +1199,8 @@ INSERT INTO oeffnet VALUES (1,19,9,now());
 2.12. checkoutoforderTrigger
 Info: Professor Paulas guter Freund Hans Hohlstein fragt nach einem Zimmer an, und moechte noch heute anreisen. 
 */
-SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+10,'BRFST', 'KA',1, 1);
 SELECT 	annahmeAngebotNeuKunde('Hans'::varChar,'Hohlstein'::varChar,'Hamburg'::varChar,5557633, 
-					1111222333444, 'vegan'::Besonderheit,(1,'EZMM',1,current_date, current_date+10,1900.00)::Angebot );
+					1111222333444, 'vegan'::Besonderheit,(SELECT 	Zimmeranfrage(1, 'EZMM',current_date, current_date+10,'BRFST', 'KA',1, 1))::Angebot );
 -- Leider ist bei der Party am Vorabend der Fernseher aus dem Fenster geschmissen worden.
 UPDATE 	Zimmer 
 SET 	outofOrder = true
@@ -1233,15 +1210,11 @@ SELECT 	setArrivals();
 -- Er bekommt automatisch ein neues Zimmer zugeteilt.
 
 /* 
-2.13. manuelleUmbuchungTrigger
+2.13. ReservierungUpdateTrigger
 Info: Hans Hohlstein wurde bloederweise  in ein Zimmer verlegt, wo seine Wuenschelrute keine Wasserlinien findet. Er moechte ein Zimmer mit mehr Flow.
 */
 UPDATE 	Reservierungen
-SET	Zimmer = 
-WHERE	Reservierungsnummer = 
-
-
-
-
+SET	Zimmer = 40
+WHERE	Reservierungsnummer = 41;
 
 /*ENDE*/
