@@ -39,6 +39,7 @@ INHALTSANGABE:
 	2.10 VipTrigger
 	2.11. TuerOeffner
 	2.12. checkoutoforderTrigger
+	2.13. manuelleZimmerUmbuchungTrigger
 
 
 3. BEISPIELANFRAGEN
@@ -942,8 +943,8 @@ BEGIN
 	WHERE 	zimmernummer=zimmernr and gehoertzuhotel=hotelnr;
 
 	IF (zimmerstatus = 'false') THEN RETURN NEW; ELSE
-		SELECT zimmernummer INTO newzimmer
-		FROM ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.anreise, NEW.abreise)
+		SELECT 	zimmernummer INTO newzimmer
+		FROM 	ZimmerFreiAnDate (hotelnr, NEW.zimmerkategorie, NEW.anreise, NEW.abreise)
 		FETCH FIRST 1 ROWS ONLY;
 		
 		IF NOT FOUND THEN
@@ -974,24 +975,20 @@ ON Reservierungen
 2.13. manuelleZimmerUmbuchungTrigger
 Info: Es kann vorkommen, dass die Rezeption einen Gast manuell in ein anderes Zimmer verlegen moechte oder muss. 
 */
-CREATE OR REPLACE FUNCTION manuelleZimmerUmbuchung() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION ZimmerUmbuchung() RETURNS TRIGGER 
 AS $$
 	DECLARE oldZimmer Zimmerkategorie; newZimmer Zimmerkategorie; 
 		gesamtpreis money; neuPreis money; minusPreis money; plusPreis money; 
 BEGIN
-	UPDATE 	Reservierungen
-	SET	Reservierungen.Zimmer = NEW.Zimmer
-	WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
-
 	-- Ist das neue Zimmer von einer anderen Kategorie?
 	SELECT 	Zimmerkategorie INTO oldZimmer
 	FROM 	Zimmer
 	WHERE 	NEW.gehoertZuHotel = Zimmer.gehoertzuHotel
-		AND OLD.Zimmernummer = Zimmer.Zimmernummer ;
+		AND OLD.Zimmer = Zimmer.Zimmernummer ;
 	SELECT 	Zimmerkategorie INTO newZimmer
 	FROM 	Zimmer
 	WHERE 	NEW.gehoertZuHotel = Zimmer.gehoertzuHotel
-		AND NEW.Zimmernummer = Zimmer.Zimmernummer;
+		AND NEW.Zimmer = Zimmer.Zimmernummer;
 
 	--falls nicht preis neu berechnen
 	IF (newZimmer NOT LIKE oldZimmer) THEN
@@ -1020,15 +1017,20 @@ BEGIN
 		-- benachrichtige Mitarbeiter, eventuelle moechte derjenige den Preis nachlassen
 		RAISE NOTICE 'Zimmerpreis ist um % teuerer geworden.',(plusPreis - minusPreis);
 	END IF;
+
+	-- Update das Zimmer
+	UPDATE 	Reservierungen
+	SET	Zimmer = NEW.Zimmer
+	WHERE	NEW.Reservierungsnummer = Reservierungen.Reservierungsnummer;
+	
 	RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER manuelleZimmerUmbuchungTrigger BEFORE UPDATE OF Zimmer
+CREATE TRIGGER ZimmerUmbuchungTrigger BEFORE UPDATE OF Zimmer
 ON Reservierungen 
 	FOR EACH ROW
-	EXECUTE PROCEDURE manuelleZimmerUmbuchung();
-
+	EXECUTE PROCEDURE ZimmerUmbuchung();
 
 /* ENDE DECLARATION*/
 
@@ -1114,7 +1116,7 @@ Info: Offensichtlich muss bei einem Delete auch in Reservierungen auch die Spezi
 Wir loeschen die eben getaetigte Ablehnung.
 */
 DELETE FROM Reservierungen 
-WHERE Reservierungsnummer = 20;
+WHERE Reservierungsnummer = 29;
 
 
 /*
@@ -1187,7 +1189,7 @@ Info: Gunnar hat eine seihe Zimmerkarte verschlampt. Er bekommt gleich eine neue
 */
 UPDATE 	Zimmerkarte
 SET 	gesperrt = true
-WHERE  	KartenId = 7 ;
+WHERE  	KartenId = 13 ;
 
 /*
 2.9. checkOutTrigger
@@ -1232,8 +1234,13 @@ SELECT 	setArrivals();
 
 /* 
 2.13. manuelleUmbuchungTrigger
-TODO ELLI
+Info: Hans Hohlstein wurde bloederweise  in ein Zimmer verlegt, wo seine Wuenschelrute keine Wasserlinien findet. Er moechte ein Zimmer mit mehr Flow.
 */
+UPDATE 	Reservierungen
+SET	Zimmer = 
+WHERE	Reservierungsnummer = 
+
+
 
 
 
