@@ -4,18 +4,20 @@ Hier sind einige Aenderungsoperationen.
 
 INHALTSANGABE
 
-1.1. freieZimmerAktuellView
-1.2. bewohnteZimmerView
-1.3. ReinigungspersonalView
-1.4. HotelManagerView
-1.5. NichtBezahltKundenView
-1.6. UnbezahlteReservierungView
-1.7. AnreisendeView
-1.8. freieKartenView
+1. AENDERUNGSOPERATIONEN
+	1.1. freieZimmerAktuellView
+	1.2. bewohnteZimmerView
+	1.3. ReinigungspersonalView
+	1.4. HotelManagerView
+	1.5. NichtBezahltKundenView
+	1.6. UnbezahlteReservierungView
+	1.7. AnreisendeView
+	1.8. freieKartenView
 
-2 Transaktionen
+2. TRANSAKTIONEN
+*/
 
-
+/*
 1. AENDERUNGSOPERATIONEN
 
 1.1 freieZimmerAktuellView
@@ -40,6 +42,7 @@ Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
 	DELETE FROM freieZimmerAktuellView WHERE hotelid=1;
 	DELETE FROM freieZimmerAktuellView WHERE hotelid=2;
 
+
 /*
 1.2. bewohnteZimmerView
 Info: Ein Delete oder Insert macht bei dieser View wenig Sinn. Ein Update muss gewaehrleistet werden
@@ -53,11 +56,12 @@ Update kann verwendet werden, um Zimmer auf gereinigt umzuschalten (dreckig=fals
 	INSERT INTO bewohnteZimmerView (gehoertzuhotel,zimmernummer,anreise,abreise,dreckig) 
 	VALUES (1,3,'2014-09-01','2014-09-01', true);
 
+	-- Diese Zimmer sind dreckig. 
 	UPDATE bewohnteZimmerView
-	SET dreckig=false 
+	SET dreckig=true 
 	WHERE zimmernummer=14 and gehoertzuhotel=2;
 	UPDATE bewohnteZimmerView
-	SET dreckig=false 
+	SET dreckig=true 
 	WHERE zimmernummer=10 and gehoertzuhotel=3;
 
 	DELETE FROM bewohnteZimmerView WHERE gehoertzuhotel=2;
@@ -74,6 +78,7 @@ wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat.
 	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,dreckig,grossputz) 
 	VALUES (6,4,true,false);
 
+	-- Zimmerreinigung
 	UPDATE ReinigungspersonalView
 	SET zimmernummer=14 
 	WHERE zimmernummer=14 and gehoertzuhotel=2;
@@ -104,6 +109,7 @@ Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht
 	DELETE FROM HotelManagerView WHERE hotelid=2;
 	DELETE FROM HotelManagerView WHERE hotelid=3;
 
+
 /*
 1.5. NichtBezahltKundenView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
@@ -124,7 +130,7 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
 
 	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=2;
 	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=6;
-
+	
 
 /*
 1.6.UnbezahlteReservierungView
@@ -146,6 +152,7 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
 
 	DELETE FROM UnbezahlteReservierungView WHERE hotelid=2;
 	DELETE FROM UnbezahlteReservierungView WHERE hotelid=6;
+
 
 /*
 1.7. AnreisendeView
@@ -192,5 +199,6 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 
 	DELETE FROM freiekartenview WHERE kartenid=12;
 	DELETE FROM freiekartenview WHERE kartenid=13;
+
 
 2 Transaktionen
