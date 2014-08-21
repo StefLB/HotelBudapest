@@ -38,7 +38,7 @@ ausserdem waee es noch gut, die Namen diese Kunden zu wissen.
 
 */
 
-/* 1. 'Witz-Garlton' & 'The Octopus' Manager fragt an*/
+/* 1. 'Witz-Garlton' und 'The Octopus' Manager fragt an*/
 
 	WITH Goldfish  as(
 		SELECT hotelid,gesamtumsatz, umsatzrooms, barumsatz,konsumumsatz,mietumsatz,benutzenumsatz
