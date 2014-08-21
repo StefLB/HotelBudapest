@@ -394,7 +394,7 @@ Zimmers gewaehrleisten, und moechte den Kunden vielleicht auch in ein anderes Zi
 */
 
 CREATE OR REPLACE RULE AnreisendeUpdateVip AS ON UPDATE   
-TO AnreisendeView WHERE OLD.VIP = true AND NEW.VIP = true
+TO AnreisendeView WHERE OLD.VIP = false AND NEW.VIP = true
 DO INSTEAD
 	UPDATE 	Kunden
 	SET 	VIP = true
