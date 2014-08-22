@@ -53,6 +53,7 @@ wo die meisten VIPs anreisen. */
 
 /*3.2 Die Buchhaltung moechte die Summe der nichtbezahlten Gaesteposten pro Hotel, von Gaesten die heute abreisen, falls sie 999.99 € ueberschreiten, 
 um eventuelle Risiken zu analysieren. */
+
 	SELECT 	hotelID , sum(gesamtoffen) AS SummeOffenerPosten
 	FROM 	unbezahltereservierungview
 		JOIN Reservierungen ON Kunde = reserviertVonKunde 
