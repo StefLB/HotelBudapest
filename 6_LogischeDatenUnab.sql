@@ -95,8 +95,8 @@ CREATE OR REPLACE VIEW ReinigungspersonalView AS
 
 /*
 1.4. HotelManagerView
-Zeigt an: Hotels sortiert nach Umsatz, mit dazugehoerigen Bars sortiert nach Umsatz, dazu die Zimmerkategorie mit der Summe ihrer bisherigen 
-Uebernachtungen. 
+Zeigt an: Hotels sortiert nach HotelID, mit dazugehoerigen Gesamtumsatz, die Aufsplittung in konsumieren, benutzen, mieten,und Naechteumsatz(umsatzrooms).
+Dazu extra der Umsatz der Bars, sowie die Anzahl der bisher reservierten Zimmerkategorien, um zu schauen, welche Kategorie am beliebtesten ist 
 */ 
 CREATE OR REPLACE VIEW HotelmanagerView AS
 	SELECT hotelid, (umsatzrooms+konsumumsatz+mietumsatz+benutzenumsatz) as gesamtumsatz,umsatzrooms,barumsatz,konsumumsatz,
