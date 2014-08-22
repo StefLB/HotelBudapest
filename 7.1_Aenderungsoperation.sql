@@ -51,6 +51,7 @@ Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
 	DELETE FROM freieZimmerAktuellView WHERE hotelid=2;
 
 
+
 /*
 1.2. bewohnteZimmerView
 Info: Ein Delete oder Insert macht bei dieser View wenig Sinn. Ein Update muss gewaehrleistet werden
@@ -204,8 +205,8 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 	SET kartenid=19
 	WHERE kartenid=8;
 
-	DELETE FROM freiekartenview WHERE kartenid=12;
-	DELETE FROM freiekartenview WHERE kartenid=13;
+	DELETE from freiekartenview where kartenid in (SELECT kartenid  from freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
+	DELETE from freiekartenview where kartenid in (SELECT kartenid  from freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
 	
 /* ENDE AENDERUNGEN*/
 
