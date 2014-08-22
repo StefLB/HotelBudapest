@@ -1,10 +1,9 @@
 ﻿/*INDEXE
 
 Hier sind einige Indexe vermerkt, die bei grossem Datenvolumen sehr hilfreich sind.
-Die groessten Daten sind:
 	1. Reservierungen
 	2. Kunden
-	3. Speisen und Getraenke
+	3. wirdserviertin
 	4. Zimmer
 	5. bezahlen
 	6. benutzen
@@ -17,50 +16,43 @@ Die groessten Daten sind:
 /* 1. Reservierungen*/
 
 	CREATE INDEX index_reservierungen
-	ON reservierungen (reservierungsnummer);
-	-- hier ist vll. anreise oder abreise gut
+	ON reservierungen (anreise,abreise);
 
 /* 2. Kunden */
 
 	CREATE INDEX index_kunden
-	ON kunden (kid);
-	-- hier ist vll. kunde nicht so geeignet
+	ON kunden (vorname,nachname);
 
 
 /* 3. Speisen und Getraenke*/
 
-	CREATE INDEX index_speisenundgetraenke
-	on speisenundgetraenke (speiseid);
-	-- hier ist vll. wirdserviert in besser mit index auf gehoertzuhotel, aid
+	CREATE INDEX index_wirdserviertin
+	on wirdserviertin (gehoertzuhotel,aid);
 	
 /* 4. Zimmer */
 
 	CREATE INDEX index_zimmer
-	on zimmer (gehoertzuhotel,zimmernummer);
-	-- hier ist vll. gehoertZuHotel,dreckig gut
+	on zimmer (gehoertzuhotel,dreckig);
 
 
 /* 5.bezahlen */
 	
 	CREATE INDEX index_bezahlen
-	on bezahlen (reservierungsnummer,kid,zeitpunkt);
-	-- hier ist vll. nur kid besser
+	on bezahlen (kid);
 
 
 /* 6.benutzen */
 
 	CREATE INDEX index_benutzen
-	on benutzen (gehoertzuhotel,aid,kid,von);
-	-- hier ist vll. bewohntezimmerview gut mit index auf gehoertzuhotel
+	on benutzen (kid);
 
 /* 7.mieten */
 
 	CREATE INDEX index_mieten
-	on mieten (gehoertzuhotel,aid,kid,von,bis);
-	-- hier ist vll. nur kid besser
+	on mieten (kid);
 
 /* 8.konsumieren */
 
 	CREATE INDEX index_konsumieren
-	on konsumieren (kid, zeitpunkt);
-	-- hier ist vll. nur kid besser
+	on konsumieren (kid);
+
