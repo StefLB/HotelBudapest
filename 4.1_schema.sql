@@ -145,7 +145,7 @@ CREATE TABLE Kunden(
 	Vorname varChar NOT NULL,
 	Nachname varChar NOT NULL,
 	Adresse varChar ,
-	Telefonnummer int ,
+	Telefonnummer bigint ,
 	Kreditkarte bigint, 
 	Besonderheiten BESONDERHEIT,
 	VIP boolean DEFAULT FALSE,
