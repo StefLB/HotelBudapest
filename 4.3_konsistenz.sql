@@ -36,7 +36,7 @@ INHALTSANGABE:
 	2.7. kartenVergabeTrigger
 	2.8. kartenverlustTrigger
 	2.9. checkOutTrigger
-	2.10 VipTrigger
+	2.10. VipTrigger
 	2.11. TuerOeffner
 	2.12. checkoutoforderTrigger
 	2.13. ReservierungUpdateTrigger
@@ -209,6 +209,8 @@ BEGIN
 	IF (countmaxPersonen < PersonenAnzahl) THEN
 		RAISE EXCEPTION 'Zu viele Gaeste fuer diese Zimmerkombination';
 	END IF;
+	-- Brauchen wir nicht mehr
+	DROP TABLE temptable;
 	
 	-- Falls alles klappt, erhaelt der Kunde ein Angebot
 	RETURN (Hotel, Zimmerkategorie, AnzahlZimmer, Anreise,Abreise,  preisvar*AnzahlZimmer) ;		
@@ -624,7 +626,8 @@ BEGIN
 	WHERE 	NEW.gehoertZuHotel = Reservierungen.gehoertZuHotel
 		AND NEW.Zimmer = Reservierungen.Zimmer
 		AND NEW.Anreise = Reservierungen.Anreise
-		AND Gaestestatus = 'RESERVED';
+		AND (Gaestestatus != 'TURN-DOWN' AND Gaestestatus != 'CANCELED' 
+		AND Gaestestatus != 'CHECKED-OUT');
 
 	IF(FOUND) THEN
 		RAISE EXCEPTION 'Doppelbuchung!';
@@ -633,10 +636,16 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER UeberbuchungCheckUpdateTrigger BEFORE UPDATE OF Gaestestatus
+-- Der Ueberbuchungscheck muss bei einigen Operationen stattfinden
+CREATE TRIGGER UeberbuchungCheckUpdateGaestestatusTrigger BEFORE UPDATE OF Gaestestatus
 ON Reservierungen 
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'RESERVED')
+	EXECUTE PROCEDURE UeberbuchungCheck();
+
+CREATE TRIGGER UeberbuchungCheckUpdateZimmerTrigger BEFORE UPDATE OF Zimmer 
+ON Reservierungen 
+	FOR EACH ROW
 	EXECUTE PROCEDURE UeberbuchungCheck();
 
 CREATE TRIGGER UeberbuchungCheckInsertTrigger BEFORE INSERT 
@@ -644,6 +653,7 @@ ON Reservierungen
 	FOR EACH ROW
 	WHEN (NEW.Gaestestatus = 'RESERVED')
 	EXECUTE PROCEDURE UeberbuchungCheck();
+
 
 
 /* 
@@ -1001,6 +1011,9 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER ReservierungUpdateTrigger AFTER UPDATE OF Zimmer,Anreise,Abreise,Verpflegungsstufe
 ON Reservierungen 
 	FOR EACH ROW
+	-- nur aktive Reservierungen beruecksichtigen
+	WHEN 	(NEW.Gaestestatus != 'CHECKED-OUT' AND NEW.Gaestestatus != 'TURN-DOWN' 
+		AND NEW.Gaestestatus != 'CANCELED')
 	EXECUTE PROCEDURE preisAktualisierung();
 
 /* ENDE DECLARATION*/
@@ -1208,7 +1221,7 @@ SELECT 	setArrivals();
 Info: Hans Hohlstein wurde bloederweise  in ein Zimmer verlegt, wo seine Wuenschelrute keine Wasserlinien findet. Er moechte ein Zimmer mit mehr Flow.
 */
 UPDATE 	Reservierungen
-SET	Zimmer = 10
+SET	Zimmer = 39
 WHERE	reserviertVonKunde =107 ;
 
 /*ENDE*/
