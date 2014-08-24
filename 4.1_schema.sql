@@ -122,7 +122,7 @@ CREATE TYPE Anzahlnaechtetype AS (
 
 CREATE TABLE Preistabelle (
 	CodeUndPosten varChar,		-- ein CodeUndPosten hat bspw. die Form 1-EZMM. Die Nummer korrespondiert 
-					-- mit dem hatPreistabelle in der Tabelle Hotel. Der zweite Teil ist der eigentliche Posten. 
+					-- mit Attribut hatPreistabelle in der Tabelle Hotel. Der zweite Teil ist der eigentliche Posten. 
 	Preis money NOT NULL,
 
 	PRIMARY KEY (CodeUndPosten)
@@ -168,7 +168,7 @@ CREATE TABLE Zimmer (
 	CHECK (maxPersonen > 0),
 
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE, -- loeschen eines Hotels soll alle Zimmer loeschen
-	PRIMARY KEY (gehoertZuHotel,Zimmernummer)
+	PRIMARY KEY (gehoertZuHotel,Zimmernummer) -- Zimmernummer koennen in mehreren Hotels gleich sein
 
 );
 
@@ -181,7 +181,7 @@ CREATE TABLE Abteilung(
 	
 	UNIQUE (Name, Location), -- damit der Gast die Abteilung eindeutig finden kann
 	FOREIGN KEY (gehoertZuHotel) REFERENCES Hotel ON DELETE CASCADE, -- loeschen eines Hotels soll alle Abteilungen loeschen
-	PRIMARY KEY(gehoertZuHotel, AID)
+	PRIMARY KEY(gehoertZuHotel, AID) -- Abteilungen in verschiedenen Hotels koennen gleiche Nummern besitzen
 
 );
 
@@ -402,7 +402,7 @@ CREATE TABLE Reservierungen(
 
 	CHECK (Personenanzahl > 0),
 	CHECK (Anreise < Abreise ),
-	--CHECK (Anreise >= current_date), aukommentiert, da sonst keine daten in der vergangenheit eingefuegt werden koennen
+	--CHECK (Anreise >= current_date), auskommentiert, da sonst keine daten in der vergangenheit eingefuegt werden koennen
 	
 	FOREIGN KEY (reserviertVonKunde) REFERENCES Kunden ON DELETE RESTRICT,
 	FOREIGN KEY (gehoertzuhotel, Zimmer) REFERENCES Zimmer ON DELETE RESTRICT,
