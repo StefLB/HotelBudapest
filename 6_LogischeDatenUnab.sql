@@ -293,8 +293,11 @@ CREATE OR REPLACE VIEW FreieKartenView AS
 -- 2. RULES
 
 /*
-2.1. freieZimmerView
+2.1. freieZimmerAktuellView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
+Insert/Delet: Ein Insert koennte ein neues Hotel sein. Ein Delete kommt dem Loeschen eines Hotels aus der Datenbank gleich. Beide Operationen sind an dieser Stelle 
+nicht erwuenscht. 
+Update: Das Incrementieren oder Dekrementieren von freien Zimmern ist nicht noetig, da es ueber das Ein- und Auschecken der Kunden automatisch erfolgt. 
 */
 CREATE OR REPLACE RULE freieZimmerUpdate AS ON UPDATE 
 TO freieZimmerAktuellView
@@ -305,6 +308,8 @@ DO NOTHING;
 CREATE OR REPLACE RULE freieZimmerDelete AS ON DELETE 
 TO freieZimmerAktuellView
 DO NOTHING;
+
+select * from freieZimmerAktuellView
 
 /*
 2.2. bewohnteZimmerView
@@ -430,11 +435,11 @@ TO AnreisendeView WHERE OLD.Zimmer !=  NEW.Zimmer
 DO INSTEAD
 	UPDATE 	Reservierungen
 	SET 	Zimmer = NEW.Zimmer
-	WHERE	Zimmer = OLD.Zimmer;
+	WHERE	Reservierungen.gehoertZuHotel = NEW.gehoertZuHotel AND Zimmer = OLD.Zimmer;
 		
 CREATE OR REPLACE RULE AnreisendeInsert AS ON INSERT 
 TO AnreisendeView
-DO NOTHING;
+DO INSTEAD NOTHING;
 
 CREATE OR REPLACE RULE AnreisendeDelete AS ON DELETE 
 TO AnreisendeView
