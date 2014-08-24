@@ -1010,6 +1010,8 @@ ON Reservierungen
 
 /* ENDE DECLARATION*/
 
+
+
 /*
 3.BEISPIELANFRAGEN 
 Wobei die Nummern den Funktionen oder Views entsprechen
