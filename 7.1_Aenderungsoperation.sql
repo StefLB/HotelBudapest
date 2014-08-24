@@ -29,9 +29,7 @@ INHALTSANGABE
 1. AENDERUNGSOPERATIONEN
 
 1.1 freieZimmerAktuellView
-Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
-Da die View ein GROUP BY enthält, bräuchte man auch weitere Rules oder ein DO INSTEAD Trigger auf den Operationen,
-damit diese funktionieren. Transaktionen sind daher auf der View ebenfalls nicht moeglich. 
+Info: Diese View ist nur zur Ansicht und sollte nicht veraendert werden koennen. 
 Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
 */
 
@@ -56,8 +54,6 @@ Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
 1.2. bewohnteZimmerView
 Info: Ein Delete oder Insert macht bei dieser View wenig Sinn. Ein Update muss gewaehrleistet werden
 da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView.
-Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen. 
-Update kann verwendet werden, um Zimmer auf gereinigt umzuschalten (dreckig=false).
 */
 
 	INSERT INTO bewohnteZimmerView (gehoertzuhotel,zimmernummer,anreise,abreise,dreckig) 
@@ -78,8 +74,7 @@ Update kann verwendet werden, um Zimmer auf gereinigt umzuschalten (dreckig=fals
 
 /*
 1.3. ReinigungspersonalView
-Zeigt an: alle Zimmer, die dreckig sind. Es wird angezeigt, ob ein Grossputz von Noeten ist.
-Info: Obwohl ein Insert oder Delete hier nicht sinnvoll ist, macht ein Update von dreckig von true auf false Sinn, etwa
+Info: Obwohl ein Insert oder Delete hier nicht sinnvoll ist, macht ein Update von dreckig = false Sinn, etwa
 wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat. 
 */
 	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,dreckig,grossputz) 
@@ -100,8 +95,8 @@ wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat.
 
 /*
 1.4.HotelManagerView
-Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
-Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht, ist kein INSERT,UPDATE,DELETE möglich.
+Info: Diese View ist nur zur Ansicht und sollte nicht veraendert werden koennen. 
+Aufgrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht, ist kein INSERT,UPDATE,DELETE moeglich.
 */
 
 	INSERT INTO HotelManagerView (gehoertzuhotel,gesamtumsatz) 
@@ -121,8 +116,8 @@ Aufrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht
 
 /*
 1.5. NichtBezahltKundenView
-Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
-RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE. 
+Info: Diese View ist nur zur Ansicht und sollte nicht veraendert werden koennen.
+Die RULES sind entsprechend implementiert, sodass kein INSERT,UPDATE,DELETE moeglich ist. 
 */
 
 	INSERT INTO NichtbezahltKundenview (resa, kunde) 
@@ -142,8 +137,8 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
 
 /*
 1.6.UnbezahlteReservierungView
-Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen.
-RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
+Info: Diese View ist nur zur Ansicht und sollte nicht veraendert werden koennen.
+Die RULES sind entsprechend implementiert, sodass kein INSERT,UPDATE,DELETE moeglich ist. 
 */
 
 	INSERT INTO UnbezahlteReservierungView (hotelid, reservierungsnummer) 
@@ -167,7 +162,7 @@ RULES entsprechend implementiert. Kein INSERT,UPDATE,DELETE.
 Info: Ein Delete wuerde einer Stornierung gleichkommen. Ein Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
 Ein Update koennte in Sinn machen. Beispielsweise weiss die Rezeptionsleitung, dass ein prominenter Gast anreist und moechte die VIP Austattung des 
 Zimmers gewaehrleisten, und moechte den Kunden vielleicht auch in ein anderes Zimmer umbuchen. 
-Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar sind.
+Es sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar sind.
 */
 
 	INSERT INTO AnreisendeView (gehoertzuhotel, zimmer) 
@@ -181,9 +176,10 @@ Sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisierbar
 	WHERE gehoertzuhotel=1 and zimmer=10;
 	-- Gast soll manuell in besseres Zimmer umgebucht werden
 	UPDATE AnreisendeView
-	SET Zimmernummer= 40 
-	WHERE gehoertzuhotel=1 and zimmer=10 
+	SET Zimmer= 40 
+	WHERE gehoertzuhotel=1 and zimmer=10;
 
+	-- Stornierung
 	DELETE FROM AnreisendeView WHERE gehoertzuhotel=1 and reservierungsnummer=1;
 	DELETE FROM AnreisendeView WHERE gehoertzuhotel=4 and reservierungsnummer=5;
 
