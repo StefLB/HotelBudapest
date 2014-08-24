@@ -220,7 +220,7 @@ $$ LANGUAGE plpgsql;
 /*
 1.5. getNextVorgemerktZimmer(Angebotsdaten Angebot)
 Returns: Reservierungsnummer eines vorgemerkten Zimmers, das durch die reservierung eindeutig referenziert wird.
-Info: Der Kunde hat eine Angebot angekommen und bekommt nun die vorgemerkten Zimmer
+Info: Der Kunde hat eine Angebot angekommen und bekommt nun ein passendes vorgemerktes Zimmer zugeteilt
 Benoetigt fuer: die Zimmervergabe bei der Ablehung oder Annahme einer Anfrage
 */
 CREATE OR REPLACE FUNCTION getNextVorgemerktZimmer(Angebotsdaten Angebot)
@@ -318,17 +318,12 @@ CREATE OR REPLACE FUNCTION annahmeAngebotNeuKunde(Vorname varChar,Name VarChar,A
 AS $$
 	DECLARE neuID int;
 BEGIN
-	-- Atomizitaet wichtig, wegen ermitteln des IDs, aber Postgres meckert wecken Syntax
-	-- BEGIN;
-	INSERT INTO Kunden  VALUES (DEFAULT, Vorname, Name, Adresse, Telefonnummer, Kreditkarte, Besonderheiten, DEFAULT, now());
-	SELECT 	KID INTO neuID
-	FROM 	Kunden
-	ORDER BY KID DESC
-	FETCH FIRST 1 ROWS ONLY;
+	INSERT INTO Kunden  VALUES (DEFAULT, Vorname, Name, Adresse, Telefonnummer, Kreditkarte, Besonderheiten, DEFAULT, now())
+	RETURNING KID INTO neuID;
 	
 	PERFORM annahmeAngebot(neuID, Angebotsdaten);
 
-	--COMMIT;
+	
 
 END
 $$LANGUAGE plpgsql;
@@ -1217,3 +1212,4 @@ SET	Zimmer = 10
 WHERE	reserviertVonKunde =107 ;
 
 /*ENDE*/
+
