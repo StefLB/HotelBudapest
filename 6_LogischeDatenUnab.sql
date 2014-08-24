@@ -204,7 +204,7 @@ CREATE OR REPLACE VIEW HotelmanagerView AS
 		ORDER BY hotelid ASC) as alles;
 
 /*
-1.5 NichtBezahltKundenView
+1.5. NichtBezahltKundenView
 Zeigt an: Reservierungen mit den dazugehörigen Kundenummern,Anreise,Abreise und Hotel, die noch nicht bezahlt haben
 Verwendet fuer UnbezahlteReservierungView
 */
@@ -308,9 +308,9 @@ DO NOTHING;
 
 /*
 2.2. bewohnteZimmerView
-Info: Ein Delete oder Insert macht bei dieser View wenig Sinn: Die View soll die Gaesteverteilung anzeigen, nicht reglementieren. 
+Insert/Delete: Ein Delete oder Insert macht bei dieser View wenig Sinn: Die View soll die Gaesteverteilung anzeigen, nicht reglementieren. 
 Dafuer braucht man mehr Informationen als die View zu Verfuegung stellt, und es sind Trigger hierfuer zustaendig. 
-Ein Update muss gewaehrleistet werden, da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView.
+Update: Ein Update muss gewaehrleistet werden, da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView.
 */
 CREATE OR REPLACE RULE bewohnteZimmerUpdate AS ON UPDATE 
 TO bewohnteZimmerView 
@@ -335,8 +335,8 @@ DO NOTHING;
 
 /*
 2.3. ReinigungspersonalView
-Info: Obwohl ein Insert oder Delete hier nicht sinnvoll ist, macht ein Update von dreckig von true auf false Sinn, etwa
-wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat. 
+Insert/Delete: Ein Insert oder Delete ist hier nicht sinnvoll, da das Reinigungspersonal nur Zimmer als gereinigt updaten soll. 
+Update: Ein Update von dreckig = false Sinn, etwa wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat. 
 */
 CREATE OR REPLACE RULE ReinigungspersonalUpdate AS ON UPDATE
 TO ReinigungspersonalView 
@@ -397,9 +397,11 @@ DO NOTHING;
 
 /*
 2.7. AnreisendeView
-Info: Ein Delete wuerde einer Stornierung gleichkommen. Ein Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
-in Update koennte in Sinn machen. Beispielsweise weiss die Rezeptionsleitung, dass ein prominenter Gast anreist und moechte die VIP Austattung des 
-Zimmers gewaehrleisten, und moechte den Kunden vielleicht auch in ein anderes Zimmer umbuchen. 
+Insert: Insert macht hier wenig Sinn, dafuer gibt es die ZimmerAnfrage-Funktion.
+Delete: Ein Delete wuerde einer Stornierung gleichkommen. 
+Update: Ein Update koennte in Sinn machen. Beispielsweise weiss die Rezeptionsleitung, dass ein prominenter Gast anreist und moechte die VIP Austattung des 
+Zimmers gewaehrleisten, und moechte den Kunden vielleicht auch in ein anderes Zimmer umbuchen. Ebenso koennte der Gast Verspaetung haben und seine Anreise
+verschieben. 
 */
 
 CREATE OR REPLACE RULE AnreisendeUpdateVip AS ON UPDATE   
@@ -433,6 +435,7 @@ DO INSTEAD
 CREATE OR REPLACE RULE AnreisendeInsert AS ON INSERT 
 TO AnreisendeView
 DO NOTHING;
+
 CREATE OR REPLACE RULE AnreisendeDelete AS ON DELETE 
 TO AnreisendeView
 DO INSTEAD
@@ -443,11 +446,10 @@ DO INSTEAD
 
 /*
 2.8. freieKartenView
-Insert: Physikalisch neue Karten koennen dem System zugefuegt werden, bevor sie an Kunden vergeben werden.
-Delete: Eine Karte ist tatsächlich physikalisch zerstört un kann nicht meh wieder verwendet werden.
-Ein Update des Karten ID macht kein Sinn. 
+Insert: Physikalisch neue Karten werden dem System zugefuegt, bevor sie an Kunden vergeben werden.
+Delete: Eine Karte ist tatsächlich physikalisch zerstört und kann nicht mehr wieder verwendet werden.
+Update: Ein Update des Karten ID macht kein Sinn. 
 Wir simulieren somit eine Registrierung von Blankokarten.
-
 */
 CREATE OR REPLACE RULE freieKartenUpdate AS ON UPDATE 
 TO freieKartenView
