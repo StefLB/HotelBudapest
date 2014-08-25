@@ -27,32 +27,32 @@ Hier sind einige Indexe vermerkt, die bei grossem Datenvolumen sehr hilfreich si
 /* 3. Speisen und Getraenke*/
 
 	CREATE INDEX index_wirdserviertin
-	on wirdserviertin (gehoertzuhotel,aid);
+	ON wirdserviertin (gehoertzuhotel,aid);
 	
 /* 4. Zimmer */
 
 	CREATE INDEX index_zimmer
-	on zimmer (gehoertzuhotel,dreckig);
+	ON zimmer (gehoertzuhotel,dreckig);
 
 
 /* 5.bezahlen */
 	
 	CREATE INDEX index_bezahlen
-	on bezahlen (kid);
+	ON bezahlen (kid);
 
 
 /* 6.benutzen */
 
 	CREATE INDEX index_benutzen
-	on benutzen (kid);
+	ON benutzen (kid);
 
 /* 7.mieten */
 
 	CREATE INDEX index_mieten
-	on mieten (kid);
+	ON mieten (kid);
 
 /* 8.konsumieren */
 
 	CREATE INDEX index_konsumieren
-	on konsumieren (kid);
+	ON konsumieren (kid);
 
