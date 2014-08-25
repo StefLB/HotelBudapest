@@ -15,14 +15,14 @@ INHALTSANGABE
 	1.8. freieKartenView
 
 2. TRANSAKTIONEN
-	2.1 Herr Hamilton, der heute im Hotel Budapest erwartet wird, ruft an und moechte seine An- und Abreise um einen Tag verschieben.
-	2.2 Es gibt einen Rohrbruch in Herrn Duncans Suit Nummer 15, der Kunde muss in eine ander Suite umziehen.
-	    Da die Nummer 14 zur Verfügung steht, wird alles umgebucht und Herr Duncan erhaelt eine neue Karte.
-	2.3 Frau Cole geht zur Rezeption und gibt Bescheid, dass das Zimmer, was sie eigentlich reserviert hat, auf den
-	    Namen ihrer Zimmergenossin laufen soll: Elisabeth Lawson, die auch bereits in der Vergangenheit die Zimmer übernommen hat.
-	    Der Rezeptionist aendert es um.	
-	2.4 Ein Kunde moechte fuer sein Zimmer mehr Karten erhalten, dafuer muessen im Gegenzug neue Karten dem System zugefuegt werden, da 
-	    keine freien Karten zur Verfügung stehen.
+	2.1. Herr Hamilton, der heute im Hotel Budapest erwartet wird, ruft an und moechte seine An- und Abreise um einen Tag verschieben.
+	2.2. Es gibt einen Rohrbruch in Herrn Duncans Suit Nummer 15, der Kunde muss in eine ander Suite umziehen.
+	     Da die Nummer 14 zur Verfügung steht, wird alles umgebucht und Herr Duncan erhaelt eine neue Karte.
+	2.3. Frau Cole geht zur Rezeption und gibt Bescheid, dass das Zimmer, was sie eigentlich reserviert hat, auf den
+	     Namen ihrer Zimmergenossin laufen soll: Elisabeth Lawson, die auch bereits in der Vergangenheit die Zimmer übernommen hat.
+	     Der Rezeptionist aendert es um.	
+	2.4. Ein Kunde moechte fuer sein Zimmer mehr Karten erhalten, dafuer muessen im Gegenzug neue Karten dem System zugefuegt werden, da 
+	     keine freien Karten zur Verfügung stehen.
 */
 
 /*
@@ -38,12 +38,12 @@ Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
 	INSERT INTO freieZimmerAktuellView (hotelid,ezom,ezmm,dzom,dzmm,trom,trmm,suit)
 	VALUES (8,7,7,7,7,7,7,7);
 
-	UPDATE freieZimmerAktuellView
-	SET ezom=0 
-	WHERE hotelid=1;
-	UPDATE freieZimmerAktuellView
-	SET suit=0 
-	WHERE hotelid=3;
+	UPDATE 	freieZimmerAktuellView
+	SET 	ezom=0 
+	WHERE 	hotelid=1;
+	UPDATE 	freieZimmerAktuellView
+	SET 	suit=0 
+	WHERE 	hotelid=3;
 
 	DELETE FROM freieZimmerAktuellView WHERE hotelid=1;
 	DELETE FROM freieZimmerAktuellView WHERE hotelid=2;
@@ -86,12 +86,12 @@ wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat.
 	VALUES (6,4,false);
 
 	-- Zimmerreinigung
-	UPDATE ReinigungspersonalView
-	SET zimmernummer=14 
-	WHERE zimmernummer=14 and gehoertzuhotel=2;
-	UPDATE ReinigungspersonalView
-	SET zimmernummer=10 
-	WHERE zimmernummer=10 and gehoertzuhotel=3;
+	UPDATE 	ReinigungspersonalView
+	SET 	zimmernummer=14 
+	WHERE 	zimmernummer=14 and gehoertzuhotel=2;
+	UPDATE 	ReinigungspersonalView
+	SET 	zimmernummer=10 
+	WHERE 	zimmernummer=10 and gehoertzuhotel=3;
 
 	DELETE FROM ReinigungspersonalView WHERE gehoertzuhotel=2;
 	DELETE FROM ReinigungspersonalView WHERE gehoertzuhotel=3;
@@ -127,12 +127,12 @@ Die RULES sind entsprechend implementiert, sodass kein INSERT,UPDATE,DELETE moeg
 	INSERT INTO NichtbezahltKundenview (resa, kunde) 
 	VALUES(101,77);
 
-	UPDATE NichtbezahltKundenview
-	SET anreise='2014-01-05' 
-	WHERE gehoertzuhotel=2;
-	UPDATE NichtbezahltKundenview
-	SET anreise='2014-06-05' 
-	WHERE gehoertzuhotel=6;
+	UPDATE 	NichtbezahltKundenview
+	SET 	anreise='2014-01-05' 
+	WHERE 	gehoertzuhotel=2;
+	UPDATE 	NichtbezahltKundenview
+	SET 	anreise='2014-06-05' 
+	WHERE 	gehoertzuhotel=6;
 
 	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=2;
 	DELETE FROM NichtbezahltKundenview WHERE gehoertzuhotel=6;	
@@ -196,16 +196,16 @@ Ein Update des Karten ID macht kein Sinn.
 	INSERT INTO freiekartenview (kartenid) 
 	VALUES(DEFAULT);
 
-	UPDATE freiekartenview
-	SET kartenid=5
-	WHERE kartenid=6;
-	UPDATE freiekartenview
-	SET kartenid=19
-	WHERE kartenid=8;
+	UPDATE 	freiekartenview
+	SET 	kartenid=5
+	WHERE 	kartenid=6;
+	UPDATE 	freiekartenview
+	SET 	kartenid=19
+	WHERE 	kartenid=8;
 
 	-- die eben erzeugten karten sind in Schwefelsauere gefallen. 
-	DELETE from freiekartenview where kartenid in (SELECT kartenid  from freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
-	DELETE from freiekartenview where kartenid in (SELECT kartenid  from freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
+	DELETE FROM freiekartenview WHERE kartenid IN (SELECT kartenid  FROM freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
+	DELETE FROM freiekartenview WHERE kartenid IN (SELECT kartenid  FROM freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
 
 /* ENDE AENDERUNGEN*/
 
@@ -216,71 +216,69 @@ Ein Update des Karten ID macht kein Sinn.
 /*2.1 Anreise und Abreise um einen Tag verschieben */
 
 	BEGIN;
-		UPDATE anreisendeview
-		SET anreise = current_date + interval '1 day'
-		WHERE reservierungsnummer=1;
-		--Anreise verschoeben
-		UPDATE reservierungen
-		SET gaestestatus='RESERVED'
-		Where reservierungsnummer=1;
-		-gaestestatus auf RESERVED geaendert
-		UPDATE anreisendeview
-		SET abreise = '2014-10-21'
-		WHERE reservierungsnummer=1 and EXISTS (
-		SELECT*
-		from
-		ZimmerFreiAnDate(1, 'DZMM', '2014-10-20', '2014-10-21')
-		WHERE zimmernummer=10);
-		--Abreise umaendert, wenn Zimmer frei
+		UPDATE 	anreisendeview
+		SET 	anreise = current_date + interval '1 day'
+		WHERE 	reservierungsnummer=1;
+		-- Anreise verschoeben
+		UPDATE 	reservierungen
+		SET 	gaestestatus='RESERVED'
+		Where 	reservierungsnummer=1;
+		-- Gaestestatus auf RESERVED geaendert
+		UPDATE 	anreisendeview
+		SET 	abreise = '2014-10-21'
+		WHERE 	reservierungsnummer=1 AND EXISTS (
+		SELECT	*
+		FROM	ZimmerFreiAnDate(1, 'DZMM'::Zimmerkategorie, '2014-10-20'::date, '2014-10-21'::date)
+		WHERE 	zimmernummer=10);
+		-- Abreise umaendert, wenn Zimmer frei
 	COMMIT;
 
 /*2.2 Herr Duncan muss umziehen*/
 
 	BEGIN;
-		UPDATE bewohntezimmerview
-		SET zimmernummer = 14
-		WHERE reserviertvonkunde = 44;
+		UPDATE 	bewohntezimmerview
+		SET 	zimmernummer = 14
+		WHERE 	reserviertvonkunde = 44;
 		--Zimmernummer gewechselt
 
-		UPDATE zimmer
-		SET outoforder=true
-		WHERE zimmernummer = 15 and gehoertzuhotel = 4;
+		UPDATE 	zimmer
+		SET 	outoforder=true
+		WHERE 	zimmernummer = 15 AND gehoertzuhotel = 4;
 		-- Zimmer Nr. 15 muss out of order gestellt werden
 
 		-- die Zimmerkarte muss nicht getauscht werden, da sie an der Reservierungsnummer gekoppelt ist, sie wird automatisch nicht mehr die 
 		-- die 15 oeffnen koennen, sondern nur die 14
-
 	COMMIT;
 
 /*2.3 Umschreiben des Kundens von 88 auf 12, Reservierungsnummer 18*/
 
 	BEGIN;
-		UPDATE bewohntezimmerview
-		SET reserviertvonkunde = 12
-		WHERE reserviertvonkunde =88 and reservierungsnummer=18
-		--Reservierung wird auf neuen Kunden umgeschrieben;
+		UPDATE 	bewohntezimmerview
+		SET 	reserviertvonkunde = 12
+		WHERE 	reserviertvonkunde =88 AND reservierungsnummer=18;
+		--Reservierung wird auf neuen Kunden umgeschrieben
 
-		UPDATE erhalten
-		SET kundenid=12
-		WHERE Reservierungsnummer=18
-		-- Karten werden umgeschrieben;
+		UPDATE 	erhalten
+		SET 	kundenid=12
+		WHERE 	Reservierungsnummer=18;
+		-- Karten werden umgeschrieben
 
-		UPDATE konsumieren
-		SET kid = 12
-		WHERE kid=88 and zeitpunkt >= (SELECT anreise from bewohntezimmerview where reserviertvonkunde=12) 
-		and zeitpunkt <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12);
+		UPDATE 	konsumieren
+		SET 	kid = 12
+		WHERE 	kid=88 AND zeitpunkt >= (SELECT anreise FROM bewohntezimmerview WHERE reserviertvonkunde=12) 
+			AND zeitpunkt <= (SELECT abreise FROM bewohntezimmerview WHERE reserviertvonkunde=12);
 		--konsumieren muss umgeschrieben werden
 
 		UPDATE mieten
 		SET kid = 12
-		WHERE kid=88 and von >= (SELECT anreise from bewohntezimmerview where reserviertvonkunde=12) 
-		and bis <= (SELECT abreise from bewohntezimmerview where reserviertvonkunde=12) ;
+		WHERE kid=88 AND von >= (SELECT anreise FROM bewohntezimmerview WHERE reserviertvonkunde=12) 
+		and bis <= (SELECT abreise FROM bewohntezimmerview WHERE reserviertvonkunde=12) ;
 		--mieten muss umgeschrieben werden
 
 		--benutzen muss nicht umgeschrieben werden, da Hotel 6 kein Schwimmbad hat
 	COMMIT;
 
-/*2.4 Ausgabe und hinzufuegen von 3 Karten für Kunde 86 mit der REservierngsnummer 26*/
+/*2.4 Ausgabe und hinzufuegen von 3 Karten für Kunde 86 mit der Reservierngsnummer 26*/
 
 	BEGIN;
 		INSERT INTO freiekartenView VALUES
@@ -289,13 +287,13 @@ Ein Update des Karten ID macht kein Sinn.
 		(DEFAULT);
 
 		INSERT INTO erhalten (kundenid,kartenid,reservierungsnummer) VALUES
-		(86, (SELECT kartenid from freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
+		(86, (SELECT kartenid FROM freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
 
 		INSERT INTO erhalten (kundenid,kartenid,reservierungsnummer) VALUES
-		(86, (SELECT kartenid from freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
+		(86, (SELECT kartenid FROM freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
 
 		INSERT INTO erhalten (kundenid,kartenid,reservierungsnummer) VALUES
-		(86, (SELECT kartenid from freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
+		(86, (SELECT kartenid FROM freiekartenView FETCH FIRST 1 ROWS ONLY), 26);
 
 	COMMIT;
 	
