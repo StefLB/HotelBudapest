@@ -423,6 +423,7 @@ CREATE TABLE Ablehnungen(
 CREATE TABLE bezahlen (
 	Reservierungsnummer int NOT NULL,
 	KID int NOT NULL,
+	Betrag money NOT NULL, 
 	Zeitpunkt timestamp,
 
 	FOREIGN KEY (Reservierungsnummer) REFERENCES Reservierungen ON DELETE RESTRICT,
