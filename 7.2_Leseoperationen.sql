@@ -55,7 +55,7 @@ INHALTSANGABE
 	JOIN 	hotel ON Goldfish.hotelid = hotel.hotelid;
 
 
-/*2. Frau 'Putzfee' druckt ihre Liste aus */
+/*2. Frau Putzfee druckt ihre Liste aus */
 
 	WITH	KundenInHouse AS (
 	SELECT	*
