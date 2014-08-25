@@ -10,7 +10,7 @@ INSERT INTO Hotel VALUES
 	(DEFAULT, 'The Shining', 'Scary Road 666, 66666 De Vilstown', 'Family',1);
 
 --Kunden--
-insert into Kunden (erstellungszeitpunkt,vorname,nachname,Adresse) values (now(),'Michelle','Hamilton', 'Ingolstadt');
+insert into Kunden (erstellungszeitpunkt,vorname,nachname,Adresse,VIP) values (now(),'Michelle','Hamilton', 'Ingolstadt',true);
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(), 'Adam','Frazier');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jesse','King');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Howard','Cole');
@@ -18,7 +18,7 @@ insert into Kunden (erstellungszeitpunkt,vorname,nachname) values ( now(),'Ashle
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Russell','Palmer');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Aaron','Miller');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Linda','West');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname,Wuensche) values ( now(),'Brandon','Rogers', 'mag Lavendel');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Brandon','Rogers');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Daniel','Riley');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Kathryn','Richards');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Elizabeth','Lawson');
@@ -41,7 +41,7 @@ insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Susa
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Carolyn','Ruiz');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Henry','Price');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Eugene','Russell');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Sarah','Allen');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname,VIP) values ( now(),'Sarah','Allen',true);
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jeremy','Cox');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Sarah','Griffin');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Paula','Sanchez');
@@ -63,7 +63,7 @@ insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Glor
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Emily','Bishop');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Edward','Cruz');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Craig','Boyd');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname, vip) values ( now(),'Doris','Moore', true);
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname, VIP) values ( now(),'Doris','Moore', true);
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Nancy','Cole');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Wanda','Rivera');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Eric','Hill');
@@ -230,9 +230,9 @@ insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outofo
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(4,15,'SUIT',true,false,4);
 
 --Hotel BudgetInn
-insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,1,'EZOM',true,false,1);
-insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,2,'EZOM',true,false,1);
-insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,3,'DZOM',true,false,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,1,'EZOM',true,true,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,2,'EZOM',true,true,1);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,3,'DZOM',true,true,1);
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,4,'DZOM',false,false,1);
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,5,'EZOM',false,false,1);
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,6,'EZOM',true,false,1);
@@ -253,7 +253,7 @@ insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outofo
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,21,'TROM',false,false,3);
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,22,'TROM',true,false,3);
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,23,'TROM',false,false,3);
-insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,24,'TROM',false,false,3);
+insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,24,'TROM',true,true,3);
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(5,25,'TROM',false,false,3);
 
 --Hotel TheShining
@@ -463,7 +463,7 @@ insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnumme
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 180.00,nextval('IDSequenz'), 'ROOM', 'DZOM', '2014-12-01', '2014-12-03', 'CANCELED', 'KA', 1, now(), 11, 11, 6 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 180.00,NULL, 'ROOM', 'EZOM', '2014-08-01', '2014-09-30', 'IN-HOUSE', 'KA', 1, now(), 66, 14, 2 );
+	values(DEFAULT, 180.00,NULL, 'ROOM', 'EZOM', '2014-08-01', current_date+1, 'IN-HOUSE', 'mag Lavendel', 1, now(), 66, 14, 2 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 144.00,NULL, 'ROOM', 'DZOM', '2014-07-01', '2014-07-04', 'CHECKED-OUT', 'KA', 1, now(), 87, 4, 1 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
@@ -471,11 +471,11 @@ insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnumme
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 130.00,NULL, 'ROOM', 'DZOM', '2013-05-01', '2014-07-04', 'CHECKED-OUT', 'KA', 1, now(), 23, 3, 5 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 100.00,NULL, 'ROOM', 'TROM', '2014-07-07', '2014-10-04', 'IN-HOUSE', 'KA', 1, now(), 58, 22, 5 );
+	values(DEFAULT, 100.00,NULL, 'ROOM', 'TROM', '2014-07-07', '2014-10-04', 'IN-HOUSE', 'keine Parfuemierte Waesche', 1, now(), 58, 22, 5 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 100.00,NULL, 'ROOM', 'TROM', '2014-01-01', '2014-03-05', 'CHECKED-OUT', 'KA', 1, now(), 6, 22, 5 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 120.00,NULL, 'ROOM', 'SUIT','2014-05-07', '2014-11-04', 'IN-HOUSE', 'KA', 1, now(), 44, 15, 4 );
+	values(DEFAULT, 120.00,NULL, 'ROOM', 'SUIT','2014-05-07', current_date, 'IN-HOUSE', 'moechte Zimmerradio', 1, now(), 44, 15, 4 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 100000.00,NULL, 'ROOM', 'SUIT','2000-01-01', '2000-01-01'::date + '99 days'::interval, 'CHECKED-OUT', 'KA', 1, now(),103, 15, 4);
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
@@ -483,7 +483,7 @@ insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnumme
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 100.00,NULL, 'ROOM', 'SUIT','2016-01-01', '2016-01-02', 'RESERVED', 'KA', 1, now(),103, 15, 4);
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 190.00,NULL, 'ROOM', 'DZOM', '2014-08-16', '2014-12-03', 'IN-HOUSE', 'KA', 2, now(), 88, 11, 6 );
+	values(DEFAULT, 190.00,NULL, 'ROOM', 'DZOM', '2014-08-16', '2014-12-03', 'IN-HOUSE', 'Pay-TV sperren', 2, now(), 88, 11, 6 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 1000.00,NULL, 'ROOM', 'DZMM', '2013-01-01', '2013-01-01'::date+'100'::integer, 'CHECKED-OUT', 'KA', 2, now(), 100, 11, 6 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
@@ -491,19 +491,19 @@ insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnumme
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 120.00,NULL, 'HBL', 'TROM', current_date, '2014-09-28', 'ARRIVAL', 'KA', 3, now(), 7, 38, 1 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 130.00,NULL, 'FB', 'DZOM', '2014-05-31', '2014-09-27', 'IN-HOUSE', 'KA', 2, now(), 8, 37, 1 );
+	values(DEFAULT, 130.00,NULL, 'FB', 'DZOM', '2014-05-31', current_date + 27, 'IN-HOUSE', 'Weckruf taeglich 6 Uhr', 2, now(), 8, 37, 1 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 98.00,NULL, 'ROOM', 'DZMM', '2014-01-01', '2014-03-03', 'CHECKED-OUT', 'KA', 1, now(), 1, 10, 1 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 80.00,NULL, 'BRFST', 'EZOM', '2014-08-19', '2014-09-28', 'IN-HOUSE', 'KA', 1, now(), 9, 6, 5 );
+	values(DEFAULT, 80.00,NULL, 'BRFST', 'EZOM', '2014-08-19', '2014-09-28', 'IN-HOUSE', 'benoetigt Wlan', 1, now(), 9, 6, 5 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 80.00,NULL, 'BRFST', 'EZOM', '2014-08-18', '2014-09-27', 'IN-HOUSE', 'KA', 1, now(), 10, 7, 5 );
+	values(DEFAULT, 80.00,NULL, 'BRFST', 'EZOM', '2014-08-18', '2014-09-27', 'IN-HOUSE', 'kein Honig', 1, now(), 10, 7, 5 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 180.00,NULL, 'BRFST', 'TROM', '2014-08-16', '2014-09-20', 'IN-HOUSE', 'KA', 3, now(), 86, 24, 6 );
+	values(DEFAULT, 180.00,NULL, 'BRFST', 'TROM', '2014-08-16', '2014-09-20', 'IN-HOUSE', 'moechte 4 Bibeln', 3, now(), 86, 24, 6 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 200.00,NULL, 'ROOM', 'SUIT', '2014-08-16', current_date, 'IN-HOUSE', 'KA', 2, now(), 89, 25, 6 );
+	values(DEFAULT, 200.00,NULL, 'ROOM', 'SUIT', '2014-08-16', current_date, 'IN-HOUSE', 'hasst Bibeln', 2, now(), 89, 25, 6 );
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
-	values(DEFAULT, 240.00,NULL, 'ROOM', 'SUIT', '2014-08-16', '2014-12-31', 'IN-HOUSE', 'KA', 3, now(), 54, 13, 3 );
+	values(DEFAULT, 240.00,NULL, 'ROOM', 'SUIT', '2014-08-16', '2014-12-31', 'IN-HOUSE', 'moechte Weckruf mit Milli Vanilli Musik', 3, now(), 54, 13, 3 );
 
 
 --ABLEHNUNGEN
