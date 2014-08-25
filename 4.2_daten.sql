@@ -10,7 +10,7 @@ INSERT INTO Hotel VALUES
 	(DEFAULT, 'The Shining', 'Scary Road 666, 66666 De Vilstown', 'Family',1);
 
 --Kunden--
-insert into Kunden (erstellungszeitpunkt,vorname,nachname) values (now(),'Michelle','Hamilton');
+insert into Kunden (erstellungszeitpunkt,vorname,nachname,Adresse) values (now(),'Michelle','Hamilton', 'Ingolstadt');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(), 'Adam','Frazier');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jesse','King');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Howard','Cole');
@@ -18,7 +18,7 @@ insert into Kunden (erstellungszeitpunkt,vorname,nachname) values ( now(),'Ashle
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Russell','Palmer');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Aaron','Miller');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Linda','West');
-insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Brandon','Rogers');
+insert into Kunden ( erstellungszeitpunkt,vorname,nachname,Wuensche) values ( now(),'Brandon','Rogers', 'mag Lavendel');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Daniel','Riley');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Kathryn','Richards');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Elizabeth','Lawson');
