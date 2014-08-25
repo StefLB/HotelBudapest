@@ -85,8 +85,8 @@ CREATE OR REPLACE VIEW ReinigungspersonalView AS
 
 	LEFT OUTER JOIN
 
-	(SELECT gehoertzuhotel,zimmernummer, CASE WHEN ((current_date - Anreise > 14)
-		OR abreise = current_date) THEN TRUE ELSE FALSE END AS grossputz
+	(SELECT gehoertzuhotel,zimmernummer, CASE WHEN ((current_date - Anreise >= 14)
+		OR abreise <= current_date) THEN TRUE ELSE FALSE END AS grossputz
 	from bewohntezimmerview) as DerGrossputz
 	ON AlledreckigenZimmer.gehoertzuhotel = DerGrossputz.gehoertzuhotel  and Alledreckigenzimmer.zimmernummer = dergrossputz.zimmernummer
 	-- Wahl der Zimmer, die Grossputz benoetigen
