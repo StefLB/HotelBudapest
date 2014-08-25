@@ -15,14 +15,14 @@ INHALTSANGABE
 	1.8. freieKartenView
 
 2. TRANSAKTIONEN
-	2.1 Herr 'Hamilton', der heute im Hotel 'Budapest erwartet wird, ruft an und moechte seine An- und Abreise um einen Tag verschieben.
-	2.2 Es gibt einen Rohrbruch in Herrn 'Duncans' Suit Nummer 15, der Kunde muss in eine ander Suite umziehen.
+	2.1 Herr Hamilton, der heute im Hotel Budapest erwartet wird, ruft an und moechte seine An- und Abreise um einen Tag verschieben.
+	2.2 Es gibt einen Rohrbruch in Herrn Duncans Suit Nummer 15, der Kunde muss in eine ander Suite umziehen.
 	    Da die Nummer 14 zur Verfügung steht, wird alles umgebucht und Herr Duncan erhaelt eine neue Karte.
-	2.3 Frau 'Cole' geht zur Rezeption und gibt Bescheid, dass das Zimmer, was sie eigentlich reserviert hat, auf den
+	2.3 Frau Cole geht zur Rezeption und gibt Bescheid, dass das Zimmer, was sie eigentlich reserviert hat, auf den
 	    Namen ihrer Zimmergenossin laufen soll: Elisabeth Lawson, die auch bereits in der Vergangenheit die Zimmer übernommen hat.
 	    Der Rezeptionist aendert es um.	
 	2.4 Ein Kunde moechte fuer sein Zimmer mehr Karten erhalten, dafuer muessen im Gegenzug neue Karten dem System zugefuegt werden, da 
-	    keine freien KArten zur Verfügung stehen.
+	    keine freien Karten zur Verfügung stehen.
 */
 
 /*
@@ -53,7 +53,8 @@ Damit es aber vollstaendig ist, notieren wir die gewuenschten Operationen.
 /*
 1.2. bewohnteZimmerView
 Info: Ein Delete oder Insert macht bei dieser View wenig Sinn. Ein Update muss gewaehrleistet werden
-da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView.
+da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView. Ebenso koennen 
+Reservierungen auf andere Kunden umgeschrieben werden. 
 */
 
 	INSERT INTO bewohnteZimmerView (gehoertzuhotel,zimmernummer,anreise,abreise,dreckig) 
@@ -61,26 +62,28 @@ da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markie
 	INSERT INTO bewohnteZimmerView (gehoertzuhotel,zimmernummer,anreise,abreise,dreckig) 
 	VALUES (1,3,'2014-09-01','2014-09-01', true);
 
-	-- Diese Zimmer sind dreckig. 
-	UPDATE bewohnteZimmerView
-	SET dreckig=true 
-	WHERE zimmernummer=14 and gehoertzuhotel=2;
-	UPDATE bewohnteZimmerView
-	SET dreckig=true 
-	WHERE zimmernummer=10 and gehoertzuhotel=3;
+	-- Dieses Zimmer ist dreckig. 
+	UPDATE 	bewohnteZimmerView
+	SET 	dreckig=true 
+	WHERE 	zimmernummer=14 and gehoertzuhotel=2;
+	-- Ms. West moechte ihr Zimmer ueber ihre Partnerin Ms. Kelly laufen lassen
+	UPDATE 	bewohnteZimmerView
+	SET 	reserviertVonKunde = 27 
+	WHERE 	reserviertVonKunde = 8;
 
 	DELETE FROM bewohnteZimmerView WHERE gehoertzuhotel=2;
 	DELETE FROM bewohnteZimmerView WHERE gehoertzuhotel=5;
+
 
 /*
 1.3. ReinigungspersonalView
 Info: Obwohl ein Insert oder Delete hier nicht sinnvoll ist, macht ein Update von dreckig = false Sinn, etwa
 wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat. 
 */
-	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,dreckig,grossputz) 
-	VALUES (1,3,false,true);
-	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,dreckig,grossputz) 
-	VALUES (6,4,true,false);
+	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,grossputz) 
+	VALUES (1,3,true);
+	INSERT INTO ReinigungspersonalView (gehoertzuhotel,zimmernummer,grossputz) 
+	VALUES (6,4,false);
 
 	-- Zimmerreinigung
 	UPDATE ReinigungspersonalView
@@ -99,16 +102,15 @@ Info: Diese View ist nur zur Ansicht und sollte nicht veraendert werden koennen.
 Aufgrund der Tatsache, dass diese Sicht aus vielen Tabellen mit GROUP BY entsteht, ist kein INSERT,UPDATE,DELETE moeglich.
 */
 
-	INSERT INTO HotelManagerView (gehoertzuhotel,gesamtumsatz) 
-	VALUES (7,'500,00 €');
-	INSERT INTO HotelManagerView (gehoertzuhotel,gesamtumsatz) VALUES (8,'30.000,00 €');
+	INSERT INTO HotelManagerView (hotelID,gesamtumsatz) VALUES (7,'500,00 €');
+	INSERT INTO HotelManagerView (hotelID,gesamtumsatz) VALUES (8,'30.000,00 €');
 
-	UPDATE HotelManagerView
-	SET gesamtumsatz='5.000,00€' 
-	WHERE hotelid=1;
-	UPDATE HotelManagerView
-	SET barumsatz='500,00€' 
-	WHERE hotelid=6;
+	UPDATE 	HotelManagerView
+	SET 	gesamtumsatz='5.000,00€' 
+	WHERE 	hotelid=1;
+	UPDATE 	HotelManagerView
+	SET 	barumsatz='500,00€' 
+	WHERE 	hotelid=6;
 
 	DELETE FROM HotelManagerView WHERE hotelid=2;
 	DELETE FROM HotelManagerView WHERE hotelid=3;
@@ -137,8 +139,7 @@ Die RULES sind entsprechend implementiert, sodass kein INSERT,UPDATE,DELETE moeg
 
 /*
 1.6.UnbezahlteReservierungView
-Info: Diese View ist nur zur Ansicht und sollte nicht veraendert werden koennen.
-Die RULES sind entsprechend implementiert, sodass kein INSERT,UPDATE,DELETE moeglich ist. 
+Ein Insert oder Update in dieser View ist nicht moeglich. Ein Delete entspricht dem bezahlen einer Rechnung.
 */
 
 	INSERT INTO UnbezahlteReservierungView (hotelid, reservierungsnummer) 
@@ -153,9 +154,9 @@ Die RULES sind entsprechend implementiert, sodass kein INSERT,UPDATE,DELETE moeg
 	SET gemietet='18,00 €' 
 	WHERE reservierungsnummer=12;
 
-	DELETE FROM UnbezahlteReservierungView WHERE hotelid=2;
-	DELETE FROM UnbezahlteReservierungView WHERE hotelid=6;
-
+	-- Ms. Reed und Mr. Riley haben ihre Rechnung bezahlt 
+	DELETE FROM UnbezahlteReservierungView WHERE kunde=89;
+	DELETE FROM UnbezahlteReservierungView WHERE reservierungsnummer=25;
 
 /*
 1.7. AnreisendeView
@@ -185,10 +186,11 @@ Es sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisier
 
 /*
 1.8. freieKartenView
-Info: Da wir bei einem Insert oder Delete nicht wissen ob eine Karte ausgeteilt oder beschaedigt ist, 
-koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kein Sinn. 
+Info: Wir koennen mit Insert neue Karten ins System einspeisen. Kaputte Karten koennen wir mit Delete loeschen. 
+Ein Update des Karten ID macht kein Sinn. 
 */
 
+	-- Wir erzeugen ein Paar neue Karten
 	INSERT INTO freiekartenview (kartenid) 
 	VALUES(DEFAULT);
 	INSERT INTO freiekartenview (kartenid) 
@@ -201,9 +203,10 @@ koennen wir keine eindeutige Aktion ableiten. Ein Update des Karten ID macht kei
 	SET kartenid=19
 	WHERE kartenid=8;
 
+	-- die eben erzeugten karten sind in Schwefelsauere gefallen. 
 	DELETE from freiekartenview where kartenid in (SELECT kartenid  from freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
 	DELETE from freiekartenview where kartenid in (SELECT kartenid  from freiekartenview ORDER BY kartenID DESC FETCH FIRST 1 ROWS ONLY);
-	
+
 /* ENDE AENDERUNGEN*/
 
 /* 
