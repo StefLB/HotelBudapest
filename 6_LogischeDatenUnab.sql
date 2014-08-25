@@ -309,7 +309,6 @@ CREATE OR REPLACE RULE freieZimmerDelete AS ON DELETE
 TO freieZimmerAktuellView
 DO NOTHING;
 
-select * from freieZimmerAktuellView
 
 /*
 2.2. bewohnteZimmerView
