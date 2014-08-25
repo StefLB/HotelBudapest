@@ -297,7 +297,6 @@ BEGIN
 	  Funktion holt solange moeglichst zusammenhaengende vorgemerkte Zimmer, wie der 
 	  Kund sie in seiner Zimmeranzahl angegeben hat. */
 	FOR i IN 1..Angebotsdaten.AnzahlZimmer LOOP
-			
 		UPDATE 	Reservierungen
 		-- der temporaere Kunde wird ersetzt
 		SET 	reserviertVonKunde = KundenId, GaesteStatus = 'RESERVED'
@@ -620,17 +619,19 @@ Benoetigt fuer: Die 1:1 Beziehung bei Zimmer wird zugewiesen Reservierungen
 CREATE OR REPLACE FUNCTION UeberbuchungCheck() RETURNS TRIGGER 
 AS $$
 BEGIN
-
-	PERFORM	*
+	PERFORM	Reservierungsnummer  
 	FROM 	Reservierungen
 	WHERE 	NEW.gehoertZuHotel = Reservierungen.gehoertZuHotel
 		AND NEW.Zimmer = Reservierungen.Zimmer
-		AND NEW.Anreise = Reservierungen.Anreise
-		AND (Gaestestatus != 'TURN-DOWN' AND Gaestestatus != 'CANCELED' 
-		AND Gaestestatus != 'CHECKED-OUT');
-
+		AND NEW.Anreise <= Reservierungen.Abreise
+		-- bereucksichtige keine inaktiven Reservierungen
+		AND (Gaestestatus NOT LIKE 'TURN-DOWN' AND Gaestestatus NOT LIKE 'CANCELED' 
+		AND Gaestestatus NOT LIKE 'CHECKED-OUT')
+		-- zaehle eigentliche Reservierung nicht
+		AND NEW.Reservierungsnummer != Reservierungen.Reservierungsnummer;
+		
 	IF(FOUND) THEN
-		RAISE EXCEPTION 'Doppelbuchung!';
+		RAISE EXCEPTION 'Doppelbuchung von Zimmer % in Hotel %!', NEW.Zimmer, NEW.gehoertZuHotel;
 	END IF;
 	RETURN NEW;
 END
@@ -672,7 +673,7 @@ BEGIN
 	WHERE NEW.reserviertVonKunde = Kunden.KID;
 
 	IF(vornamevar LIKE '' OR nachnamevar LIKE '') THEN
-		RAISE EXCEPTION 'Kunde hat keine Daten';
+		RAISE EXCEPTION 'Kunde hat keine Daten.';
 	END IF;
 
 	RETURN OLD;
@@ -848,7 +849,7 @@ BEGIN
 	WHERE 	NEW.Reservierungsnummer = Bezahlen.Reservierungsnummer;
 
 	IF(NOT FOUND) THEN
-		RAISE EXCEPTION 'Gast muss noch bezahlen';
+		RAISE EXCEPTION 'Gast muss noch bezahlen.';
 	ELSE 
 		PERFORM checkOut();
 	END IF;
@@ -1050,8 +1051,6 @@ SELECT AblehnungAngebot((1,'EZMM',1,current_date, current_date+1,120.00)::Angebo
 -- Es muss nochmal eine Anfrage gemacht werden. Ein uns bekannter Kunde hat die Anfrage gestellt
 SELECT AnnahmeAngebot(102, (SELECT Zimmeranfrage(1, 'EZMM',current_date, current_date+1,'BRFST', 'KA',1, 1))::Angebot);
 
-
-
 -- 1.8. AnnahmeAngebotNeuKunde(Vorname varChar,Name VarChar,Adresse varChar, Telefonnummer int, Kreditkarte int, Besonderheiten varChar, Angebotsdaten Angebot)
 -- Es muss nochmal eine Anfrage gemacht werden. Gunnar Grumpen ist ein neuer Kunde. 
 SELECT annahmeAngebotNeuKunde('Gunnar'::varChar,'Grumpen'::varChar,'Googeytown'::varChar,5556789, 
@@ -1064,19 +1063,23 @@ SELECT annahmeAngebotNeuKunde('Gunnar'::varChar,'Grumpen'::varChar,'Googeytown':
 SELECT ZimmerDreckig();
 
 -- 1.10.Rechnungsposten(Hotelnummer int, Zimmernummer int) 
-SELECT*
-FROM Rechnungsposten(4,15);
+SELECT	*
+FROM 	Rechnungsposten(4,15);
 
 -- 1.11. gourmetGast (Hotel int)
-SELECT*
-from gourmetgast(3);
+SELECT	*
+FROM 	gourmetgast(3);
 
 --1.12. freieSportplaetze(Hotel int)
 SELECT	*
-from 	freiesportplaetze(6);
+FROM 	freiesportplaetze(6);
 
 --1.13. setArrivals()
 SELECT 	setArrivals();
+-- Zeige Arrivals an
+SELECT 	*
+FROM 	Reservierungen
+WHERE 	Gaestestatus = 'ARRIVAL';
 
 --1.14. getNaechsteFreieKarte()
 SELECT 	getNaechsteFreieKarte();
@@ -1119,7 +1122,7 @@ WHERE gehoertZuHotel = 6 AND AID = 11;
 
 /*
 2.4.UeberbuchungCheckTrigger
-Info: Wir versuchen ein Zimmer zu ueberbuchen, und sehen dass es fehlschlaegt
+Info: Wir versuchen ein Zimmer zu ueberbuchen, und sehen dass es fehlschlaegt.
 */
 INSERT INTO Reservierungen VALUES 	(1,30,'100.00', DEFAULT,'BRFST', 'EZMM', '2015-08-01', '2015-08-02', 
 					DEFAULT,102, 'RESERVED', 'KA', 1, now());
