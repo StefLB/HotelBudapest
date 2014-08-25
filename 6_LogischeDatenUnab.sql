@@ -72,7 +72,6 @@ CREATE OR REPLACE VIEW bewohnteZimmerView AS
 /*
 1.3. ReinigungspersonalView
 Zeigt an: alle Zimmer, die dreckig sind, sowie ob ein Grossputz von Noeten ist. 
-ReserviertVonKunde wird dem Reinigungspersonal bewusst nicht angezeigt um Diskretion zu gewaehrleisten. 
 Benoetigt fuer: Das Reinigunspersonal bekommt diese angezeigt, sortiert nach Hotel und Zimmernummer
 */
 CREATE OR REPLACE VIEW ReinigungspersonalView AS
@@ -96,10 +95,11 @@ CREATE OR REPLACE VIEW ReinigungspersonalView AS
 /*
 1.4. HotelManagerView
 Zeigt an: Hotels sortiert nach HotelID, mit dazugehoerigen Gesamtumsatz, die Aufsplittung in konsumieren, benutzen, mieten,und Naechteumsatz(umsatzrooms).
-Dazu extra der Umsatz der Bars, sowie die Anzahl der bisher reservierten Zimmerkategorien, um zu schauen, welche Kategorie am beliebtesten ist 
+Dazu extra der Umsatz der Bars, sowie die Anzahl der bisher reservierten Zimmerkategorien, um zu schauen, welche Kategorie am beliebtesten ist.
+Benoetigt fuer: Allgemeine Analysen und Vergleiche von Hotels 
 */ 
 CREATE OR REPLACE VIEW HotelmanagerView AS
-	SELECT hotelid, (umsatzrooms+konsumumsatz+mietumsatz+benutzenumsatz) as gesamtumsatz,umsatzrooms,barumsatz,konsumumsatz,
+	SELECT hotelid, (umsatzrooms+konsumumsatz+mietumsatz+benutzenumsatz) AS gesamtumsatz,umsatzrooms,barumsatz,konsumumsatz,
 		mietumsatz,benutzenumsatz,
 		ezom,ezmm,dzom,dzmm,trom,trmm,suit
 		--Auswahl aller gewuenschten Posten
@@ -110,26 +110,29 @@ CREATE OR REPLACE VIEW HotelmanagerView AS
 			ezom,ezmm,dzom,dzmm,trom,trmm,suit
 		--Fuellen der leeren Spalten mit 0,00 € beim Selektieren
 		FROM
-		(WITH Naechteumsatz as(
+		(WITH 	Naechteumsatz as(
 			WITH UmsatzZimmerCheckedOut as(
-			SELECT gehoertzuhotel,((abreise-anreise)*zimmerpreis) as gesamtbetrag
-			FROM reservierungen 
+			SELECT 	gehoertzuhotel,((abreise-anreise)*zimmerpreis) as gesamtbetrag
+			FROM 	reservierungen 
 			LEFT OUTER JOIN (Select hotelid from hotel) AS Hotels
-			ON gehoertzuhotel=hotelid
-			WHERE gaestestatus = 'CHECKED-OUT'
+			ON 	gehoertzuhotel=hotelid
+			WHERE 	gaestestatus = 'CHECKED-OUT'
 			ORDER BY gehoertzuHotel),
 			--Berechnung Naechteumsatz aller Checked-Out Zimmer
 
-			UmsatzZimmerInhouse as(
-			SELECT gehoertzuhotel,((current_date-anreise)*zimmerpreis) as gesamtbetrag
-			FROM reservierungen 
+			UmsatzZimmerInhouse AS(
+			SELECT 	gehoertzuhotel,((current_date-anreise)*zimmerpreis) as gesamtbetrag
+			FROM 	reservierungen 
 			LEFT OUTER JOIN (Select hotelid from hotel) AS Hotels
-			on gehoertzuhotel=hotelid
-			WHERE  gaestestatus = 'IN-HOUSE'
+			on 	gehoertzuhotel=hotelid
+			WHERE 	gaestestatus = 'IN-HOUSE'
 			ORDER BY gehoertzuHotel)
 			--Berechnung Naechteumsatz aller In-House Zimmer
-			SELECT *
-			from Umsatzzimmercheckedout union  SELECT* from UmsatzZimmerInhouse)
+			SELECT 	*
+			FROM	Umsatzzimmercheckedout 
+			UNION  
+			SELECT	* 
+			FROM	UmsatzZimmerInhouse)
 		SELECT gehoertzuhotel,sum(gesamtbetrag) as Naechteumsatz
 		from Naechteumsatz
 		GROUP by gehoertzuhotel) as Umsatznaechte
@@ -193,7 +196,7 @@ CREATE OR REPLACE VIEW HotelmanagerView AS
 		--alle Kategorieszimmerreservierungen checked-out und in-house und arrival, aufgezaehlt
 		ON Umsatznaechte.gehoertzuhotel=Totalzimmer.gehoertzuhotel 
 
-		LEFT OUTER JOIN
+	LEFT OUTER JOIN
 		(SELECT imhotel, sum(preis) UmsatzBar
 		FROM (konsumieren join hotelbar ON imhotel=hotelbar.gehoertzuhotel and verspeistin = hotelbar.aid) as Hotelbars
 		JOIN speisenundgetraenke
@@ -206,59 +209,76 @@ CREATE OR REPLACE VIEW HotelmanagerView AS
 /*
 1.5. NichtBezahltKundenView
 Zeigt an: Reservierungen mit den dazugehörigen Kundenummern,Anreise,Abreise und Hotel, die noch nicht bezahlt haben
-Verwendet fuer UnbezahlteReservierungView
+Benoetigt fuer: UnbezahlteReservierungView
 */
 CREATE or REPLACE VIEW NichtBezahltKundenView AS
-WITH Nichtbezahlt as
-	(SELECT reservierungsnummer,reserviertvonkunde as kunde
-	FROM reservierungen
-	WHERE gaestestatus='IN-HOUSE'
-	EXCEPT
-	SELECT reservierungsnummer,kid
-	from bezahlen)	
-SELECT reservierungen.reservierungsnummer as resa,kunde, anreise, abreise, reservierungen.gehoertzuhotel
-FROM Nichtbezahlt join reservierungen ON Nichtbezahlt.kunde = reservierungen.reserviertvonkunde;
-
+	WITH Nichtbezahlt AS
+		(SELECT reservierungsnummer,reserviertvonkunde as kunde
+		FROM 	reservierungen
+		WHERE 	gaestestatus='IN-HOUSE'
+		EXCEPT
+		SELECT 	reservierungsnummer,kid
+		FROM 	bezahlen
+		-- der Kunden hat seit der letzten Zahlung vielleicht etwas aufs Zimmer buchen lassen
+		WHERE 	zeitpunkt = now())	
+	SELECT 	reservierungen.reservierungsnummer as resa,kunde, anreise, abreise, reservierungen.gehoertzuhotel
+	FROM 	Nichtbezahlt 
+		JOIN reservierungen ON Nichtbezahlt.kunde = reservierungen.reserviertvonkunde;
 
 /*
 1.6. UnbezahlteReservierungView
 Zeigt an: Kundennummer und Gesamtrechnungspreis von allen eingecheckten Kunden die ihre Rechnungen noch nicht bezahlt haben
 */
 CREATE OR REPLACE VIEW UnbezahlteReservierungView AS
-	SELECT hotelid, reservierungsnummer, reserviertvonkunde as kunde, 
+	WITH 	Unbezahlt AS (
+	SELECT 	hotelid, Naechteumsatz.reservierungsnummer, reserviertvonkunde as kunde, 
 		(konsumiert+gemietet+benutzt+naechteumsatz) as Gesamtoffen,  konsumiert,gemietet,benutzt,naechteumsatz
 	FROM
 		(SELECT NichtbezahltKundenView.resa as resa, NichtbezahltKundenView.kunde as kunde, COALESCE(sum(preis),'0,00€') as Konsumiert
 		FROM NichtbezahltKundenView 
-		LEFT OUTER JOIN konsumieren ON konsumieren.kid=NichtbezahltKundenView.kunde and zeitpunkt>=anreise and zeitpunkt <=abreise
+		LEFT OUTER JOIN konsumieren ON konsumieren.kid=NichtbezahltKundenView.kunde and zeitpunkt>=anreise and zeitpunkt <=abreise 
 		LEFT OUTER JOIN speisenundgetraenke ON speisenundgetraenke.speiseid=konsumieren.speiseid
 		GROUP BY NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, NichtbezahltKundenView.gehoertzuhotel) as Konsum
 		--Berechnung der konsumierten Gueter
 
-	LEFT OUTER JOIN
+		LEFT OUTER JOIN
+		
 		(SELECT NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, COALESCE(sum(preis),'0,00€') as gemietet
 		FROM NichtbezahltKundenView 
 		LEFT OUTER JOIN mieten ON mieten.kid=NichtbezahltKundenView.kunde and von>=anreise and bis <=abreise
 		LEFT OUTER JOIN sporteinrichtungen ON sporteinrichtungen.aid=mieten.aid and sporteinrichtungen.gehoertzuhotel = mieten.gehoertzuhotel
 		GROUP BY NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, NichtbezahltKundenView.gehoertzuhotel) as Gemietet
 		--Berechnung der gemieteten Gueter
-	ON Konsum.resa = Gemietet.resa
+		ON Konsum.resa = Gemietet.resa
 
-	LEFT OUTER JOIN
+		LEFT OUTER JOIN
+		
 		(SELECT NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, COALESCE(sum(preis),'0,00€') as benutzt
-		from NichtbezahltKundenView 
+		FROM 	NichtbezahltKundenView 
 		LEFT OUTER JOIN benutzen ON benutzen.kid=NichtbezahltKundenView.kunde and von>=anreise and bis <=abreise
 		LEFT OUTER JOIN schwimmbad ON schwimmbad.aid=benutzen.aid and schwimmbad.gehoertzuhotel = benutzen.gehoertzuhotel
 		GROUP BY NichtbezahltKundenView.resa, NichtbezahltKundenView.kunde, NichtbezahltKundenView.gehoertzuhotel) as Benutztes
 		--Berechnung der benutzten Gueter
-	ON Konsum.resa = benutztes.resa
+		ON Konsum.resa = benutztes.resa
 
-	LEFT OUTER JOIN
-		(SELECT reservierungen.gehoertzuhotel as hotelid,reservierungsnummer, reserviertvonkunde, COALESCE(((current_date-reservierungen.anreise)*zimmerpreis), '0,00€') as naechteumsatz
-		FROM reservierungen JOIN NichtbezahltKundenView on NichtbezahltKundenView.resa = reservierungen.reservierungsnummer) as Naechteumsatz
+		LEFT OUTER JOIN
+		
+		(SELECT reservierungen.gehoertzuhotel AS hotelid,reservierungsnummer, reserviertvonkunde, 
+			COALESCE(((current_date-reservierungen.anreise)*zimmerpreis), '0,00€') as naechteumsatz
+		FROM 	reservierungen 
+			JOIN NichtbezahltKundenView ON NichtbezahltKundenView.resa = reservierungen.reservierungsnummer) as Naechteumsatz
 		--Berechnung der bisher erbrachten Naechteumsatz
-	ON Konsum.resa=Naechteumsatz.reservierungsnummer
-	ORDER BY reservierungsnummer ASC;
+		ON Konsum.resa=Naechteumsatz.reservierungsnummer
+
+	ORDER BY reservierungsnummer ASC)
+
+	-- betrachte bisherige Zahlung des Kunden
+	SELECT 	hotelid, Unbezahlt.reservierungsnummer,Kunde, GesamtOffen AS GesamtBetrag, konsumiert,gemietet,benutzt,naechteumsatz,
+		CASE WHEN (bezahlen.Betrag IS NULL) THEN '0' ELSE bezahlen.Betrag END AS bereitsBezahlt 
+	FROM 	Unbezahlt 
+		LEFT OUTER JOIN bezahlen ON Unbezahlt.Kunde = bezahlen.KID
+	WHERE 	konsumiert + gemietet + benutzt + naechteumsatz - bezahlen.Betrag IS NULL 
+		OR GesamtOffen - bezahlen.Betrag::money > '0';
 
 /*
 1.7. AnreisendeView
@@ -266,9 +286,9 @@ Zeigt an:  Kundenname und Zimmer aller anreisenden Gaeste des Tages an und ob de
 */
 CREATE OR REPLACE VIEW AnreisendeView AS
 WITH Anreisende AS (
-	SELECT gehoertZuHotel, Zimmer, reserviertvonkunde, reservierungsnummer, anreise, abreise
-	FROM Reservierungen
-	WHERE Gaestestatus = 'ARRIVAL' )
+	SELECT 	gehoertZuHotel, Zimmer, reserviertvonkunde, reservierungsnummer, anreise, abreise
+	FROM 	Reservierungen
+	WHERE 	Gaestestatus = 'ARRIVAL' )
 
 	SELECT 	gehoertZuHotel, Zimmer, reservierungsnummer, reserviertVonKunde, Nachname, anreise,abreise, VIP 
 	FROM 	Anreisende 
@@ -301,13 +321,15 @@ Update: Das Incrementieren oder Dekrementieren von freien Zimmern ist nicht noet
 */
 CREATE OR REPLACE RULE freieZimmerUpdate AS ON UPDATE 
 TO freieZimmerAktuellView
-DO NOTHING;
+DO INSTEAD NOTHING;
+
 CREATE OR REPLACE RULE freieZimmerInsert AS ON INSERT 
 TO freieZimmerAktuellView
-DO NOTHING;
+DO INSTEAD NOTHING;
+
 CREATE OR REPLACE RULE freieZimmerDelete AS ON DELETE 
 TO freieZimmerAktuellView
-DO NOTHING;
+DO INSTEAD NOTHING;
 
 
 /*
@@ -315,7 +337,16 @@ DO NOTHING;
 Insert/Delete: Ein Delete oder Insert macht bei dieser View wenig Sinn: Die View soll die Gaesteverteilung anzeigen, nicht reglementieren. 
 Dafuer braucht man mehr Informationen als die View zu Verfuegung stellt, und es sind Trigger hierfuer zustaendig. 
 Update: Ein Update muss gewaehrleistet werden, da die Zimmerdreckig() Funktion um 0.00 alle bewohnten Zimmer als dreckig markiert, fuer die ReinigungspersonalView.
+Ausserdem kann eine laufende Reservierung auf ein anderen Kunden umgeschrieben werden, insofern der Kunde nicht schon ein Zimmer bewohnt. 
 */
+CREATE OR REPLACE RULE bewohnteZimmerInsert AS ON INSERT 
+TO bewohnteZimmerView
+DO INSTEAD NOTHING;
+
+CREATE OR REPLACE RULE bewohnteZimmerDelete AS ON DELETE 
+TO bewohnteZimmerView
+DO INSTEAD NOTHING;
+
 CREATE OR REPLACE RULE bewohnteZimmerUpdate AS ON UPDATE 
 TO bewohnteZimmerView 
 DO INSTEAD 
@@ -330,18 +361,19 @@ DO INSTEAD
 	SET 	reserviertvonkunde = NEW.reserviertvonkunde
 	WHERE 	reservierungsnummer = NEW.reservierungsnummer;
 
-CREATE OR REPLACE RULE bewohnteZimmerInsert AS ON INSERT 
-TO bewohnteZimmerView
-DO NOTHING;
-CREATE OR REPLACE RULE bewohnteZimmerDelete AS ON DELETE 
-TO bewohnteZimmerView
-DO NOTHING;
-
 /*
 2.3. ReinigungspersonalView
 Insert/Delete: Ein Insert oder Delete ist hier nicht sinnvoll, da das Reinigungspersonal nur Zimmer als gereinigt updaten soll. 
 Update: Ein Update von dreckig = false Sinn, etwa wenn das Reinigungspersonal die Arbeit an einem Zimmer beendet hat. 
 */
+CREATE OR REPLACE RULE ReinigungspersonalInsert AS ON INSERT 
+TO ReinigungspersonalView
+DO INSTEAD NOTHING;
+
+CREATE OR REPLACE RULE ReinigungspersonalDelete AS ON DELETE 
+TO ReinigungspersonalView
+DO INSTEAD NOTHING;
+
 CREATE OR REPLACE RULE ReinigungspersonalUpdate AS ON UPDATE
 TO ReinigungspersonalView 
 DO INSTEAD
@@ -349,55 +381,62 @@ DO INSTEAD
 	SET 	dreckig = false
 	WHERE 	Zimmer.Zimmernummer = NEW.Zimmernummer AND Zimmer.gehoertZuHotel = NEW.gehoertZuHotel; 
 
-CREATE OR REPLACE RULE ReinigungspersonalInsert AS ON INSERT 
-TO ReinigungspersonalView
-DO NOTHING;
-CREATE OR REPLACE RULE ReinigungspersonalDelete AS ON DELETE 
-TO ReinigungspersonalView
-DO NOTHING;
 
 /*
 2.4.HotelManagerView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
 */
-CREATE OR REPLACE RULE HotelManagerUpdate AS ON UPDATE 
-TO HotelManagerView
-DO NOTHING;
 CREATE OR REPLACE RULE HotelManagerInsert AS ON INSERT 
 TO HotelManagerView
-DO NOTHING;
+DO INSTEAD NOTHING;
+
 CREATE OR REPLACE RULE HotelManagerDelete AS ON DELETE 
 TO HotelManagerView
-DO NOTHING;
+DO INSTEAD NOTHING;
+
+CREATE OR REPLACE RULE HotelManagerUpdate AS ON UPDATE 
+TO HotelManagerView
+DO INSTEAD NOTHING;
 
 /*
 2.5. NichtBezahltKundenView
 Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
 */
-CREATE OR REPLACE RULE NichtBezahltKundenUpdate AS ON UPDATE 
-TO NichtBezahltKundenView
-DO NOTHING;
 CREATE OR REPLACE RULE NichtBezahltKundenInsert AS ON INSERT 
 TO NichtBezahltKundenView
-DO NOTHING;
+DO INSTEAD NOTHING;
+
 CREATE OR REPLACE RULE NichtBezahltKundenDelete AS ON DELETE 
 TO NichtBezahltKundenView
-DO NOTHING;
+DO INSTEAD NOTHING;
+
+CREATE OR REPLACE RULE NichtBezahltKundenUpdate AS ON UPDATE 
+TO NichtBezahltKundenView
+DO INSTEAD NOTHING;
 
 /*
 2.6.UnbezahlteReservierungView
-Info: Diese View ist nur zur Ansicht und sollte nicht verändert werden koennen. 
+Insert: ist keine sinnvolle Operation, da die Posten nicht rekonstruierbar sind. 
+Delete: entspricht dem Bezahlen einer Rechnung. 
+Update: Der Rechnungsbetrag sollte nicht veraendert werden koennen, somit erlauben wir kein Update. 
 */
-CREATE OR REPLACE RULE UnbezahlteReservierungUpdate AS ON UPDATE 
-TO UnbezahlteReservierungView
-DO NOTHING;
+
 CREATE OR REPLACE RULE UnbezahlteReservierungInsert AS ON INSERT 
 TO UnbezahlteReservierungView
-DO NOTHING;
+DO INSTEAD NOTHING;
+
 CREATE OR REPLACE RULE UnbezahlteReservierungDelete AS ON DELETE 
 TO UnbezahlteReservierungView
-DO NOTHING;
-
+DO INSTEAD
+	-- bisherige Teilzahlungen werden durch die aktuelle ersetzt
+	(DELETE FROM bezahlen WHERE OLD.Kunde = bezahlen.KID;
+	-- Betrachte diesen Betrag als bezahlt 	
+	INSERT INTO bezahlen VALUES (OLD.Reservierungsnummer, OLD.Kunde, OLD.Gesamtbetrag,now()));
+	
+	
+CREATE OR REPLACE RULE UnbezahlteReservierungUpdate AS ON UPDATE 
+TO UnbezahlteReservierungView
+DO INSTEAD NOTHING;
 
 /*
 2.7. AnreisendeView
@@ -407,6 +446,17 @@ Update: Ein Update koennte in Sinn machen. Beispielsweise weiss die Rezeptionsle
 Zimmers gewaehrleisten, und moechte den Kunden vielleicht auch in ein anderes Zimmer umbuchen. Ebenso koennte der Gast Verspaetung haben und seine Anreise
 verschieben. 
 */
+CREATE OR REPLACE RULE AnreisendeInsert AS ON INSERT 
+TO AnreisendeView
+DO INSTEAD NOTHING;
+
+CREATE OR REPLACE RULE AnreisendeDelete AS ON DELETE 
+TO AnreisendeView
+DO INSTEAD
+	UPDATE 	Reservierungen
+	SET 	Stornierungsnummer = nextval('IDSequenz'), gaestestatus='CANCELED'
+	WHERE 	OLD.gehoertZuhotel = Reservierungen. gehoertZuhotel
+		AND OLD.Zimmer = Reservierungen.Zimmer and OLD.reservierungsnummer = Reservierungen.reservierungsnummer;
 
 CREATE OR REPLACE RULE AnreisendeUpdateVip AS ON UPDATE   
 TO AnreisendeView WHERE OLD.VIP = false AND NEW.VIP = true
@@ -436,17 +486,6 @@ DO INSTEAD
 	SET 	Zimmer = NEW.Zimmer
 	WHERE	Reservierungen.gehoertZuHotel = NEW.gehoertZuHotel AND Zimmer = OLD.Zimmer;
 		
-CREATE OR REPLACE RULE AnreisendeInsert AS ON INSERT 
-TO AnreisendeView
-DO INSTEAD NOTHING;
-
-CREATE OR REPLACE RULE AnreisendeDelete AS ON DELETE 
-TO AnreisendeView
-DO INSTEAD
-	UPDATE 	Reservierungen
-	SET 	Stornierungsnummer = nextval('IDSequenz'), gaestestatus='CANCELED'
-	WHERE 	OLD.gehoertZuhotel = Reservierungen. gehoertZuhotel
-		AND OLD.Zimmer = Reservierungen.Zimmer and OLD.reservierungsnummer = Reservierungen.reservierungsnummer;
 
 /*
 2.8. freieKartenView
@@ -455,10 +494,6 @@ Delete: Eine Karte ist tatsächlich physikalisch zerstört und kann nicht mehr w
 Update: Ein Update des Karten ID macht kein Sinn. 
 Wir simulieren somit eine Registrierung von Blankokarten.
 */
-CREATE OR REPLACE RULE freieKartenUpdate AS ON UPDATE 
-TO freieKartenView
-DO NOTHING;
-
 CREATE OR REPLACE RULE freieKartenInsert AS ON INSERT
 TO freieKartenView
 DO INSTEAD
@@ -470,6 +505,9 @@ DO INSTEAD
 	DELETE FROM zimmerkarte
 	WHERE OLD.kartenid = zimmerkarte.kartenid;
 
+CREATE OR REPLACE RULE freieKartenUpdate AS ON UPDATE 
+TO freieKartenView
+DO INSTEAD NOTHING;
 
 /*
 2.9.kartenGueltigInsert
