@@ -564,10 +564,9 @@ INSERT INTO erhalten VALUES
 --BEZAHLEN
 
 INSERT INTO bezahlen VALUES
-	(4,55,now()),
-	(3,4, '2014-03-03 08:00:00'),
-	(9,87, '2014-07-04 08:00:00');
-
+	(4,55,'210,00',now()),
+	(3,4,'180,00', '2014-03-03 08:00:00'),
+	(9,87,'144,00','2014-07-04 08:00:00' );
 
 --Speisen und Geatraenke
 
