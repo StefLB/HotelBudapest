@@ -926,7 +926,7 @@ CREATE TRIGGER oeffnenInsertTrigger BEFORE INSERT ON oeffnet
 
 /*
 2.12.checkoutoforderTrigger
-Info: Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprüft werden, ob das Zimmer nicht doch beschädigt/nicht vermietbar ist (OUT OF ORDER)
+Info: Wenn Reservierungen auf 'ARRIVAL' geschaltet werden, muss geprueft werden, ob das Zimmer nicht doch beschaedigt(OUT OF ORDER) ist. 
 */
 CREATE OR REPLACE FUNCTION checkoutoforder() RETURNS TRIGGER 
 AS $$
