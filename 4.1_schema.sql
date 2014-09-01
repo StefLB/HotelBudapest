@@ -1,10 +1,19 @@
-﻿-- SCHEMA
+﻿/*
+SCHEMA
 
--- SEQUENZEN
+INHALTSANGABE:
+	1. SEQUENZEN
+	2. DOMAENEN
+	3. TYPEN
+	4. TABELLEN
+*/
+
+-- 1. SEQUENZEN
+
 
 CREATE SEQUENCE IDSequenz START 1;
 
--- DOMAENEN
+-- 2. DOMAENEN
 
 CREATE DOMAIN HOTELTYP varchar
 	CHECK (	VALUE = 'Romantik' OR 
@@ -100,7 +109,7 @@ CREATE DOMAIN ZIMMERKATEGORIE varchar
 		VALUE = 'TROM' OR	--Drei-Bett-Zimmer ohne Meerblick
 		VALUE = 'SUIT');
 
--- TYPEN
+-- 3. TYPEN
 
 CREATE TYPE Angebot AS (
 	Hotel int,
@@ -118,7 +127,7 @@ CREATE TYPE Anzahlnaechtetype AS (
 );
 
 
--- TABELLEN
+-- 4. TABELLEN
 
 CREATE TABLE Preistabelle (
 	CodeUndPosten varChar,		-- ein CodeUndPosten hat bspw. die Form 1-EZMM. Die Nummer korrespondiert 
