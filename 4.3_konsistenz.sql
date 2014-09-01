@@ -1088,7 +1088,7 @@ SELECT 	getNaechsteFreieKarte();
 --1.15. bereinigeAnfragen()
 -- Einige nicht beantwortete Anfragen sollen nach einiger Zeit verfallen. Seperat ausfuehren.
 SELECT 	Zimmeranfrage(3, 'SUIT',current_date+15, current_date+20,'ALL', 'KA',1, 1);
--- warten...und jetzt
+--...und jetzt
 SELECT 	Zimmeranfrage(3, 'SUIT',current_date+20, current_date+25,'ALL', 'KA',1, 1);
 
 -- nach einiger Zeit
@@ -1196,7 +1196,7 @@ Nun bucht sie eine weitere Uebernachtung und wird zum VIP.
 SELECT 	AnnahmeAngebot(100,(SELECT Zimmeranfrage(1, 'EZMM',current_date+30, current_date+40,'BRFST', 'KA',1, 1)::Angebot));
 SELECT 	*
 FROM 	Kunden
-WHERE Vorname LIKE 'Professor Paula';
+WHERE 	Vorname LIKE 'Professor Paula';
 
 /*
 2.11. TuerOeffner
