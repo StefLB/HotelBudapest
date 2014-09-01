@@ -1,6 +1,40 @@
-﻿--Daten--
+﻿/*
+DATEN
 
---Hotels--
+INHALTSANGABE:
+	1. Hotels
+	2. Kunden
+	3. Zimmer
+	4. Abteilungen
+	5. Restaurationen
+	6. Restaurant
+	7. Hotelbar
+	8. Schwimmbaeder
+	9. benutzen
+	10. Sporteinrichtungen
+	11. Golf
+	12. Minigolf
+	13. Tennisplaetze
+	14. Fahrraeder
+	15. mieten
+	16. Ausruestung
+	17. leihen
+	18. Reservierungen
+	19. Ablehnungen
+	20. Zimmerkarte
+	21. oeffnet
+	22. erhalten
+	23. bezahlen
+	24. SpeisenundGeatraenke
+	25. wirdServiertIn
+	26. Essen
+	27. Getraenke
+	28. konsumieren
+	29. Preistabelle
+
+*/
+
+-- 1. Hotels
 INSERT INTO Hotel VALUES
 	(DEFAULT,'Hotel Budapest', 'Am schwarzen Weg 166, 66121 Traumstadt', 'Romantik', 1),
 	(DEFAULT, 'Hotel NoSleep', 'Loud Avenue 10, 59874 Elinoise', 'Business',1),
@@ -9,7 +43,7 @@ INSERT INTO Hotel VALUES
 	(DEFAULT, 'BudgetInn', 'Jansbillig 1, 00001 Pennyton', 'Budget',1),
 	(DEFAULT, 'The Shining', 'Scary Road 666, 66666 De Vilstown', 'Family',1);
 
---Kunden--
+-- 2. Kunden
 insert into Kunden (erstellungszeitpunkt,vorname,nachname,Adresse,VIP) values (now(),'Michelle','Hamilton', 'Ingolstadt',true);
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(), 'Adam','Frazier');
 insert into Kunden ( erstellungszeitpunkt,vorname,nachname) values ( now(),'Jesse','King');
@@ -119,7 +153,7 @@ INSERT INTO Kunden(KID,Vorname,Nachname) VALUES (DEFAULT,'','');
 
 
 
---Zimmer
+-- 3. Zimmer
 
 --Hotel Budapest--
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen) values (1,1,'EZMM',false,false,1);
@@ -284,7 +318,7 @@ insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outofo
 insert into  Zimmer (gehoertZuHotel, Zimmernummer,Zimmerkategorie,dreckig,outoforder,maxpersonen)values(6,25,'SUIT',true,false,4);
 
 
---Abteilungen
+-- 4. Abteilungen
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(1,1, 'MO-SO 07/23', 'Traumstadt', 'Budapest Restaurant');
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values (3,1,'MO-SO 07/23', 'Werlin','Golden Food' );
 insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values(2,1, '24/7', 'Elinoise', 'FastLunch');
@@ -316,7 +350,7 @@ insert into  abteilung (gehoertZuHotel, AID,Oeffnungszeiten,Location,name)values
 
 
 
---Restaurationen
+-- 5. Restaurationen
 
 INSERT INTO restauration VALUES
 	(1,1),
@@ -331,7 +365,7 @@ INSERT INTO restauration VALUES
 	(6,2),
 	(3,6);
 
---Restaurant
+-- 6. Restaurant
 
 INSERT INTO restaurant values
 	(1,1,'organic',1),
@@ -342,7 +376,7 @@ INSERT INTO restaurant values
 	(3,6, 'urbanisch',2);
 
 
---Hotelbar
+-- 7. Hotelbar
 
 INSERT INTO hotelbar VALUES
 	(1,2), 
@@ -351,7 +385,7 @@ INSERT INTO hotelbar VALUES
 	(4,2), 
 	(6,2); 
 
---Schwimmbaeder
+-- 8. Schwimmbaeder
 
 INSERT INTO schwimmbad VALUES
 	(1,3,25, true, 5.00),
@@ -359,7 +393,7 @@ INSERT INTO schwimmbad VALUES
 	(4,3, 50, true, 10.00),
 	(4,4, 25, true, 10.00);
 
---BENUTZEN--
+-- 9. benutzen 
 
 INSERT INTO benutzen VALUES
 	(3,3, 55, now()+ interval '1 hours',now()+ interval'3 hours'),
@@ -373,7 +407,7 @@ INSERT INTO benutzen VALUES
 
 
 
---SPORTEINRICHTUNGEN--
+-- 10. Sporteinrichtungen
 
 INSERT INTO sporteinrichtungen VALUES
 	(3,5,25.00),
@@ -388,17 +422,17 @@ INSERT INTO sporteinrichtungen VALUES
 	(6,10, 3.00),
 	(6,11, 3.00);
 
---Golfplaetze
+-- 11. Golf
 
 INSERT INTO golf VALUES
 	(3,5, 2);
 
---Minigolf
+-- 12. Minigolf
 
 INSERT INTO minigolf VALUES
 	(6,4,1);
 
---Tennisplätze
+-- 13. Tennisplaetze
 
 INSERT INTO tennisplaetze VALUES
 	(4,5,'Astroturf'),
@@ -406,7 +440,7 @@ INSERT INTO tennisplaetze VALUES
 	(4,7, 'Gummiplatz'),
 	(4,8, 'Astroturf');
 
---Fahrräder
+-- 14. Fahrraeder
 
 INSERT INTO fahrraeder VALUES
 	(6,7, 16, 'BMX'),
@@ -416,10 +450,7 @@ INSERT INTO fahrraeder VALUES
 	(6,11, 16,'Xtreme');
 
 
-
-
-
---mieten
+-- 15. mieten
 
 INSERT INTO mieten VALUES
 	(4,5,43, '2014-10-19 10:00:00', '2014-10-19 11:00:00'),
@@ -431,7 +462,7 @@ INSERT INTO mieten VALUES
 	(6,10,88, '2014-08-17 10:00:00', '2014-08-17 12:00:00'),
 	(6,10,88, '2014-08-18 10:00:00', '2014-08-18 12:00:00');
 
---Ausruestung 
+-- 16. Ausruestung 
 
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Schlaeger', 1, 5,4);
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Helm', 1, 7,6);
@@ -442,11 +473,11 @@ insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinr
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Golftasche', 5, 5,4);
 insert into  ausruestung (Ausruestungstyp, Ausruestungsnummer,gehoertZuSporteinrichtung,gehoertZuHotel) values('Schlaeger', 4, 5,4);
 
---leihen
+-- 17. leihen
 INSERT INTO leihen VALUES
 	(4,5,43, 1, 'Schlaeger',  '2014-10-19 10:00:00', '2014-10-19 11:00:00');
 
---RESERVIERUNGEN
+-- 18. Reservierungen
 
 insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnummer,Verpflegungsstufe,Zimmerkategorie, Anreise, Abreise, Gaestestatus, Wuensche,Personenanzahl, Reservierungszeitpunkt, reserviertvonKunde,Zimmer, gehoertzuhotel) 
 	values(DEFAULT, 150.00,NULL, 'ROOM', 'DZMM', current_date, '2014-10-20', 'ARRIVAL', 'KA', 1, now(), 1, 10, 1 );
@@ -506,12 +537,12 @@ insert into  reservierungen (reservierungsnummer, Zimmerpreis, Stornierungsnumme
 	values(DEFAULT, 240.00,NULL, 'ROOM', 'SUIT', '2014-08-16', '2014-12-31', 'IN-HOUSE', 'moechte Weckruf mit Milli Vanilli Musik', 3, now(), 54, 13, 3 );
 
 
---ABLEHNUNGEN
+-- 19. Ablehnungen
 
 INSERT INTO ablehnungen VALUES
 	(6, 'doof', now() );
 
---Zimmerkarte
+-- 20. Zimmerkarte
 
 INSERT INTO Zimmerkarte VALUES
 	(DEFAULT, false),
@@ -528,7 +559,7 @@ INSERT INTO Zimmerkarte VALUES
 	(DEFAULT, false);
 
 
---oeffnet
+-- 21. oeffnet
 
 INSERT INTO oeffnet VALUES
 (2,14,3, '2014-08-01 14:00:00'),
@@ -545,7 +576,7 @@ INSERT INTO oeffnet VALUES
 
 	
 
---erhalten
+-- 22. erhalten
 
 INSERT INTO erhalten VALUES
 	(55,1,4),
@@ -561,14 +592,14 @@ INSERT INTO erhalten VALUES
 	(54,12,28);
 
 
---BEZAHLEN
+-- 23. bezahlen
 
 INSERT INTO bezahlen VALUES
 	(4,55,'210,00',now()),
 	(3,4,'180,00', '2014-03-03 08:00:00'),
 	(9,87,'144,00','2014-07-04 08:00:00' );
 
---Speisen und Geatraenke
+-- 24. SpeisenundGeatraenke
 
 INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Bolognese', 12.00, 'Hauptspeise'); 
 INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Tomate-Mozzarella', 8.00, 'Vorspeise');
@@ -587,7 +618,7 @@ INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('nKurzer', 3.
 INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Kaffee', 2.50, 'Heissgetraenk');
 INSERT INTO speisenundgetraenke (name, preis, menukategorie)VALUES('Vodka', 3.50,'Hochprozentiges');
 
---wird serviert in
+-- 25. wirdServiertIn
 
 INSERT INTO wirdserviertin VALUES
 	(1,1,1),
@@ -639,7 +670,7 @@ INSERT INTO wirdserviertin VALUES
 	
 
 
---ESSEN
+-- 26. Essen
 
 INSERT INTO Essen VALUES
 	(1,NULL),
@@ -653,7 +684,7 @@ INSERT INTO Essen VALUES
 	(9, NULL),
 	(10, 'vegetarisch');
 
---Getraenke
+-- 27. Getraenke
 
 INSERT INTO Trinken VALUES
 	(11, NULL),
@@ -664,7 +695,7 @@ INSERT INTO Trinken VALUES
 	(16,  NULL);
 
 
---konsumieren
+-- 28. konsumieren
 
 INSERT INTO konsumieren VALUES
 	(4,1 ,43,9, now()),
@@ -693,7 +724,7 @@ INSERT INTO konsumieren VALUES
 
 	
 
---preistabelle
+-- 29. Preistabelle
 
 INSERT INTO preistabelle VALUES
 	('1-ROOM', 0.00),
