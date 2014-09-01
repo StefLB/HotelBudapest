@@ -459,33 +459,36 @@ DO INSTEAD
 		AND OLD.Zimmer = Reservierungen.Zimmer and OLD.reservierungsnummer = Reservierungen.reservierungsnummer;
 
 CREATE OR REPLACE RULE AnreisendeUpdateVip AS ON UPDATE   
-TO AnreisendeView WHERE OLD.VIP = false AND NEW.VIP = true
-DO INSTEAD
+TO AnreisendeView WHERE OLD.VIP != NEW.VIP
+DO
 	UPDATE 	Kunden
-	SET 	VIP = true
+	SET 	VIP = NEW.VIP
 	WHERE	KID = NEW.reserviertVonKunde;
 
 CREATE OR REPLACE RULE AnreisendeUpdateAnreise AS ON UPDATE   
-TO AnreisendeView 
-DO INSTEAD
+TO AnreisendeView WHERE New.Anreise != Old.Anreise
+DO
 	UPDATE 	reservierungen
 	SET 	anreise = New.anreise
 	WHERE	Old.reservierungsnummer = reservierungen.reservierungsnummer;
 
-CREATE OR REPLACE RULE AnreisendeUpdateAbreise AS ON UPDATE   
-TO AnreisendeView 
-DO INSTEAD
+CREATE OR REPLACE RULE AnreisendeUpdateAbreise AS ON UPDATE
+TO AnreisendeView WHERE New.Abreise != Old.Abreise
+DO
 	UPDATE 	reservierungen
 	SET 	abreise = New.abreise
 	WHERE	Old.reservierungsnummer = reservierungen.reservierungsnummer;
 
 CREATE OR REPLACE RULE AnreisendeUpdateZimmer AS ON UPDATE   
 TO AnreisendeView WHERE OLD.Zimmer !=  NEW.Zimmer
-DO INSTEAD
+DO
 	UPDATE 	Reservierungen
 	SET 	Zimmer = NEW.Zimmer
 	WHERE	Reservierungen.gehoertZuHotel = NEW.gehoertZuHotel AND Zimmer = OLD.Zimmer;
 		
+CREATE OR REPLACE RULE AnreisendeUpdate AS ON UPDATE   
+TO AnreisendeView
+DO INSTEAD NOTHING;
 
 /*
 2.8. freieKartenView
