@@ -74,7 +74,6 @@ Reservierungen auf andere Kunden umgeschrieben werden.
 	DELETE FROM bewohnteZimmerView WHERE gehoertzuhotel=2;
 	DELETE FROM bewohnteZimmerView WHERE gehoertzuhotel=5;
 
-
 /*
 1.3. ReinigungspersonalView
 Info: Obwohl ein Insert oder Delete hier nicht sinnvoll ist, macht ein Update von dreckig = false Sinn, etwa
@@ -171,11 +170,11 @@ Es sei erwaehnt, dass Sichten, die WITH enthalten, nicht automatisch aktualisier
 	INSERT INTO AnreisendeView (gehoertzuhotel, zimmer) 
 	VALUES(5,12);
 
-	-- Gast ist prominent
+	-- Herr Frazier ist prominent
 	UPDATE AnreisendeView
 	SET Vip=true
-	WHERE gehoertzuhotel=1 and zimmer=10;
-	-- Gast soll manuell in besseres Zimmer umgebucht werden
+	WHERE gehoertzuhotel=1 and zimmer=1;
+	-- Herr Hamilton soll manuell in besseres Zimmer umgebucht werden
 	UPDATE AnreisendeView
 	SET Zimmer= 40 
 	WHERE gehoertzuhotel=1 and zimmer=10;
