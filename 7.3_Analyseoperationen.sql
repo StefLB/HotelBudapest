@@ -1,4 +1,5 @@
-﻿/* ANALYSOPERATIONEN
+﻿/* 
+ANALYSOPERATIONEN
 
 	1. Hotel-Mogul Frau Dreist ist heimliche Promijaegerin. Sie moechte jeden Tag immer an dem Hotel dienstlich taetig sein, wo die meisten VIPs anreisen.
 	2. Welche Anreisenden Gaeste werden mehr als 100 Tage bei uns uebernachten, und wann reisen sie ab. Ein Geschenk oder sowas zum Abschied ist denkbar.
