@@ -348,8 +348,8 @@ $$ LANGUAGE plpgsql;
 
 /*
 1.10. Rechnungsposten(Hotelnummer int, Zimmernummer int)
-Ausammeln aller Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
-Entspricht einem Zimmerkonto 
+Returns: alle Posten, die wahrend der aktuellen Reservierung aufs Zimmer gebucht wurden
+Benoetigt fuer: die Berechnung des endgueltigen Rechnungsbetrags
 */
 CREATE OR REPLACE FUNCTION Rechnungsposten(Hotelnummer int, Zimmernummer int) 
 RETURNS TABLE(Posten varChar, Zeitpunkt timestamp, postenpreis money)
@@ -392,8 +392,8 @@ $$ LANGUAGE plpgsql;
 
 /*
 1.11 gourmetGast (Hotel int)
-Ein Gast moechte alle Hotel Restaurants angezeigt bekommen die mehr als 1 Stern haben,
-dazu das exklusivste (Teuerste) Gericht. 
+Returns: Alle Restaurants eines Hotels die mehr als 1 Stern haben, und dazu das exklusivste (Teuerste) Gericht. 
+Benoetigt fuer: Funktionalitaet fuer Gaeste
 */
 CREATE OR REPLACE FUNCTION gourmetGast(Hotel int) RETURNS TABLE(Restaurantname varChar, Location varChar, Sterne int, ExklusivMenu varChar,Preis money)
 AS $$
@@ -423,8 +423,8 @@ $$ LANGUAGE plpgsql;
 
 
 /*1.12 freieSportplaetze(Hotel int)
--- freieSportplaetze 
--- Ein Gast moechte sehen, welche Sportplaetze am jetzigen Tag noch frei zum vermieten sind
+Returns: Sportplaetze die am jetzigen Tag noch frei zu vermieten sind. 
+Benoetigt fuer: Funktionalitaet fuer Gaeste
 */
 CREATE OR REPLACE FUNCTION freieSportplaetze(Hotel int) RETURNS TABLE(Sportplatz varChar, Location varChar, Oeffnungszeiten Oeffnungszeit)
 AS $$
@@ -466,7 +466,7 @@ $$ LANGUAGE plpgsql;
 /*
 1.14. getNaechsteFreieKarte
 Returns: naechste freie zimmerkarte 
-Benoetigt fuer: 
+Benoetigt fuer: die Vergabe der Zimmerkarten bei Ankunft eines Gastes oder Verlust einer Karte
 */
 CREATE OR REPLACE FUNCTION getNaechsteFreieKarte() RETURNS int
 AS $$
@@ -487,7 +487,8 @@ $$ LANGUAGE plpgsql;
 
 /*
 1.15. bereinigeAnfragen()
-Info: Nicht angenomme oder abgelehnte Anfragen muessen nach einer gewissen Zeit verfallen, damit die Zimmer wieder freigegeben sind. Bei unserem Bespiel einer 
+Returns: void
+Benoetigt fuer: Nicht angenomme oder abgelehnte Anfragen muessen nach einer gewissen Zeit verfallen, damit die Zimmer wieder freigegeben sind. Bei unserem Bespiel einer 
 Web-Anfrage waere ein Time-Out nach einigen Minuten denkbar. Dann muesste man erneut die Anfrage stellen. Wir moechten sie dennoch in der Statistik behalten. 
 Daher loeschen wir sie nicht. 
 */
@@ -759,7 +760,7 @@ ON Reservierungen
 /*
 2.7. KartenvergabeTrigger
 Info: Jeder Kunde erhaelt n Karten fuer sein Zimmer beim Einchecken, wobei n = Anzahl an Personen im Zimmer.
-Benoetigt fuer: die 1:1:N Beziehung da jeder Kunde N Karten zu 1 Reservierung. 
+Benoetigt fuer: die 1:1:N Beziehung da jeder Kunde zu 1 Reservierung N Karten erhaelt. 
 */
 CREATE OR REPLACE FUNCTION kartenvergabe() RETURNS TRIGGER 
 AS $$
@@ -827,7 +828,7 @@ ON Zimmerkarte
 
 /*
 2.9. CheckOutTrigger 
-Info: Beim CHECK-OUT des Kunden, wir zuerst ueberprueft ob der Kunde schon bezahlt hat. Dann werden die Zugriffsrechte der Zimmerkarten
+Info: Beim CHECK-OUT des Kunden, wird zuerst ueberprueft ob der Kunde schon bezahlt hat. Dann werden die Zugriffsrechte der Zimmerkarten
 aus erhalten geloescht. 
 */
 CREATE OR REPLACE FUNCTION checkOut() RETURNS TRIGGER 
