@@ -208,7 +208,7 @@ CREATE OR REPLACE VIEW HotelmanagerView AS
 
 /*
 1.5. NichtBezahltKundenView
-Zeigt an: Reservierungen mit den dazugehörigen Kundenummern,Anreise,Abreise und Hotel, die noch nicht bezahlt haben
+Zeigt an: Reservierungen mit den dazugehoerigen Kundenummern,Anreise,Abreise und Hotel, die noch nicht bezahlt haben
 Benoetigt fuer: UnbezahlteReservierungView
 */
 CREATE or REPLACE VIEW NichtBezahltKundenView AS
